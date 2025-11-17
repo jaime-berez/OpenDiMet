@@ -1,0 +1,39 @@
+% DEMO_FIT_GEOMETRIES_SIMPLE
+% Simplified demo for fitting and plotting one of:
+% Line / Plane / Circle / Sphere / Cylinder / Cone
+%
+% Hard-coded workflow:
+%   1) Define folder path containing coordinate data sets
+%   2) Define file name for a single coordinate data set representing a
+%   single feature (line, plane, circle, cylinder, sphere, or cone)
+%   3) Optionally, define a desired name for the feature
+%   4) Load data, fit, plot, and display object
+
+clc; close all; clear;
+
+%% ---- User Input ----
+
+% Define directory for data
+rootDirectory = fullfile(fileparts(mfilename('fullpath')), 'data');
+
+% Define the geometry specific o
+
+% Define files with raw coordinate data to import
+file = "sph2.txt";
+
+featureName = extractBefore(file,"."); % By default, file name (without extension) is used as feature name
+
+%% ---- Load data ----
+data1 = readmatrix(fullfile(rootDirectory,file));
+
+%% ---- Fit the selected geometry ----
+myFeature = fitFeature(featureName, data1, "Sphere", "LeastSquares");
+    
+%% ---- Report fitted parameters, plot result----
+disp(myFeature);
+
+figure();
+myFeature.plot(); % Colors, labels, etc. all set by default
+
+figure();
+myFeature.plot([1 0 0],"my data",[0 1 1],"my fit"); % You can also set the colors [R G B] and labels
