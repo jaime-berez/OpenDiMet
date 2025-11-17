@@ -4,16 +4,34 @@ Developed and maintained by the Berez lab group from the Center for Precision Me
 Development partially supported by the industrial affiliates of the Center for Precision Metrology. <br>
 Contact: Jaime Berez, jberez@charlotte.edu
 ***
-Version 0.1 (released 2025-11-18
+Version 0.1 (released 2025-11-18)
 ***
-Executables <br>
+**Executables** <br>
 Download OpenDiMetApp.exe to install an executable that includes MATLAB Runtime, enabling users without a MATLAB license to run the software through a UI.
 ***
-Software requirements <br>
-MATLAB R2024a or later required.
-...
+**Software requirements** <br>
+| Component | Requirement |
+|:-------------:|--------------:|
+| MATLAB        | R2024a+     |
+| Toolboxes       | Statistics and Machine Learning Toolbox    | 
+| Operating System | Windows, MacOS, Linux (Primarily tested on Windows) |
 ***
-Quick-start guide <br>
-For users with Git installed: ...
-For users without Git, simply download the entire package set the working directory in MATLAB...
-Demo_FitGeometriesSimple is a demonstration script that walks users through basic functionalities of the toolbox.
+**Quick-start guide** <br>
+For users with Git installed:
+
+```bash
+git clone https://github.com/jaime-berez/OpenDiMet.git
+cd DimensionalMetrology
+addpath(genpath(pwd))
+```
+
+Or optionally from MATLAB:
+
+Right Click in Files section > Source Control > Clone Git Repository > Paste URL: https://github.com/jaime-berez/OpenDiMet.git <br>
+
+For users without Git: <br>
+
+Simply download the entire package and set the working directory in MATLAB.
+
+**demo_fit_geometries_simple** is a demonstration script that walks users through basic functionalities of the toolbox.
+
