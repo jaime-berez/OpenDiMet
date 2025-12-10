@@ -1,14 +1,12 @@
 # OpenDiMet
 Dimensional metrology toolbox to support the processing of coordinate data to perform dimensional measurements. <br>
-Developed and maintained by the Berez lab group from the Center for Precision Metrology at UNC Charlotte. <br>
+Development is ongoing and new pushes to the main branch occur every few months, if not more frequently. <br>
+Developed and maintained by the Berez lab group, Center for Precision Metrology, UNC Charlotte. <br>
+Past and current contributors include: J. Berez, A. Thompson, I. Islam. 
 Development partially supported by the industrial affiliates of the Center for Precision Metrology. <br>
 Contact: Jaime Berez, Asst. Professor | jberez@charlotte.edu
 ***
 Version 0.1 (released 2025-11-18)
-***
-**Executables** <br>
-Download OpenDiMetApp.exe to install an executable that includes MATLAB Runtime, enabling users without a MATLAB license to run the software through a UI.
-***
 **Software requirements** <br>
 | Component | Requirement |
 |:-------------:|--------------:|
@@ -31,3 +29,7 @@ For users without Git: <br>
 Simply download the entire package and set the working directory in MATLAB.
 
 **demo_fit_geometries_simple** is a demonstration script that walks users through basic functionalities of the toolbox.
+***
+**Executables** <br>
+Download OpenDiMetApp.exe to install an executable that includes MATLAB Runtime, enabling users without a MATLAB license to run the software through a UI.
+***
