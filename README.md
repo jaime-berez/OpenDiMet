@@ -1,8 +1,8 @@
 # OpenDiMet
-Dimensional metrology toolbox to support the processing of coordinate data to perform dimensional measurements. <br>
+OpenDiMet is a toolbox to support the processing of coordinate data to perform dimensional metrology. <br>
 Development is ongoing and new pushes to the main branch occur every few months, if not more frequently. <br>
 Developed and maintained by the Berez lab group, Center for Precision Metrology, UNC Charlotte. <br>
-Past and current contributors include: J. Berez, A. Thompson, I. Islam. 
+Past and current contributors include: J. Berez, A. Thompson, I. Islam. <br>
 Development partially supported by the industrial affiliates of the Center for Precision Metrology. <br>
 Contact: Jaime Berez, Asst. Professor | jberez@charlotte.edu
 ***
