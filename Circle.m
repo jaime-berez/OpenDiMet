@@ -82,12 +82,14 @@ classdef Circle < Feature
             radius = diameter2d/2;
             guess3d = [point2d,direction,radius];
          
-            [ans3d, ~, sigma, info] = LM.solve(fcn3D,guess3d, MaxIter, StepTol, GradTol, ...
+            [ans3d, resnorm3d, residual3d, info] = LM.solve(fcn3D,guess3d, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
             point = [ans3d(1),ans3d(2),ans3d(3)];
             diameter = ans3d(4)*2; % ans3d(4) is the radius, so multiply by 2 to get the diameter
             point = point+centroid;
 
+            numParams = 4;
+            obj.sigma = Feature.computeSigmaFromResiduals(residual3d, numParams);
             obj.point = point;
             obj.direction = direction;
             obj.diameter = diameter;
@@ -130,6 +132,7 @@ classdef Circle < Feature
             point = obj.point(:).';
             direction = obj.direction(:).';
             diameter = obj.diameter;
+            sigma = obj.sigma;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
@@ -138,6 +141,7 @@ classdef Circle < Feature
             fprintf('  Point:           [%.5f  %.5f  %.5f]\n', point);
             fprintf('  Direction:       [%.5f  %.5f  %.5f]\n', direction);
             fprintf('  Diameter:        %.5f\n', diameter);
+            fprintf('  Sigma:           %.5f\n', sigma);
         end
 
         function showFitInfo(obj)
@@ -165,8 +169,17 @@ classdef Circle < Feature
             x = @(q) q(1)-xD;
             y = @(q) q(2)-yD;
             fcn2D = @(q) sqrt(x(q).^2+y(q).^2)-q(4); % format the objective function
+
+            MaxIter        = 5000;
+            StepTol        = 1e-20;
+            GradTol        = 1e-12;
+            SSETol         = 1e-18;
+            Lambda         = 1e-4;
+            DampingCoeff   = 2;
+            SuppressOutput = true;
             
-            ans2d = LM.solve(fcn2D,guess2d,5000,1e-20);
+            ans2d = LM.solve(fcn2D,guess2d, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
             point = [ans2d(1),ans2d(2),ans2d(3)];
             rad2d=ans2d(4);
             diameter=2*rad2d;
