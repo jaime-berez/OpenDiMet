@@ -96,7 +96,7 @@ classdef Plane < Feature
                 'HandleVisibility', 'off');
             
             [X,Y,Z] = calcPlaneCorners(data, point, direction); %calculate the corners of the plane for plotting
-            Plot.plotPlane(X,Y,Z, fitColor, 0.4, "N", fitColor); %plot the associated plane
+            Plot.plotPlane(X,Y,Z, fitColor, 0.4, "N", fitColor, fitLabel); %plot the associated plane
             title(ax, fitLabel);
             xlabel("x"); ylabel("y"); zlabel("z");
 
