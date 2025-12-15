@@ -21,11 +21,19 @@ classdef Plane < Feature
     end
     methods
         % Constructor method for the Plane class
-        function obj = Plane(name, data, associationCriteria)
+        function obj = Plane(name, data, associationCriteria, opts)
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
+                % Dummy LM-style options
+                opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
+                opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
+                opts.GradTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-11
+                opts.SSETol        (1,1) double {mustBeFinite, mustBePositive} = 1e-19
+                opts.Lambda        (1,1) double {mustBeFinite, mustBePositive} = 1e-4
+                opts.DampingCoeff  (1,1) double {mustBeFinite, mustBePositive} = 2
+                opts.SuppressOutput(1,1) logical = true
             end
             obj@Feature(name, data, associationCriteria);
             obj.validateAssociation();
@@ -49,6 +57,9 @@ classdef Plane < Feature
 
             direction = eigVec(:, idx).';  % 1x3 normal
             direction = direction / norm(direction);
+            residuals = X * direction.';   % Signed distance to the plane
+            numParams = 3;
+            obj.sigma = Feature.computeSigmaFromResiduals(residuals, numParams);
             obj.point = centroid;
             obj.direction = direction;
             obj.fitInfo = struct('method', 'SVD', 'description', ['Least-squares plane fit using ' ...
@@ -120,6 +131,7 @@ classdef Plane < Feature
             data = obj.data;
             point = obj.point(:).';
             direction = obj.direction(:).';
+            sigma = obj.sigma;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
@@ -127,6 +139,7 @@ classdef Plane < Feature
             fprintf('  AssociationCriteria: %s\n', char(assoc));
             fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction:       [%.4f  %.4f  %.4f]\n', direction);
+            fprintf('  Sigma:           %.4f\n', sigma);
         end
     end
 end

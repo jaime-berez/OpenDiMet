@@ -22,12 +22,20 @@ classdef Line < Feature
     end
 
     methods
-        function obj = Line(name, data, associationCriteria)
+        function obj = Line(name, data, associationCriteria, opts)
             % Constructor function for the Line Class
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
+                % Dummy LM-style options
+                opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
+                opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
+                opts.GradTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-11
+                opts.SSETol        (1,1) double {mustBeFinite, mustBePositive} = 1e-19
+                opts.Lambda        (1,1) double {mustBeFinite, mustBePositive} = 1e-4
+                opts.DampingCoeff  (1,1) double {mustBeFinite, mustBePositive} = 2
+                opts.SuppressOutput(1,1) logical = true
             end
             obj@Feature(name, data, associationCriteria);
             obj.validateAssociation();
@@ -48,6 +56,10 @@ classdef Line < Feature
 
             direction = eigVec(:, idx).';   
             direction = direction / norm(direction);  
+
+            residuals = calcStraightnessResiduals(data, point, direction);
+            numParams = 4;
+            obj.sigma = Feature.computeSigmaFromResiduals(residuals, numParams);
 
             obj.point = point;
             obj.direction = direction; % Store the direction vector in the object
@@ -105,6 +117,7 @@ classdef Line < Feature
             data = obj.data;
             point = obj.point;
             direction = obj.direction;
+            sigma = obj.sigma;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
@@ -112,6 +125,7 @@ classdef Line < Feature
             fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
             fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction:       [%.4f  %.4f  %.4f]\n', direction);
+            fprintf('  Sigma:           %.4f\n', sigma);
         end
     end
 end
