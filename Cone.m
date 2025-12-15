@@ -103,7 +103,7 @@ classdef Cone < Feature
             bestInfo = infos{ind};
             resBest = residuals{ind};
             numParams = numel(qbest);
-            obj.sigma = Feature.computeSigmaFromResiduals(resBest, numParams);
+            obj.sigma = calcSigmaFromResiduals(resBest, numParams);
             [point, direction, angle, distance, apex] = Cone.formatOutput(qbest, centroid);
 
             % Derive smallR / bigR from data span

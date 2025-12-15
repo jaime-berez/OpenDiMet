@@ -77,7 +77,7 @@ classdef Sphere < Feature
             point = [answer(1),answer(2),answer(3)];
             diameter =answer(4)*2;
             numParams = numel(answer);
-            obj.sigma = Feature.computeSigmaFromResiduals(residual, numParams);
+            obj.sigma = calcSigmaFromResiduals(residual, numParams);
             obj.point = point;
             obj.diameter = diameter;
 

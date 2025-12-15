@@ -89,7 +89,7 @@ classdef Circle < Feature
             point = point+centroid;
 
             numParams = 4;
-            obj.sigma = Feature.computeSigmaFromResiduals(residual3d, numParams);
+            obj.sigma = calcSigmaFromResiduals(residual3d, numParams);
             obj.point = point;
             obj.direction = direction;
             obj.diameter = diameter;

@@ -57,20 +57,4 @@ classdef Feature
             end
         end
     end
-
-    methods(Static, Access = protected)
-
-        function sigma = computeSigmaFromResiduals(residuals, numParams)
-
-            residuals = residuals(:);
-            n = numel(residuals);
-            p = numParams;
-
-            if n>p
-                sigma = sqrt(sum(residuals.^2) / (n-p));
-            else
-                sigma = NaN;
-            end
-        end
-    end
 end

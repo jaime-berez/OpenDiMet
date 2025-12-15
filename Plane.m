@@ -59,7 +59,7 @@ classdef Plane < Feature
             direction = direction / norm(direction);
             residuals = X * direction.';   % Signed distance to the plane
             numParams = 3;
-            obj.sigma = Feature.computeSigmaFromResiduals(residuals, numParams);
+            obj.sigma = calcSigmaFromResiduals(residuals, numParams);
             obj.point = centroid;
             obj.direction = direction;
             obj.fitInfo = struct('method', 'SVD', 'description', ['Least-squares plane fit using ' ...
