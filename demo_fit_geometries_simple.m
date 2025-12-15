@@ -27,7 +27,7 @@ data1 = readmatrix(rootDirectory+file);
 
 %% ---- Fit the selected geometry ----
 
-myFeature = fitFeature(featureName, data1, "Line", "LeastSquares", MaxIter = 5000, StepTol = 1e-9, ...
+myFeature = fitFeature(featureName, data1, "Line", "LeastSquares",  MaxIter = 5000, StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
     
 %% ---- Report fitted parameters, plot result----
