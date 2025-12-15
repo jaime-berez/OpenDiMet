@@ -71,12 +71,13 @@ classdef Sphere < Feature
             fcn = @(q) sqrt(x(q).^2+y(q).^2+z(q).^2)-q(4);
             
              % Associate a sphere
-            [answer, ~, ~, info] = LM.solve(fcn,guess, MaxIter, StepTol, GradTol, ...
+            [answer, resnorm, residual, info] = LM.solve(fcn,guess, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
         
             point = [answer(1),answer(2),answer(3)];
             diameter =answer(4)*2;
-
+            numParams = numel(answer);
+            obj.sigma = Feature.computeSigmaFromResiduals(residual, numParams);
             obj.point = point;
             obj.diameter = diameter;
 
@@ -131,6 +132,7 @@ classdef Sphere < Feature
             data = obj.data;
             point = obj.point(:).';
             diameter = obj.diameter;
+            sigma = obj.sigma;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
@@ -138,6 +140,7 @@ classdef Sphere < Feature
             fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
             fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Diameter:        %.4f\n', diameter);
+            fprintf('  Sigma:           %.4f\n', sigma);
         end
     end
 end

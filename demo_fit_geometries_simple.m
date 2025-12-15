@@ -15,10 +15,10 @@ clc; close all; clear;
 
 % Define directory for data
 rootDirectory = "G:\Shared drives\research-BerezLab-GroupDrive\ResearchProjects\OpenDiMet" + ...
-    "\Test Data\NIST Reference Pairs TXT FILES\CylinderPoints\"; % WE NEED THIS TO BE PACKAGED WITH THE REPO SO THAT USERS CAN DOWNLOAD
+    "\Test Data\NIST Reference Pairs TXT FILES\SpherePoints\"; % WE NEED THIS TO BE PACKAGED WITH THE REPO SO THAT USERS CAN DOWNLOAD
 
 % Define files with raw coordinate data to import
-file = "cyl1.txt";
+file = "sph1.txt";
 
 featureName = extractBefore(file,"."); % By default, file name (without extension) is used as feature name
 
@@ -27,7 +27,7 @@ data1 = readmatrix(rootDirectory+file);
 
 %% ---- Fit the selected geometry ----
 
-myFeature = fitFeature(featureName, data1, "Cylinder", "LeastSquares", MaxIter = 5000, StepTol = 1e-9, ...
+myFeature = fitFeature(featureName, data1, "Sphere", "LeastSquares", MaxIter = 5000, StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
     
 %% ---- Report fitted parameters, plot result----
