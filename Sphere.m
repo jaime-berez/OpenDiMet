@@ -93,10 +93,10 @@ classdef Sphere < Feature
                 obj
                 dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
                     mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = 'Data Points'
+                dataLabel (1,:) char = obj.name + ' Data'
                 fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
                     mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = 'Fitted Sphere'  
+                fitLabel (1,:) char = obj.name + ' Fit'  
                 faces (1,1) double = 27
                 ax = []
             end
