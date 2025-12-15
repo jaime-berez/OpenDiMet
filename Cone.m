@@ -34,18 +34,34 @@ classdef Cone < Feature
     end 
 
     methods
-        function obj = Cone(name, data, associationCriteria)
+        function obj = Cone(name, data, associationCriteria, opts)
             % Constructor method for the Cone class
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
+
+                % Name-value options for LM
+                opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
+                opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-9
+                opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-11
+                opts.SSETol (1,1) double {mustBeFinite, mustBePositive} = 1e-19
+                opts.Lambda (1,1) double {mustBeFinite, mustBePositive} = 1e-4
+                opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
+                opts.SuppressOutput (1,1) logical = true
             end
 
             obj@Feature(name, data, associationCriteria);
             obj.validateAssociation();
             % Useful document: https://www.mathworks.com/company/technical-articles/tips-and-tricks-combining-functions-using-anonymous-functions.html
-    
+            
+            MaxIter = opts.MaxIter;
+            StepTol = opts.StepTol;
+            GradTol = opts.GradTol;
+            SSETol = opts.SSETol;
+            Lambda = opts.Lambda;
+            DampingCoeff = opts.DampingCoeff;
+            SuppressOutput = opts.SuppressOutput;
             centroid = mean(data);
             data1 = data-centroid; % translate data to the origin
         
@@ -72,9 +88,12 @@ classdef Cone < Feature
             
             fcn = @(q) Cone.opFun(q, xD, yD, zD);
         
-            [ans1,res(1), ~, info1] = LM.solve(fcn,guess1,5000,1e-20);
-            [ans2,res(2), ~, info2] = LM.solve(fcn,guess2,5000,1e-20);
-            [ans3,res(3), ~, info3] = LM.solve(fcn,guess3,5000,1e-20);
+            [ans1,res(1), ~, info1] = LM.solve(fcn,guess1, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
+            [ans2,res(2), ~, info2] = LM.solve(fcn,guess2, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
+            [ans3,res(3), ~, info3] = LM.solve(fcn,guess3, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
 
             [~,ind] = min(res);
             answers = {ans1, ans2, ans3};
@@ -161,9 +180,9 @@ classdef Cone < Feature
             fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
             fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction:       [%.4f  %.4f  %.4f]\n', direction);
-            fprintf('  Angle:        %.4f\n', angle);
+            fprintf('  Included Angle:        %.4f\n', rad2deg(angle*2));
             fprintf('  Distance:        %.4f\n', distance);
-            fprintf('  Apex:        %.4f\n', apex);
+            fprintf('  Apex:        [%.4f %.4f %.4f]\n', apex);
             fprintf('  Small R:        %.4f\n', smallR);
             fprintf('  Big R:        %.4f\n', bigR);
             fprintf('  Height:        %.4f\n', height);

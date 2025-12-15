@@ -22,18 +22,33 @@ classdef Sphere < Feature
 
     methods
         % Constructor for the sphere class
-        function obj = Sphere(name, data, associationCriteria, step_tol, grad_tol, SSE_tol)
+        function obj = Sphere(name, data, associationCriteria, opts)
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
-                step_tol (1,1) double = 1e-12
-                grad_tol (1,1) double = step_tol
-                SSE_tol (1,1) double = step_tol
+
+                % Name-value options for LM
+                opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
+                opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
+                opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
+                opts.SSETol (1,1) double {mustBeFinite, mustBePositive} = 1e-16
+                opts.Lambda (1,1) double {mustBeFinite, mustBePositive} = 1e-4
+                opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
+                opts.SuppressOutput (1,1) logical = true
             end
 
             obj@Feature(name, data, associationCriteria);
             obj.validateAssociation();
+
+            MaxIter = opts.MaxIter;
+            StepTol = opts.StepTol;
+            GradTol = opts.GradTol;
+            SSETol = opts.SSETol;
+            Lambda = opts.Lambda;
+            DampingCoeff = opts.DampingCoeff;
+            SuppressOutput = opts.SuppressOutput;
+
             centroid = mean(data);
             % Break up data into x,y,z components
             [xD, yD, zD] = separateData(data);
@@ -56,7 +71,8 @@ classdef Sphere < Feature
             fcn = @(q) sqrt(x(q).^2+y(q).^2+z(q).^2)-q(4);
             
              % Associate a sphere
-            [answer, ~, ~, info] = LM.solve(fcn,guess,5000,step_tol,grad_tol,SSE_tol,true);
+            [answer, ~, ~, info] = LM.solve(fcn,guess, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
         
             point = [answer(1),answer(2),answer(3)];
             diameter =answer(4)*2;

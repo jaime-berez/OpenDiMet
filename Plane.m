@@ -34,12 +34,21 @@ classdef Plane < Feature
             centroid = mean(dataOrig,1);
             X=dataOrig-centroid;
             % Performs SVD on the data using the built-in svd command
-            [~,Lam,V] = svd(X,0);
-            [~,lamIndex] = min(diag(Lam));
-            
-            % Choose the eigenvector corresponding to the smallest eigenvalue
-            direction = V(:,lamIndex)';
-            direction = direction/norm(direction);
+            % [~,Lam,V] = svd(X,0);
+            % [~,lamIndex] = min(diag(Lam));
+            % 
+            % % Choose the eigenvector corresponding to the smallest eigenvalue
+            % direction = V(:,lamIndex)';
+            % direction = direction/norm(direction);
+
+            A = X.' * X;                   
+            [eigVec, eigValMat] = eig(A);  
+
+            eigVals = diag(eigValMat);     
+            [~, idx] = min(eigVals);       % smallest eigenvalue
+
+            direction = eigVec(:, idx).';  % 1x3 normal
+            direction = direction / norm(direction);
             obj.point = centroid;
             obj.direction = direction;
             obj.fitInfo = struct('method', 'SVD', 'description', ['Least-squares plane fit using ' ...

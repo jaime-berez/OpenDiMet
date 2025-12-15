@@ -22,20 +22,38 @@ classdef Circle < Feature
         point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         diameter (1,1) double {mustBeFinite, mustBeReal}
+        %sigma double
         fitInfo struct = struct()
     end
 
     methods
-        function obj = Circle(name, data, associationCriteria)
+        function obj = Circle(name, data, associationCriteria, opts)
             % Constructor method for the Circle class
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
+
+                % Name-value options for LM
+                opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
+                opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
+                opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
+                opts.SSETol (1,1) double {mustBeFinite, mustBePositive} = 1e-17
+                opts.Lambda (1,1) double {mustBeFinite, mustBePositive} = 1e-4
+                opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
+                opts.SuppressOutput (1,1) logical = true
             end
 
             obj@Feature(name, data, associationCriteria);
             obj.validateAssociation();
+
+            MaxIter = opts.MaxIter;
+            StepTol = opts.StepTol;
+            GradTol = opts.GradTol;
+            SSETol = opts.SSETol;
+            Lambda = opts.Lambda;
+            DampingCoeff = opts.DampingCoeff;
+            SuppressOutput = opts.SuppressOutput;
             % First fit a plane to get a point and direction
             % [centroid,dir] = fitPlane(data); %associated plane
 
@@ -64,7 +82,8 @@ classdef Circle < Feature
             radius = diameter2d/2;
             guess3d = [point2d,direction,radius];
          
-            [ans3d, ~, ~, info] = LM.solve(fcn3D,guess3d,5000,1e-20);
+            [ans3d, ~, sigma, info] = LM.solve(fcn3D,guess3d, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
             point = [ans3d(1),ans3d(2),ans3d(3)];
             diameter = ans3d(4)*2; % ans3d(4) is the radius, so multiply by 2 to get the diameter
             point = point+centroid;
@@ -72,6 +91,7 @@ classdef Circle < Feature
             obj.point = point;
             obj.direction = direction;
             obj.diameter = diameter;
+            %obj.sigma = sigma;
 
             if exist('info', 'var')
                 obj.fitInfo = info;
@@ -115,9 +135,9 @@ classdef Circle < Feature
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:            %s\n', name);
             fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
-            fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
-            fprintf('  Direction:       [%.4f  %.4f  %.4f]\n', direction);
-            fprintf('  Diameter:        %.4f\n', diameter);
+            fprintf('  Point:           [%.5f  %.5f  %.5f]\n', point);
+            fprintf('  Direction:       [%.5f  %.5f  %.5f]\n', direction);
+            fprintf('  Diameter:        %.5f\n', diameter);
         end
 
         function showFitInfo(obj)

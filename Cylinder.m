@@ -23,16 +23,34 @@ classdef Cylinder < Feature
     end
 
     methods
-        function obj = Cylinder(name, data, associationCriteria)
+        function obj = Cylinder(name, data, associationCriteria, opts)
             % Constructor method for the Cylinder class
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
+
+                % Name-value options for LM
+                opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
+                opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-10
+                opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-11
+                opts.SSETol (1,1) double {mustBeFinite, mustBePositive} = 1e-19
+                opts.Lambda (1,1) double {mustBeFinite, mustBePositive} = 1e-4
+                opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
+                opts.SuppressOutput (1,1) logical = true
             end
 
             obj@Feature(name, data, associationCriteria);
             obj.validateAssociation();
+
+            MaxIter = opts.MaxIter;
+            StepTol = opts.StepTol;
+            GradTol = opts.GradTol;
+            SSETol = opts.SSETol;
+            Lambda = opts.Lambda;
+            DampingCoeff = opts.DampingCoeff;
+            SuppressOutput = opts.SuppressOutput;
+
             X = data;          % Nx3
             centroid = mean(X);
             xD = X(:,1); yD = X(:,2); zD = X(:,3);
@@ -59,15 +77,18 @@ classdef Cylinder < Feature
             fcn = @(q) f(q)-q(7);
 
             % LM Optimization
-            [answ1,resnorm(1), ~, info1] = LM.solve(fcn,guess1,5000,1e-4);
+            [answ1,resnorm(1), ~, info1] = LM.solve(fcn, guess1, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
                 point1 = [answ1(1:3)];
                 direction1 = [answ1(4:6)]; direction1 = direction1/norm(direction1);
                 distance1 = answ1(7);
-            [answ2,resnorm(2), ~, info2] = LM.solve(fcn,guess2,5000,1e-4);
+            [answ2,resnorm(2), ~, info2] = LM.solve(fcn,guess2, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
                 point2 = [answ2(1:3)];
                 direction2 = [answ2(4:6)]; direction2 = direction2/norm(direction2);
                 distance2 = answ2(7);
-            [answ3,resnorm(3), ~, info3] = LM.solve(fcn,guess3,5000,1e-4);
+            [answ3,resnorm(3), ~, info3] = LM.solve(fcn,guess3, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
                 point3 = [answ3(1:3)];
                 direction3 = [answ3(4:6)]; direction3 = direction3/norm(direction3);
                 distance3 = answ3(7);

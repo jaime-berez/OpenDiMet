@@ -1,7 +1,8 @@
 classdef LM
     %LM Class for the Levenberg–Marquardt algorithm
     methods (Static)
-        function [x,resnorm, residual, info] = solve(func,guess,maxIter,tol,grad_tol,SSE_tol,suppressOutput)
+        function [x,resnorm, residual, info] = solve(fcn,guess,MaxIter,StepTol,GradTol,SSETol, ...
+                Lambda, DampingCoeff, suppressOutput)
             %   Levenberg-Marquardt Algorithm
             %
             %   func:       objective function to optimize (data is passed in through
@@ -15,19 +16,21 @@ classdef LM
             %
             %   results:    Output matrix with the optimized parameters
             arguments
-                func 
+                fcn 
                 guess 
-                maxIter 
-                tol 
-                grad_tol = tol
-                SSE_tol = tol
-                suppressOutput = true
+                MaxIter (1,1) double {mustBeFinite, mustBePositive}
+                StepTol (1,1) double {mustBeFinite, mustBePositive}
+                GradTol (1,1) double {mustBeFinite, mustBePositive}
+                SSETol (1,1) double {mustBeFinite, mustBePositive}
+                Lambda (1,1) double {mustBeFinite, mustBePositive}
+                DampingCoeff (1,1) double {mustBeFinite, mustBePositive}
+                suppressOutput (1,1) logical 
             end
                 
             % Initial variables
-            lambda = 1e-4;  %Levenberg-marquardt Parameter
-            dampIni = 0.2;       %Damping adjustment factor 
-            damp = dampIni;
+            %lambda = 1e-4;  %Levenberg-marquardt Parameter
+            %dampIni = 0.2;       %Damping adjustment factor 
+            damp = DampingCoeff;
             x = guess; %set the parameters for the first iteration to be the guessed parameters    
             x = x(:);
             % doTileLayout = 0; %variable to enable/disable tile layout of parameters
@@ -41,16 +44,16 @@ classdef LM
 
             collectInfo = nargout > 3;  % only if user requests it
             if collectInfo
-                info.history = zeros(maxIter,6);
+                info.history = zeros(MaxIter,6);
             end
         
             
-            for k=1:maxIter
-                r = func(x); % Residual of the coordinate @ k
+            for k=1:MaxIter
+                r = fcn(x); % Residual of the coordinate @ k
                 %if suppressOutput==false; fprintf('Iteration: %-3i\n',k); end
         
                 
-                J = Jacobian(func,x); % Approximate Jacobian
+                J = Jacobian(fcn,x); % Approximate Jacobian
                 %J = sphereJacob(data,x);
                 
                 A = J'*J; % Gauss-Newton approx to Hessian matrix
@@ -58,9 +61,9 @@ classdef LM
         
                 %Solve the damped normal equations: (A +lambda*I) * delta = -g
                 %This is equal to (J'T+lambda*I)*delta = -(J'*r)
-                delta = -(A + lambda * eye(length(A))) \ g; %note the left-hand division
+                delta = -(A + Lambda * eye(length(A))) \ g; %note the left-hand division
                 x_new = x + delta;  % Trial update to the parameters
-                r_new = func(x_new); % Residual with the new parameters
+                r_new = fcn(x_new); % Residual with the new parameters
         
                 % Calculate the gain ratio (rho) to assess step quality
                 cost_current = 0.5 * norm(r)^2;
@@ -69,7 +72,7 @@ classdef LM
                 %model_improvement = 0.5 * delta' * (A * delta + lambda * delta);
                 %model_improvement = 0.5 * delta' *(lambda * delta + g);
                 %model_improvement = 0.5 * delta' *(lambda*delta/2-g);
-                model_improvement = 0.5 * delta' * ((A + lambda * eye(length(A))) * delta);
+                model_improvement = 0.5 * delta' * ((A + Lambda * eye(length(A))) * delta);
                 rho = (cost_current - cost_new)/model_improvement;
                 
                 % Debugging printouts
@@ -83,40 +86,40 @@ classdef LM
                 % fprintf('  lambda:         %.6e\n', lambda);
 
                 if collectInfo
-                    info.history(k,:) = [k, cost_current, norm(g), norm(delta), lambda, rho];
+                    info.history(k,:) = [k, cost_current, norm(g), norm(delta), Lambda, rho];
                 end
 
                 if ~suppressOutput
-                    fprintf('Iter %3d | Cost %.3e | λ %.3e | ρ %.3e\n', k, cost_current, lambda, rho);
+                    fprintf('Iter %3d | Cost %.3e | λ %.3e | ρ %.3e\n', k, cost_current, Lambda, rho);
                 end
         
                 %If the step was successful, accept it and decrease lambda
                 if rho > 0
                     x = x_new; %replace the old parameters with the new optimized parameters
                     %lambda  = lambda * max(1/3, 1-rho); %decrease lambda
-                    lambda = lambda*max(1/3,1-(2*rho-1)^3);
-                    damp = dampIni; % set the damping factor back to initial value
+                    Lambda = Lambda*max(1/3,1-(2*rho-1)^3);
+                    damp = DampingCoeff; % set the damping factor back to initial value
                 else
                     %If the step was not successful, increase lambda and reject the
                     %update
-                    lambda = lambda*damp; % multiply lamba by the damping factor
+                    Lambda = Lambda*damp; % multiply lamba by the damping factor
                     damp=damp*2; % increase the damping factor
                 end
         
                 % Check for convergence based on gradient
-                if norm(g) < grad_tol*(1+norm(x)) %check if the magnitude of g is less than the tolerance value
+                if norm(g) < GradTol*(1+norm(x)) %check if the magnitude of g is less than the tolerance value
                     if suppressOutput==false; fprintf('Converged: gradient below tolerance. \n'); end
                     break;
                 end
         
                 %Check if the step size is too small
-                if norm(delta)<tol*(1+norm(x))
+                if norm(delta)<StepTol*(1+norm(x))
                     if suppressOutput==false; fprintf('Converged: step size below tolerance. \n'); end
                     break;
                 end
         
                 %check if the sum squared error is suffiently small
-                if abs(cost_current-cost_new) < SSE_tol * (1+abs(cost_current))
+                if abs(cost_current-cost_new) < SSETol * (1+abs(cost_current))
                     if suppressOutput==false; fprintf('Converged: Change in error less than the tolerance \n'); end
                     break;
                 end
@@ -154,8 +157,8 @@ classdef LM
             % end
             %resnorm = norm(func(x))^2;
             x = x(:)'; %forces the initial guess to be a row vector
-            resnorm = sum(func(x).^2); %same equation that MATLAB uses for lsqnonlin
-            residual = func(x); %same as lsqnonlin
+            resnorm = sum(fcn(x).^2); %same equation that MATLAB uses for lsqnonlin
+            residual = fcn(x); %same as lsqnonlin
 
             if collectInfo
                 info.iter = k;

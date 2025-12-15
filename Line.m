@@ -35,10 +35,19 @@ classdef Line < Feature
             point = mean(data);
             data1 = data-point;
 
-            [U, Lam, V] = svd(data1);
+            % [U, Lam, V] = svd(data1);
+            % 
+            % [largestLam, index] = max(diag(Lam));
+            % direction = V(:, index)';
 
-            [largestLam, index] = max(diag(Lam));
-            direction = V(:, index)';
+            A = data1' * data1;              
+            [eigVec, eigValMat] = eig(A);    
+
+            eigVals = diag(eigValMat);       
+            [~, idx] = max(eigVals);         % largest variance direction
+
+            direction = eigVec(:, idx).';   
+            direction = direction / norm(direction);  
 
             obj.point = point;
             obj.direction = direction; % Store the direction vector in the object
