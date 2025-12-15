@@ -13,6 +13,7 @@ classdef Feature
     properties (GetAccess = public, SetAccess = public)
         name (1,1) string {mustBeTextScalar, mustBeNonempty} = ""
         AssociationCriteria (1,1) AssociationCriteria = AssociationCriteria.LeastSquares 
+        sigma (1,1) double {mustBeFinite, mustBeReal, mustBeNonnegative}
     end
 
     properties (GetAccess = public, SetAccess = private)
@@ -53,6 +54,22 @@ classdef Feature
                     "The association criterion '%s' is not " + ...
                     "implemented for geometry '%s'. \nProcess terminated.", char(criteria), class(feature));
                 throwAsCaller(err);
+            end
+        end
+    end
+
+    methods(Static, Access = protected)
+
+        function sigma = computeSigmaFromResiduals(residuals, numParams)
+
+            residuals = residuals(:);
+            n = numel(residuals);
+            p = numParams;
+
+            if n>p
+                sigma = sqrt(sum(residuals.^2) / (n-p));
+            else
+                sigma = NaN;
             end
         end
     end

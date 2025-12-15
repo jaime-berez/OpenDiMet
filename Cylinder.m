@@ -77,17 +77,17 @@ classdef Cylinder < Feature
             fcn = @(q) f(q)-q(7);
 
             % LM Optimization
-            [answ1,resnorm(1), ~, info1] = LM.solve(fcn, guess1, MaxIter, StepTol, GradTol, ...
+            [answ1,resnorm(1), residual1, info1] = LM.solve(fcn, guess1, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
                 point1 = [answ1(1:3)];
                 direction1 = [answ1(4:6)]; direction1 = direction1/norm(direction1);
                 distance1 = answ1(7);
-            [answ2,resnorm(2), ~, info2] = LM.solve(fcn,guess2, MaxIter, StepTol, GradTol, ...
+            [answ2,resnorm(2), residual2, info2] = LM.solve(fcn,guess2, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
                 point2 = [answ2(1:3)];
                 direction2 = [answ2(4:6)]; direction2 = direction2/norm(direction2);
                 distance2 = answ2(7);
-            [answ3,resnorm(3), ~, info3] = LM.solve(fcn,guess3, MaxIter, StepTol, GradTol, ...
+            [answ3,resnorm(3), residual3, info3] = LM.solve(fcn,guess3, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
                 point3 = [answ3(1:3)];
                 direction3 = [answ3(4:6)]; direction3 = direction3/norm(direction3);
@@ -95,14 +95,18 @@ classdef Cylinder < Feature
 
             [~,ind] = min(resnorm);
             if ind==1
-                points = point1(:)'; direction = direction1(:)'; radius = distance1; info = info1;
+                params = answ1; points = point1(:)'; direction = direction1(:)'; radius = distance1; info = info1; residual = residual1;
             elseif ind==2
-                points = point2(:)'; direction = direction2(:)'; radius = distance2; info = info2;
+                params = answ2; points = point2(:)'; direction = direction2(:)'; radius = distance2; info = info2; residual = residual2;
             elseif ind==3
-                points = point3(:)'; direction = direction3(:)'; radius = distance3; info = info3;
+                params = answ3; points = point3(:)'; direction = direction3(:)'; radius = distance3; info = info3; residual = residual3;
             else
                 error('The value of ind must be either 1, 2, or 3')
             end
+
+            % Compute standard deviation
+            numParams = numel(params);
+            obj.sigma = Feature.computeSigmaFromResiduals(residual, numParams);
 
             % Assign the values to properties
             obj.point = points;
@@ -155,6 +159,7 @@ classdef Cylinder < Feature
             point     = obj.point(:).';
             direction     = obj.direction(:).';
             diameter    = obj.diameter;
+            sigma = obj.sigma;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
@@ -163,6 +168,7 @@ classdef Cylinder < Feature
             fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction:       [%.4f  %.4f  %.4f]\n', direction);
             fprintf('  Diameter:        %.4f\n', diameter);
+            fprintf('  Sigma:           %.4f\n', sigma)
         end
     end
 end

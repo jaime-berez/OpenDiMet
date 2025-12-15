@@ -163,7 +163,7 @@ classdef LM
             if collectInfo
                 info.iter = k;
                 info.final_cost = resnorm;
-                info.history = info.history(1:k,:); % trim unused rows
+                info.history = info.history(1:k,:); 
                 info.labels = {'iter','cost','grad_norm','delta_norm','lambda','rho'};
             end
         end
