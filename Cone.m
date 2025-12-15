@@ -88,18 +88,22 @@ classdef Cone < Feature
             
             fcn = @(q) Cone.opFun(q, xD, yD, zD);
         
-            [ans1,res(1), ~, info1] = LM.solve(fcn,guess1, MaxIter, StepTol, GradTol, ...
+            [ans1,res(1), residual1, info1] = LM.solve(fcn,guess1, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
-            [ans2,res(2), ~, info2] = LM.solve(fcn,guess2, MaxIter, StepTol, GradTol, ...
+            [ans2,res(2), residual2, info2] = LM.solve(fcn,guess2, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
-            [ans3,res(3), ~, info3] = LM.solve(fcn,guess3, MaxIter, StepTol, GradTol, ...
+            [ans3,res(3), residual3, info3] = LM.solve(fcn,guess3, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
 
             [~,ind] = min(res);
             answers = {ans1, ans2, ans3};
             infos = {info1, info2, info3};
+            residuals = {residual1, residual2, residual3};
             qbest = answers{ind};
             bestInfo = infos{ind};
+            resBest = residuals{ind};
+            numParams = numel(qbest);
+            obj.sigma = Feature.computeSigmaFromResiduals(resBest, numParams);
             [point, direction, angle, distance, apex] = Cone.formatOutput(qbest, centroid);
 
             % Derive smallR / bigR from data span
@@ -173,6 +177,7 @@ classdef Cone < Feature
             smallR = obj.smallR;
             bigR = obj.bigR;
             height = obj.height;
+            sigma = obj.sigma;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
@@ -186,6 +191,7 @@ classdef Cone < Feature
             fprintf('  Small R:        %.4f\n', smallR);
             fprintf('  Big R:        %.4f\n', bigR);
             fprintf('  Height:        %.4f\n', height);
+            fprintf('  Sigma:         %.4f\n', sigma);
         end
     end
 
