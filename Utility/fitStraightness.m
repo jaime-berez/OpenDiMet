@@ -29,6 +29,7 @@ end
     rad = guess2dRad(data2);
 
 %% Perform association
-    [answ,residual,resnorm]=LM.solve(fcn,rad,5000,1e-20);
+    [answ,residual,resnorm, info] = LM.solve(fcn,rad,MaxIter = 5000, StepTol = 1e-20);
     diameter = 2*answ;
+end
 

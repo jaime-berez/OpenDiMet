@@ -27,3 +27,4 @@ function [circError,Rmax,Rmin] = Circularity(feature)
         error("Circularity:UnsupportedGeometry", ...
     "Circularity is only implemented for Circle. Got feature of type '%s'", class(feature))
     end
+end

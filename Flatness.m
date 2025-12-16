@@ -22,7 +22,7 @@ function [direction, residual, resnorm] = Flatness(feature)
         % OPTION 2: Use the custom LM algorithm
         [answ,resnorm,residual] = LM.solve(fcn,dGuess,5000,1e-10);
         
-        direction= answ/norm(answ);
+        direction = answ/norm(answ);
 
     else
         error("Flatness:UnsupportedGeometry", ...

@@ -19,7 +19,7 @@ function plotStraightness(feature)
         %legend({"Data points","Centroid","Fitted Line"},'FontSize',12);
     
         % Straightness Evaluation <<WORK IN PROGRESS>>
-        distance = fitStraightness(data,point,direction);
+        [distance,~,~] = fitStraightness(data,point,direction);
         Plot.plotCylinder(data,point,direction,distance);
     
         %res = calcStraightnessResiduals(data,point,direction);

@@ -13,28 +13,28 @@ doDelta = false;    %If TRUE, size will be compared
 doPsi = false;      %If TRUE, angle will be compared
 switch geometry
     case 1 % 2D line
-        filePath = "nist-l2-reference-pairs\Line2d\lin2d";
+        filePath = "Data\nist-l2-reference-pairs\Line2d\lin2d";
         doAlpha = true;
     case 2 % 3D line
-        filePath = "nist-l2-reference-pairs\Line3d\lin";
+        filePath = "Data\nist-l2-reference-pairs\Line3d\lin";
         doAlpha = true;
     case 3 % Plane
-        filePath = "nist-l2-reference-pairs\Plane\pla";
+        filePath = "Data\nist-l2-reference-pairs\Plane\pla";
         doAlpha = true;
     case 4 % 2D Circle
-        filePath = "nist-l2-reference-pairs\Circle2d\cir2d";
+        filePath = "Data\nist-l2-reference-pairs\Circle2d\cir2d";
         doAlpha = true; doDelta = true;
     case 5 % 3D Circle
-        filePath = "nist-l2-reference-pairs\Circle3d\cir";
+        filePath = "Data\nist-l2-reference-pairs\Circle3d\cir";
         doAlpha = true; doDelta = true;
     case 6 % Sphere
-        filePath = "nist-l2-reference-pairs\Sphere\sph";
+        filePath = "Data\nist-l2-reference-pairs\Sphere\sph";
         doDelta = true;
     case 7 % Cylinder
-        filePath = "nist-l2-reference-pairs\Cylinder\cyl";
+        filePath = "Data\nist-l2-reference-pairs\Cylinder\cyl";
         doAlpha = true; doDelta = true;
     case 8 % Cone
-        filePath = "nist-l2-reference-pairs\Cone\con";
+        filePath = "Data\nist-l2-reference-pairs\Cone\con";
         doAlpha = true; doDelta = true; doPsi = true;
     otherwise
         error('Invalid Input')

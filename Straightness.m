@@ -14,11 +14,11 @@ function [straightness, residuals] = Straightness(feature)
         %straightness deviations in both the X & Y directions, so use the L2 norm
         %to find the distance from each point to the line.
         
-        %residuals = norm(data2(:,1)+data2(:,2)); % =||X_i + Y_i||   L2 Norm
-        for i =1:length(data2)
-            residuals(i) = norm(data2(i, 1:2)); % Calculate the L2 norm for each point
-        end
-
+        % %residuals = norm(data2(:,1)+data2(:,2)); % =||X_i + Y_i||   L2 Norm
+        % for i =1:length(data2)
+        %     residuals(i) = norm(data2(i, 1:2)); % Calculate the L2 norm for each point
+        % end
+        residuals = sqrt(data2(:,1).^2 + data2(:,2).^2);
         straightness = range(residuals);
 
     else
