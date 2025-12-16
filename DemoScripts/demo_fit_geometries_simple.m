@@ -23,7 +23,7 @@ rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder
 file = "pla11.ds";   % <----- Input
 
 %% ---- Load data ----
-%data1 = readmatrix(rootDirectory+file);
+
 data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
 %% ---- Fit the selected geometry ----
