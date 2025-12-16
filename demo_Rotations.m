@@ -1,5 +1,5 @@
 %% Note on vectors and rotation matricies in MATLAB
-close all; clear all; clc;
+close all; clear all; clc; format compact;
 % A 'row' vector is [x, y, z] or [x1, y1, z1; z2, y2, z2; ... xn, yn, zn].
 VRow = [1 2 3]
 MRow = [1 2 3; 4 5 6]
@@ -14,8 +14,7 @@ MRow = [1, 4; 2, 5; 3, 6]
 % matricies are formatted accordingly within the toolbox.
 
 %% Demo: Rotate an arbitrary vector to point in the Z direction
-close all; clear all; clc;
-format compact;
+clear all; close all; clc;
 
 % 0. User input
 A = [3 2 1]; % Arbitrary vector
@@ -31,11 +30,12 @@ dirNew = ApntsR(2,:)-ApntsR(1,:);
 dirNew = dirNew./norm(dirNew) % Normalize
 
 % Plot P and PNew
+figure()
 plotAxs(Apnts, [0 0 1], "-", "o", "x"); grid on; box on; axis equal; hold on;
 plotAxs(ApntsR, [0 0 1], "--", "o", "x"); hold on;
 
 %% Demo: Rotate an abritrary vector to point in an arbitraty direction
-close all; clear all; clc;
+clear all;
 
 % 0. User input
 A = [1 2 3]; % Vector to be aligned
@@ -52,12 +52,13 @@ dirNew = ApntsR(2,:)-ApntsR(1,:);
 dirNew = dirNew./norm(dirNew) % Normalize
 
 % Plot P and PNew
+figure()
 plotAxs(Apnts, [0 0 1], "-", "o", "x"); grid on; box on; axis equal; hold on;
 plotAxs([0 0 0; B], [1 0 0], "-", "o", "x"); hold on;
 plotAxs(ApntsR, [0 0 1], "--", "o", "x"); hold on;
 
 %% Successive rotations
-clear all; close all; clc;
+clear all;
 
 % 0. User input
 A = [3 3 3; 4 5 6]; % Points to be rotated
@@ -75,6 +76,7 @@ Axyz = A*Rx*Ry*Rz;
 Axyz2 = A*Rxyz;
 
 % Plot P and PNew
+figure()
 plot3(0, 0, 0, 'kx'); hold on; grid on; box on; axis equal; 
 plotAxs(A, [0 0 0], "-", "o", "x"); hold on;
 plotAxs(Ax, [1 0 0], "-", "o", "x"); hold on;
@@ -82,4 +84,12 @@ plotAxs(Axy, [0 1 0], "-", "o", "x"); hold on;
 plotAxs(Axyz2, [0 0 1], "-", "o", "x"); hold on;
 box on; grid on; axis equal;
 xlabel("x"); ylabel("y"); zlabel("z")
+
+function plotAxs(pnts, color, lineStyle, mkrStart, mkrEnd)
+
+    plot3(pnts(:,1), pnts(:,2), pnts(:,3), Color=color, LineStyle=lineStyle); hold on;
+    plot3(pnts(1,1), pnts(1,2), pnts(1,3), Color=color, Marker=mkrStart);
+    plot3(pnts(2,1), pnts(2,2), pnts(2,3), Color=color, Marker=mkrEnd);
+
+end
 

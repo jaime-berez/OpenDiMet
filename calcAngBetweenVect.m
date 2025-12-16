@@ -6,6 +6,10 @@ arguments (Input)
     B
 end
 
+% 0. Normalize vectors
+A = A./norm(A);
+B = B./norm(B);
+
 axs = cross(A,B);
 ang = 2*atan2d(norm(norm(A)*B - norm(B)*A), norm((norm(A)*B + norm(B)*A)));
 
