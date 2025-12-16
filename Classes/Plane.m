@@ -131,14 +131,18 @@ classdef Plane < Feature
             point = obj.point(:).';
             direction = obj.direction(:).';
             sigma = obj.sigma;
+            dataClass = class(data);
+            dataSize = size(data);
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
-            fprintf('  Name:            %s\n', name);
+            fprintf('  Name:                %s\n', name);
             fprintf('  AssociationCriteria: %s\n', char(assoc));
-            fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
-            fprintf('  Direction:       [%.4f  %.4f  %.4f]\n', direction);
-            fprintf('  Sigma:           %.4f\n', sigma);
+            fprintf('  Point:               [%.4f  %.4f  %.4f]\n', point);
+            fprintf('  Direction:           [%.4f  %.4f  %.4f]\n', direction);
+            fprintf('  Sigma:               %.4f\n', sigma);
+            fprintf('  Data Class:          %s\n', dataClass);
+            fprintf('  Data Size:           [%s]\n', num2str(dataSize));
         end
     end
 end

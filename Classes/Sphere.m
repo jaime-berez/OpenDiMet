@@ -132,14 +132,18 @@ classdef Sphere < Feature
             point = obj.point(:).';
             diameter = obj.diameter;
             sigma = obj.sigma;
+            dataClass = class(data);
+            dataSize = size(data);
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
-            fprintf('  Name:            %s\n', name);
+            fprintf('  Name:                %s\n', name);
             fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
-            fprintf('  Point:           [%.4f  %.4f  %.4f]\n', point);
-            fprintf('  Diameter:        %.4f\n', diameter);
-            fprintf('  Sigma:           %.4f\n', sigma);
+            fprintf('  Point:               [%.4f  %.4f  %.4f]\n', point);
+            fprintf('  Diameter:            %.4f\n', diameter);
+            fprintf('  Sigma:               %.4f\n', sigma);
+            fprintf('  Data Class:          %s\n', dataClass);
+            fprintf('  Data Size:           [%s]\n', num2str(dataSize));
         end
     end
 end

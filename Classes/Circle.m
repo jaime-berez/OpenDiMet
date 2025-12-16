@@ -130,15 +130,19 @@ classdef Circle < Feature
             direction = obj.direction(:).';
             diameter = obj.diameter;
             sigma = obj.sigma;
+            dataClass = class(data);
+            dataSize = size(data);
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
-            fprintf('  Name:            %s\n', name);
+            fprintf('  Name:                %s\n', name);
             fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
-            fprintf('  Point:           [%.5f  %.5f  %.5f]\n', point);
-            fprintf('  Direction:       [%.5f  %.5f  %.5f]\n', direction);
-            fprintf('  Diameter:        %.5f\n', diameter);
-            fprintf('  Sigma:           %.5f\n', sigma);
+            fprintf('  Point:               [%.5f  %.5f  %.5f]\n', point);
+            fprintf('  Direction:           [%.5f  %.5f  %.5f]\n', direction);
+            fprintf('  Diameter:            %.5f\n', diameter);
+            fprintf('  Sigma:               %.5f\n', sigma);
+            fprintf('  Data Class:          %s\n', dataClass);
+            fprintf('  Data Size:           [%s]\n', num2str(dataSize));
         end
 
         function showFitInfo(obj)
