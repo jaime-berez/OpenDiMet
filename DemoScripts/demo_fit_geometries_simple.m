@@ -16,11 +16,11 @@ clc; close all; clear;
 %Define directory for data
 demoScriptDirectory = fileparts(mfilename('fullpath'));
 repoRoot = fileparts(demoScriptDirectory);
-dataFolder = "Plane";       % <----- Input
+dataFolder = "Cone";       % <----- Input
 rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder);
 
 % Define files with raw coordinate data to import
-file = "pla6.ds";   % <----- Input
+file = "con4.ds";   % <----- Input
 
 %% ---- Load data ----
 %data1 = readmatrix(rootDirectory+file);
@@ -28,7 +28,7 @@ data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
 %% ---- Fit the selected geometry ----
 
-myFeature = fitFeature(data1, "Plane", "LeastSquares", "NAME", StepTol = 1e-9, ...
+myFeature = fitFeature(data1, "Cone", "LeastSquares", "NAME", StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
     
 %% ---- Report fitted parameters, plot result----
