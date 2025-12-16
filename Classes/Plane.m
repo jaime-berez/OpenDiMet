@@ -58,8 +58,7 @@ classdef Plane < Feature
             direction = eigVec(:, idx).';  % 1x3 normal
             direction = direction / norm(direction);
             residuals = X * direction.';   % Signed distance to the plane
-            numParams = 3;
-            obj.sigma = calcSigmaFromResiduals(residuals, numParams);
+            obj.sigma = std(residuals);
             obj.point = centroid;
             obj.direction = direction;
             obj.fitInfo = struct('method', 'SVD', 'description', ['Least-squares plane fit using ' ...

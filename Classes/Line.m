@@ -58,8 +58,7 @@ classdef Line < Feature
             direction = direction / norm(direction);  
 
             residuals = calcStraightnessResiduals(data, point, direction);
-            numParams = 4;
-            obj.sigma = calcSigmaFromResiduals(residuals, numParams);
+            obj.sigma = std(residuals);
 
             obj.point = point;
             obj.direction = direction; % Store the direction vector in the object

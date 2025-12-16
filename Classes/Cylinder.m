@@ -105,8 +105,6 @@ classdef Cylinder < Feature
             end
 
             % Compute standard deviation
-            numParams = numel(params);
-            %obj.sigma = calcSigmaFromResiduals(residual, numParams);
             obj.sigma = std(residual);
             % Assign the values to properties
             obj.point = points;

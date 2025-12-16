@@ -22,7 +22,6 @@ classdef Circle < Feature
         point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         diameter (1,1) double {mustBeFinite, mustBeReal}
-        %sigma double
         fitInfo struct = struct()
     end
 
@@ -88,12 +87,10 @@ classdef Circle < Feature
             diameter = ans3d(4)*2; % ans3d(4) is the radius, so multiply by 2 to get the diameter
             point = point+centroid;
 
-            numParams = 4;
-            obj.sigma = calcSigmaFromResiduals(residual3d, numParams);
             obj.point = point;
             obj.direction = direction;
             obj.diameter = diameter;
-            %obj.sigma = sigma;
+            obj.sigma = std(residual3d);
 
             if exist('info', 'var')
                 obj.fitInfo = info;

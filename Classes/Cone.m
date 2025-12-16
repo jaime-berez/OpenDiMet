@@ -102,8 +102,6 @@ classdef Cone < Feature
             qbest = answers{ind};
             bestInfo = infos{ind};
             resBest = residuals{ind};
-            numParams = numel(qbest);
-            %obj.sigma = calcSigmaFromResiduals(resBest, numParams);
             obj.sigma = std(resBest);
             [point, direction, angle, distance, apex] = Cone.formatOutput(qbest, centroid);
 
