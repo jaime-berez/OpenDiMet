@@ -132,9 +132,60 @@ classdef Cylinder < Feature
             data = obj.data;                 % Nx3
             point  = obj.point(:).';            % 1x3
             direction  = obj.direction(:).';    % 1x3 (unit)
-            radius  = obj.diameter/2;       
+            distance  = obj.diameter/2;       
 
-            h = Plot.plotCylinder(data, point, direction, radius, dataColor, dataLabel, fitColor, fitLabel, ax);
+            %h = Plot.plotCylinder(data, point, direction, radius, dataColor, dataLabel, fitColor, fitLabel, ax);
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            cla(ax); hold (ax, 'on'); axis(ax, 'equal'); grid(ax, 'on'); view(ax,3);
+            % Plot raw data
+            plot3(ax, data(:,1),data(:,2),data(:,3),'.', 'Color',dataColor, 'DisplayName',dataLabel); 
+            hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on');
+            plot3(ax, point(1),point(2),point(3),'xk', 'HandleVisibility', 'off'); 
+            xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
+            title(ax, sprintf('%s',fitLabel));
+
+            % Create a Cylinder (radius = dis)
+            faces = 50;
+            [X,Y,Z] = cylinder(distance,faces);
+            cylData = xyz2Mat(X,Y,Z);
+
+            % Height of the point cloud
+            data1 = data - point; 
+            a = direction(1); b = direction(2); c = direction(3);
+            Rz = [1-a^2/(1+c) -a*b/(1+c) a; -a*b/(1+c) 1-b^2/(1+c) b; -a -b c];
+            data2 = data1*Rz;
+            scale = 0.25; 
+            height = (max(data2(:,3)) - min(data2(:,3))) * (1+scale);
+            %height = range(data2(:,3))*(1+scale);
+
+            % Apply height, rotate back, translate
+            cylData1 = cylData; 
+            cylData1(:,3) = cylData(:,3)*height-(height/2);
+            cylData2 = cylData1/Rz;
+            cylData3 = cylData2 + point;
+
+            [X2,Y2,Z2] = mat2xyz(cylData3);
+            h = surf(ax, X2,Y2,Z2,'EdgeColor','none','FaceColor',fitColor,'FaceAlpha',0.4, 'DisplayName',fitLabel);
+
+            % Centerline
+            k = 1; 
+            points = [0,0,(height/2)*(1+k)-(height/2); 0,0,(height/2)*(1-k)-(height/2)];
+            points1 = points/Rz;
+            points2 = points1 + point;
+            plot3(ax, points2(:,1),points2(:,2),points2(:,3),'k-.','LineWidth',1, 'HandleVisibility', 'off');
+
+            % End circles
+            topPoint    = [0,0,height*0.5];     topPoint    = topPoint/Rz    + point;
+            bottomPoint = [0,0,-height*0.5];    bottomPoint = bottomPoint/Rz + point;
+            plotEndCircle(topPoint,  direction, distance*2, faces);
+            plotEndCircle(bottomPoint,direction, distance*2, faces);
+
+            % Legend
+            legend(ax, dataLabel, fitLabel, 'FontSize', 12);
+            hold(ax, "off");
         end
 
         function showFitInfo(obj)

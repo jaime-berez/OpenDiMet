@@ -117,7 +117,32 @@ classdef Circle < Feature
             direction = obj.direction;
             diameter = obj.diameter;
 
-            h = Plot.plotCircle(data, point, direction, diameter, dataColor, dataLabel, fitColor, fitLabel, ax);
+            %h = Plot.plotCircle(data, point, direction, diameter, dataColor, dataLabel, fitColor, fitLabel, ax);
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            cla(ax); hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax,'padded');
+            view(ax,3);
+            xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
+            title(ax, fitLabel);
+
+            % Plot raw data
+            plot3(ax, data(:,1), data(:,2), data(:,3), '.', ...
+                    'Color', dataColor, 'DisplayName', dataLabel);
+
+            % Plot the centroid
+            plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off');
+            
+            pts = calcCirclePoints(point, direction, diameter, 100);
+            [X, Y, Z] = separateData(pts);
+
+            % Fitted circle
+            h = plot3(ax, X, Y, Z, '-', 'Color', fitColor, 'LineWidth', 2, ...
+                'DisplayName', fitLabel);
+
+            legend(ax, "show", 'FontSize', 12);
+            hold(ax, "off");
         end
 
         function disp(obj)

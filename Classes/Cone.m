@@ -147,8 +147,43 @@ classdef Cone < Feature
             % axis equal; axis padded; grid on; hold on;
             % xlabel("x"); ylabel('y'); zlabel('z');
             % hold on;
-            h = Plot.plotCone(data, point, direction, smallR, bigR, height, ...
-                dataColor, dataLabel, fitColor, fitLabel, faces, ax);
+            % h = Plot.plotCone(data, point, direction, smallR, bigR, height, ...
+            %     dataColor, dataLabel, fitColor, fitLabel, faces, ax);
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            cla(ax); hold(ax,'on'); axis(ax,'equal'); grid(ax,'on'); view(ax,3);
+            xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
+            title(ax, fitLabel);
+
+            % Plot raw data
+            plot3(ax, data(:,1), data(:,2), data(:,3), '.', ...
+                    'Color', dataColor, 'DisplayName', dataLabel);
+
+            % Plot centroid
+            plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility','off');
+        
+            % Create a cone based on the parameters calculated above
+            [X,Y,Z] = cylinder([smallR bigR],faces);
+            Z=Z*height-height/2;
+            cone = xyz2Mat(X,Y,Z);
+            Rz = getRz(direction); %rotation matrix
+            % Rotate the cone to match the direction of the data, then translate to match the position
+            cone1 = cone/Rz;
+            cone2 = cone1+point;
+            % Plot the cone
+            [Xc,Yc,Zc]= mat2xyz(cone2);
+        
+            h = surf(ax, Xc, Yc, Zc,'LineStyle','none','FaceAlpha',0.5,'FaceColor',fitColor, ...
+                'DisplayName', fitLabel);     
+
+            p1 = point - (height/2)*direction;
+            p2 = point + (height/2)*direction;
+            plot3(ax, [p1(1) p2(1)], [p1(2) p2(2)], [p1(3) p2(3)], ...
+                    'k-.', 'LineWidth',1, 'HandleVisibility','off');
+            legend(ax, 'show', 'FontSize', 12);
+            hold(ax,'off');
         end
 
         function showFitInfo(obj)

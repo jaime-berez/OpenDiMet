@@ -104,12 +104,34 @@ classdef Sphere < Feature
             point = obj.point;
             diameter = obj.diameter;
 
-            Plot.plotData(data);
-            hold on; grid on; axis equal; axis padded; %configure the figure
-            Plot.plotPoint(point);
-            h = Plot.plotSphere(data, point, diameter, dataColor, dataLabel, fitColor, fitLabel, faces, ax);
+            %Plot.plotData(data);
+            %hold on; grid on; axis equal; axis padded; %configure the figure
+            %Plot.plotPoint(point);
+            %h = Plot.plotSphere(data, point, diameter, dataColor, dataLabel, fitColor, fitLabel, faces, ax);
             %title("Coordinate data and associated sphereical surface");
-            xlabel("x");    ylabel("y");    zlabel("z");
+            %xlabel("x");    ylabel("y");    zlabel("z");
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+            
+            cla(ax); hold(ax, 'on'); axis(ax,'equal'); grid(ax,'on'); view(ax,3);
+            xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
+            title(ax, sprintf('%s', fitLabel));
+
+            plot3(ax, data(:,1),data(:,2),data(:,3),'.', ...
+                 'Color',dataColor, 'DisplayName',dataLabel);
+
+            plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off');
+        
+            % Plot a sphere
+            [X,Y,Z] = sphere(faces);
+            X=X*diameter/2+point(1);
+            Y=Y*diameter/2+point(2);
+            Z=Z*diameter/2+point(3);
+            h = surf(ax, X,Y,Z,'FaceColor',fitColor,'FaceAlpha',0.35,'EdgeColor',...
+                'none','EdgeAlpha',0.35, 'DisplayName',fitLabel); %plot the fitted sphere  
+            legend(ax, "show", 'FontSize',12);
+            hold(ax, "off");
         end
 
         function showFitInfo(obj)

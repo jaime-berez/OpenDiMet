@@ -65,7 +65,7 @@ classdef Plane < Feature
             'Singular Value Decomposition.']);
         end
 
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, ax)
+        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, showEdge, ax)
             % Function to plot the fitted plane
             arguments
                 obj
@@ -74,7 +74,8 @@ classdef Plane < Feature
                 dataLabel (1,:) char = obj.name + ' Data'
                 fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
                     mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit'  
+                fitLabel (1,:) char = obj.name + ' Fit' 
+                showEdge (1,1) string = "N"
                 ax = []
             end
             data = obj.data;
@@ -95,7 +96,18 @@ classdef Plane < Feature
                 'HandleVisibility', 'off');
             
             [X,Y,Z] = calcPlaneCorners(data, point, direction); %calculate the corners of the plane for plotting
-            Plot.plotPlane(X,Y,Z, fitColor, 0.4, "N", fitColor, fitLabel); %plot the associated plane
+            % Plot.plotPlane(X,Y,Z, fitColor, 0.4, "N", fitColor, fitLabel); %plot the associated plane
+            hold on;
+        
+            % Plot a plane using fill3()
+            if showEdge == "N"||"n"
+                h = fill3(X,Y,Z,fitColor,'EdgeColor','k', 'FaceAlpha', 0.4,'DisplayName',fitLabel);
+            elseif showEdge == "Y"||"y"
+                h = fill3(X,Y,Z,fitColor,'EdgeColor',fitColor, 'FaceAlpha',0.4, ...
+                    'DisplayName', fitLabel);
+            else
+                error("showEdge must be Y or N.");
+            end  
             title(ax, fitLabel);
             xlabel("x"); ylabel("y"); zlabel("z");
 
