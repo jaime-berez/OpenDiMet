@@ -57,16 +57,21 @@ classdef Cylinder < Feature
 
             % Initial guesses (point = centroid; directions = axes)
             point = centroid; 
+            L = Line("Line", data, AssociationCriteria.LeastSquares);
+            lpoint = L.point;
             direction1 = [1,0,0];
             direction2 = [0,1,0];
             direction3 = [0,0,1];
+            direction4 = L.direction;
             distance1 = 2*std(yD);
             distance2 = 2*std(zD);
             distance3 = 2*std(xD);
+            distance4 = (1/6)*( (max(data(:,1))-min(data(:,1)))+(max(data(:,2))-min(data(:,2)))+(max(data(:,3))-min(data(:,3))) );
 
             guess1 = [point,direction1,distance1];
             guess2 = [point,direction2,distance2];
             guess3 = [point,direction3,distance3];
+            guess4 = [lpoint,direction4,distance4];
 
             % Residuals
             u = @(q) q(6)*(yD-q(2))-q(5)*(zD-q(3));
@@ -92,6 +97,11 @@ classdef Cylinder < Feature
                 point3 = [answ3(1:3)];
                 direction3 = [answ3(4:6)]; direction3 = direction3/norm(direction3);
                 distance3 = answ3(7);
+            [answ4,resnorm(4), residual4, info4] = LM.solve(fcn,guess4, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
+                point4=[answ4(1:3)]; %comment if the data is at the origin
+                direction4=[answ4(4:6)]; direction4=direction4/norm(direction4);
+                distance4=answ4(7);
 
             [~,ind] = min(resnorm);
             if ind==1
@@ -100,8 +110,10 @@ classdef Cylinder < Feature
                 params = answ2; points = point2(:)'; direction = direction2(:)'; radius = distance2; info = info2; residual = residual2;
             elseif ind==3
                 params = answ3; points = point3(:)'; direction = direction3(:)'; radius = distance3; info = info3; residual = residual3;
+            elseif ind==4
+                params = answ4; points = point4(:)'; direction = direction4(:)'; radius = distance4; info = info4; residual = residual4;
             else
-                error('The value of ind must be either 1, 2, or 3')
+                error('The value of ind must be either 1, 2, 3 or 4')
             end
 
             % Compute standard deviation
