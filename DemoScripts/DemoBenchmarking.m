@@ -26,10 +26,11 @@ end
 
 %% Geometry definitions
 % Each geometry definition provides the following
-% -- Name
-% -- NIST folder and prefix
-% -- OpenDiMet fitFeature arguments
-% -- Polyworks parser availability and function
+% -- Name.
+% -- NIST folder and prefix.
+% -- OpenDiMet fitFeature arguments.
+% -- Polyworks parser availability and function.
+% -- Information regarding specific errors tied to indvidual geometries.
 geometries = struct('name', {}, 'members', {}, 'hasEpsilon', {}, ...
     'hasAlpha', {}, 'hasDelta', {}, 'hasPsi', {}, 'hasBenchmark', {});
 
