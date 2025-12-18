@@ -252,7 +252,7 @@ switch geometry
         nexttile;
             boxplot(epsilon,'Labels','Location')
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location Error"); ylabel('Error');
+            title("Location Error"); ylabel('Error (length)');
         nexttile;
             boxplot(alpha,'Labels','Orientation')
             set(gca, 'YScale', 'Log'); grid on;
@@ -267,7 +267,7 @@ switch geometry
         nexttile;
             boxplot(epsilon,'Labels','Location')
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location Error"); ylabel('Error');
+            title("Location Error"); ylabel('Error (length)');
         nexttile;
             boxplot(alpha,'Labels','Orientation')
             set(gca, 'YScale', 'Log'); grid on;
@@ -282,7 +282,7 @@ switch geometry
         nexttile;
             boxplot(epsilon,'Labels','Location')
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location Error"); ylabel('Error');
+            title("Location Error"); ylabel('Error (length)');
         nexttile;
             boxplot(alpha,'Labels','Orientation')
             set(gca, 'YScale', 'Log'); grid on;
@@ -297,7 +297,7 @@ switch geometry
         nexttile;
             boxplot([epsilon,delta],'Labels',["Location","Size"])
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location and Size Error"); ylabel('Error');
+            title("Location and Size Error"); ylabel('Error (length)');
         nexttile;
             boxplot(alpha,'Labels','Orientation')
             set(gca, 'YScale', 'Log'); grid on;
@@ -312,7 +312,7 @@ switch geometry
         nexttile;
             boxplot([epsilon,delta],'Labels',["Location","Size"])
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location and Size Error"); ylabel('Error');
+            title("Location and Size Error"); ylabel('Error (length)');
         nexttile;
             boxplot(alpha,'Labels','Orientation')
             set(gca, 'YScale', 'Log'); grid on;
@@ -327,7 +327,7 @@ switch geometry
         nexttile;
             boxplot([epsilon,delta],'Labels',["Location","Size"])
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location and Size Error"); ylabel('Error');
+            title("Location and Size Error"); ylabel('Error (length)');
         nexttile;
             boxplot(compTime,'Labels','Computation Time')
             set(gca, 'YScale', 'Log'); grid on;
@@ -338,7 +338,7 @@ switch geometry
         nexttile;
             boxplot([epsilon,delta],'Labels',["Location","Size"])
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location and Size Error"); ylabel('Error');
+            title("Location and Size Error"); ylabel('Error (length)');
         nexttile;
             boxplot(alpha,'Labels','Orientation')
             set(gca, 'YScale', 'Log'); grid on;
@@ -353,7 +353,7 @@ switch geometry
         nexttile;
             boxplot([epsilon,delta],'Labels',["Location","Size"])
             set(gca, 'YScale', 'Log'); grid on;
-            title("Location and Size Error"); ylabel('Error');
+            title("Location and Size Error"); ylabel('Error (length)');
         nexttile;
             boxplot([alpha,psi],'Labels',["Orientation","Angle"])
             set(gca, 'YScale', 'Log'); grid on;

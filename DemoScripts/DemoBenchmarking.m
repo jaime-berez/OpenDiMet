@@ -8,7 +8,8 @@ clear; clc; close all
 
 % Define the polyworks results excel file, the root directory for the
 % reference dataset, and the number of files for each geometry.
-benchmarkFile = "G:\My Drive\PhD\Research\SQA_NIST_Data_Reference_Sets_Results_2021-12-07.xlsx";
+benchmarkFile = "G:\Shared drives\research-BerezLab-GroupDrive\ResearchProjects" + ...
+                "\OpenDiMet\SQA_NIST_Data_Reference_Sets_Results_2021-12-07.xlsx";
 rootDirectory = "Data\nist-l2-reference-pairs\";
 numOfFiles = 30;
 
@@ -180,7 +181,7 @@ boxplot(epsilonErrors, categorical(epsilonErrorsLabel));
 set(gca, 'YScale', 'log');
 grid on;
 title("Location Error \epsilon");
-ylabel("Error (Length Units)");
+ylabel("Error (Length)");
 
 nexttile;
 boxplot(alphaErrors, categorical(alphaErrorsLabel));
@@ -194,7 +195,7 @@ boxplot(deltaErrors, categorical(deltaErrorsLabel));
 set(gca, 'YScale', 'log');
 grid on;
 title("Size Error \delta");
-ylabel("Error (Length Units)");
+ylabel("Error (Length)");
 
 nexttile;
 boxplot(psiErrors, categorical(psiErrorsLabel));
