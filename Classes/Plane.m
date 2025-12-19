@@ -23,7 +23,7 @@ classdef Plane < Feature
         % Constructor method for the Plane class
         function obj = Plane(name, data, associationCriteria, opts)
             arguments
-                name (1,1) string {mustBeTextScalar, mustBeNonempty}
+                name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
                 % Dummy LM-style options
@@ -34,8 +34,9 @@ classdef Plane < Feature
                 opts.Lambda        (1,1) double {mustBeFinite, mustBePositive} = 1e-4
                 opts.DampingCoeff  (1,1) double {mustBeFinite, mustBePositive} = 2
                 opts.SuppressOutput(1,1) logical = true
+                opts.sourceFile (1,1) string = ""
             end
-            obj@Feature(name, data, associationCriteria);
+            obj@Feature(name, data, associationCriteria, opts.sourceFile);
             obj.validateAssociation();
             % Computes and plots the centroid of the plane
             dataOrig = data;

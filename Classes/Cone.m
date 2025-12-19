@@ -37,7 +37,7 @@ classdef Cone < Feature
         function obj = Cone(name, data, associationCriteria, opts)
             % Constructor method for the Cone class
             arguments
-                name (1,1) string {mustBeTextScalar, mustBeNonempty}
+                name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
 
@@ -49,9 +49,10 @@ classdef Cone < Feature
                 opts.Lambda (1,1) double {mustBeFinite, mustBePositive} = 1e-4
                 opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
                 opts.SuppressOutput (1,1) logical = true
+                opts.sourceFile (1,1) string = ""
             end
 
-            obj@Feature(name, data, associationCriteria);
+            obj@Feature(name, data, associationCriteria, opts.sourceFile);
             obj.validateAssociation();
             % Useful document: https://www.mathworks.com/company/technical-articles/tips-and-tricks-combining-functions-using-anonymous-functions.html
             

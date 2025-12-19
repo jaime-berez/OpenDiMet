@@ -14,6 +14,7 @@ classdef Feature
         name (1,1) string {mustBeTextScalar, mustBeNonempty} = ""
         AssociationCriteria (1,1) AssociationCriteria = AssociationCriteria.LeastSquares 
         sigma (1,1) double {mustBeFinite, mustBeReal, mustBeNonnegative}
+        sourceFile (1,1) string = ""
     end
 
     properties (GetAccess = public, SetAccess = private)
@@ -21,13 +22,26 @@ classdef Feature
     end
 
     methods
-        function obj = Feature(name, data, associationCriteria)
+        function obj = Feature(name, data, associationCriteria, sourceFile)
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
+                sourceFile (1,1) string = ""
             end
-            obj.name = name;
+
+            obj.sourceFile = sourceFile;
+            if strlength(name) == 0
+                if strlength(sourceFile) > 0
+                    [~, base] = fileparts(sourceFile);
+                    obj.name = string(base);
+                else
+                    obj.name = "UnnamedFeature";
+                end
+            else
+                obj.name = string(name);
+            end
+            %obj.name = name;
             obj.AssociationCriteria = associationCriteria;
             obj.data = data;
         end
