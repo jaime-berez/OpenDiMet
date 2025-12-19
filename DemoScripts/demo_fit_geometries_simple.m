@@ -11,6 +11,7 @@
 
 clc; close all; clear;
 
+
 %% ---- User Input ----
 
 %Define directory for data
@@ -26,10 +27,17 @@ file = "con11.ds";   % <----- Input
 
 data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
-%% ---- Fit the selected geometry ----
+%% ---- Option 1: Fit the selected geometry using loaded data ----
 
 myFeature = fitFeature(data1, "Cone", "LeastSquares", "NAME", StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
+
+%% ---- Option 2: Fit the selected geometry using the file path ----
+
+path = fullfile(rootDirectory, file);
+
+myFeature = fitFeature(path, "Cone", "LeastSquares", "NAME", MaxIter = 5000, StepTOl = 1e-9, ...
+    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
     
 %% ---- Report fitted parameters, plot result----
 disp(myFeature);
