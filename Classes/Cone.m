@@ -217,19 +217,18 @@ classdef Cone < Feature
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
-            fprintf('  Name:                %s\n', name);
-            fprintf('  AssociationCriteria: %s\n', char(associationCriteria));
-            fprintf('  Point:               [%.4f  %.4f  %.4f]\n', point);
-            fprintf('  Direction:           [%.4f  %.4f  %.4f]\n', direction);
-            fprintf('  Included Angle:      %.4f\n', rad2deg(angle*2));
-            fprintf('  Distance:            %.4f\n', distance);
-            fprintf('  Apex:                [%.4f %.4f %.4f]\n', apex);
-            fprintf('  Small R:             %.4f\n', smallR);
-            fprintf('  Big R:               %.4f\n', bigR);
-            fprintf('  Height:              %.4f\n', height);
-            fprintf('  Sigma:               %.4f\n', sigma);
-            fprintf('  Data Class:          %s\n', dataClass);
-            fprintf('  Data Size:           [%s]\n', num2str(dataSize));
+            fprintf('  Name:           %s\n', name);
+            fprintf('  AssocCrit:      %s\n', char(associationCriteria));
+            fprintf('  Point:          [%.4f  %.4f  %.4f]\n', point);
+            fprintf('  Direction:      [%.4f  %.4f  %.4f]\n', direction);
+            fprintf('  Included Angle: %.4f\n', rad2deg(angle*2));
+            fprintf('  Distance:       %.4f\n', distance);
+            fprintf('  Apex:           [%.4f %.4f %.4f]\n', apex);
+            fprintf('  Small R:        %.4f\n', smallR);
+            fprintf('  Big R:          %.4f\n', bigR);
+            fprintf('  Height:         %.4f\n', height);
+            fprintf('  Sigma:          %.4f\n', sigma);
+            fprintf('  Data Size:      [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
     end
 
