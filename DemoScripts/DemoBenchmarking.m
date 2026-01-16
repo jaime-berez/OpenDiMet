@@ -80,11 +80,12 @@ psiErrorsLabel = strings(0,1);
 
 % Per-file audit log
 varNames = {'Geometry','Source','Member','FileIndex','dsFile','fitFile', ...
-            'epsilon','alpha','delta','psi','Note'};
+            'epsilon','alpha','delta','psi', 'alphaDeg', 'psiDeg', 'Note'};
 resultsLog = table( ...
     strings(0,1), strings(0,1), strings(0,1), ...
     zeros(0,1),   strings(0,1), strings(0,1), ...
     NaN(0,1),     NaN(0,1),     NaN(0,1),     NaN(0,1), ...
+    NaN(0,1), NaN(0,1), ...
     strings(0,1), ...
     'VariableNames', varNames );
 
@@ -141,6 +142,9 @@ for g = 1:numel(geometries)
                 [epsilonError, alphaError, deltaError, psiError] = computeErrors(G.name, ...
                     params, reference, data);
 
+                alphaDeg = rad2deg(alphaError);
+                psiDeg = rad2deg(psiError);
+
                 note = "";      
                 if source == "Polyworks" && G.name=="Cone" && isnan(deltaError)
                     note = "Polyworks export missing cone distance -> delta undefined";
@@ -155,8 +159,8 @@ for g = 1:numel(geometries)
                 resultsLog = [resultsLog; { ...
                     G.name, source, M.folder, ...
                     i, dsFile, fitFile, ...
-                    epsilonError, alphaError, deltaError, psiError, note ...
-                }];
+                    epsilonError, alphaError, deltaError, psiError, alphaDeg, ...
+                    psiDeg, note}];
 
                 epsilonVector(end+1,1) = epsilonError;
                 if ~isnan(alphaError)
@@ -210,10 +214,13 @@ end
 
 %% Populate the error table with results
 
+alphaErrorsDeg = rad2deg(alphaErrors);
+psiErrorsDeg = rad2deg(psiErrors);
+
 epsilonSummary = summarizeErrorVectors(epsilonErrors, epsilonErrorsLabel);
-alphaSummary   = summarizeErrorVectors(alphaErrors,   alphaErrorsLabel);
-deltaSummary   = summarizeErrorVectors(deltaErrors,   deltaErrorsLabel);
-psiSummary     = summarizeErrorVectors(psiErrors,     psiErrorsLabel);
+alphaSummary   = summarizeErrorVectors(alphaErrorsDeg, alphaErrorsLabel);
+deltaSummary   = summarizeErrorVectors(deltaErrors, deltaErrorsLabel);
+psiSummary     = summarizeErrorVectors(psiErrorsDeg, psiErrorsLabel);
 
 outFile = "benchmark_summary_tables.xlsx";
 writetable(epsilonSummary, outFile, "Sheet","epsilon");
@@ -236,7 +243,7 @@ for source = ["OpenDiMet","Polyworks"]
 
     % alpha
     tmp = coneS(isfinite(coneS.alpha), :);
-    tmp = sortrows(tmp, "alpha", "descend");
+    tmp = sortrows(tmp, "alphaDeg", "descend");
     writetable(tmp(1:min(10,height(tmp)),:), "cone_top10_alpha_" + source + ".xlsx");
 
     % delta
@@ -246,7 +253,7 @@ for source = ["OpenDiMet","Polyworks"]
 
     % psi
     tmp = coneS(isfinite(coneS.psi), :);
-    tmp = sortrows(tmp, "psi", "descend");
+    tmp = sortrows(tmp, "psiDeg", "descend");
     writetable(tmp(1:min(10,height(tmp)),:), "cone_top10_psi_" + source + ".xlsx");
 end
 
@@ -363,7 +370,7 @@ function [epsilonError, alphaError, deltaError, psiError] = computeErrors(geomet
         deltaError = abs(params.size - reference(7)); % distance
     end
 
-    % Compute angel error / psiError
+    % Compute angle error / psiError
     if geometryName == "Cone"
         angleReferenceRad = deg2rad(reference(8));
         d = params.angleRad - angleReferenceRad;
@@ -661,16 +668,16 @@ cOpenDiMet = [1 0 0];
 cPolyworks = [0 0 1];
 
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "epsilon", "Error (Length)",  "Location Error \epsilon", ... 
+plotGroupedBoxPlot(ax, resultsLog, "epsilon", "Location Error [mm]",  "Location Error, \epsilon", ... 
                         geomOrder, cOpenDiMet, cPolyworks, false, true);
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "alpha",   "Error (Radians)", "Orientation Error \alpha", ...
+plotGroupedBoxPlot(ax, resultsLog, "alphaDeg",   "Orientation Error [deg]", "Orientation Error, \alpha", ...
                         geomOrder, cOpenDiMet, cPolyworks, false, true);
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "delta",   "Error (Length)",  "Size Error \delta", ...
+plotGroupedBoxPlot(ax, resultsLog, "delta",   "Size Error [mm]",  "Size Error, \delta", ...
                         geomOrder, cOpenDiMet, cPolyworks, false, true);
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "psi",     "Error (Radians)", "Angle Error \psi", ...
+plotGroupedBoxPlot(ax, resultsLog, "psiDeg",     "Angle Error [deg]", "Angle Error, \psi", ...
                         geomOrder, cOpenDiMet, cPolyworks, true, true);
 
 % Helper function to plot grouped box plots
@@ -768,7 +775,7 @@ function plotGroupedBoxPlot(ax, resultsLog, metricName, yLab, ttl, ...
     % Legend inside each subplot 
     if showLegend     
         % Define location of the legend      
-        lx = 0.40; ly = 0.55; lw = 0.58; lh = 0.40;    
+        lx = 0.55; ly = 0.55; lw = 0.42; lh = 0.42;    
         % Call the helper       
         drawCustomLegendBox(ax, lx, ly, lw, lh, cOD, cPW);    
     end 
@@ -820,14 +827,14 @@ function drawCustomLegendBox(ax, x, y, w, h, cOD, cPW)
         'FaceColor', 'w', 'EdgeColor', 'k', 'LineWidth', 1);
 
     % Layout Constants
-    iconX_center = x + 0.07;   
-    icon_width   = 0.03;       
-    textX        = x + 0.16;   
+    iconX_center = x + 0.06;   
+    icon_width   = 0.025;       
+    textX        = x + 0.13;   
     
     % Adjustment
-    y1_norm = y + h * 0.88; % OpenDiMet 
-    y2_norm = y + h * 0.78; % Polyworks 
-    yc_norm = y + h * 0.25; % Diagram Center
+    y1_norm = y + h * 0.86; % OpenDiMet 
+    y2_norm = y + h * 0.76; % Polyworks 
+    yc_norm = y + h * 0.38; % Diagram Center
 
     % Draw Series Lines
     % OpenDiMet (Red)
@@ -848,10 +855,10 @@ function drawCustomLegendBox(ax, x, y, w, h, cOD, cPW)
     xc_norm = iconX_center; 
     
     % Dimensions
-    boxH_norm = 0.05;   
-    whiskH_norm = 0.10; 
-    boxW_norm = 0.03;   
-    outlier_gap = 0.05; 
+    boxH_norm = 0.04;   
+    whiskH_norm = 0.09; 
+    boxW_norm = 0.025;   
+    outlier_gap = 0.03; 
     
     % Convert to data coords
     wx          = n2d(xc_norm, xLim, xLog);
@@ -889,18 +896,19 @@ function drawCustomLegendBox(ax, x, y, w, h, cOD, cPW)
     plot(ax, wx_square, oy, 'ks', 'MarkerSize', 3, 'LineWidth', 1); 
 
     % Labels
-    fSz = 7; txtCol = 'k';
+    fSz = 6; 
+    txtCol = 'k';
     
     % Outlier
     text(ax, textX, yc_norm + whiskH_norm + outlier_gap, '\leftarrow Outlier', ...
         'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
 
     % Top Whisker
-    text(ax, textX, yc_norm + whiskH_norm, '\leftarrow 1.5 \cdot IQR', ...
+    text(ax, textX, yc_norm + whiskH_norm, '\leftarrow Q3 + 1.5*IQR', ...
         'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
 
     % Q3
-    text(ax, textX, yc_norm + boxH_norm, '\leftarrow 75^{th} Percentile', ...
+    text(ax, textX, yc_norm + boxH_norm, '\leftarrow 75^{th} Percentile (Q3)', ...
         'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
 
     % Median
@@ -908,43 +916,12 @@ function drawCustomLegendBox(ax, x, y, w, h, cOD, cPW)
         'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
 
     % Q1
-    text(ax, textX, yc_norm - boxH_norm, '\leftarrow 25^{th} Percentile', ...
+    text(ax, textX, yc_norm - boxH_norm, '\leftarrow 25^{th} Percentile (Q1)', ...
         'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
         
     % Bottom Whisker
-    text(ax, textX, yc_norm - whiskH_norm, '\leftarrow 1.5 \cdot IQR', ...
+    text(ax, textX, yc_norm - whiskH_norm, '\leftarrow Q1 - 1.5*IQR', ...
         'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
-end
-
-function drawBoxGlyph_Data(ax, xc_n, yc_n, col, sz_n, n2d, xLim, yLim, xLog, yLog)
-    % Converts centers to data and draws the mini glyph
-    xc = n2d(xc_n, xLim, xLog);
-    
-    % Whisker Y
-    wy1 = n2d(yc_n - sz_n*1.5, yLim, yLog);
-    wy2 = n2d(yc_n + sz_n*1.5, yLim, yLog);
-    
-    % Box X/Y
-    bx1 = n2d(xc_n - sz_n, xLim, xLog);
-    bx2 = n2d(xc_n + sz_n, xLim, xLog);
-    by1 = n2d(yc_n - sz_n, yLim, yLog);
-    by2 = n2d(yc_n + sz_n, yLim, yLog);
-    
-    % Median Y
-    my = n2d(yc_n, yLim, yLog);
-    
-    % Outlier Y
-    oy = n2d(yc_n + sz_n*2.2, yLim, yLog);
-
-    hold(ax, 'on');
-    % Whisker
-    plot(ax, [xc xc], [wy1 wy2], '-', 'Color', col, 'LineWidth', 1);
-    % Box
-    plot(ax, [bx1 bx2 bx2 bx1 bx1], [by1 by1 by2 by2 by1], '-', 'Color', col, 'LineWidth', 1);
-    % Median
-    plot(ax, [bx1, bx2], [my, my], '-', 'Color', col, 'LineWidth', 1);
-    % Outlier
-    plot(ax, xc, oy, 'o', 'Color', col, 'MarkerSize', 2, 'LineWidth', 1);
 end
 
 
