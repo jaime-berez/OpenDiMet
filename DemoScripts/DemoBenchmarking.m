@@ -8,8 +8,7 @@ clear; clc; close all
 
 % Define the polyworks results excel file, the root directory for the
 % reference dataset, and the number of files for each geometry.
-benchmarkFile = "G:\Shared drives\research-BerezLab-GroupDrive\ResearchProjects" + ...
-                "\OpenDiMet\SQA_NIST_Data_Reference_Sets_Results_2021-12-07.xlsx";
+benchmarkFile = "G:\My Drive\PhD\Research\OpenDiMet\Polyworks_IR3.4_15_Decimals.xlsx";
 rootDirectory = "Data\nist-l2-reference-pairs\";
 numOfFiles = 30;
 
@@ -55,8 +54,8 @@ geometries(end+1) = makeGeometry("Circle3D", makeMember("Circle3d", "cir", "Circ
     @parseCircle3DPolyworks), true, true, true, false);
 
 % Sphere
-geometries(end+1) = makeGeometry("Sphere", makeMember("Sphere", "sph", "Sphere", "sphere", false, ...
-    []), true, false, true, false);
+geometries(end+1) = makeGeometry("Sphere", makeMember("Sphere", "sph", "Sphere", "sphere", true, ...
+    @parseSpherePolyworks), true, false, true, false);
 
 % Cylinder
 geometries(end+1) = makeGeometry("Cylinder", makeMember("Cylinder", "cyl", "Cylinder", "cylinder", true, ...
@@ -604,6 +603,26 @@ function params = parseConePolyworks(T, idx)
     params.angleRad = deg2rad(angleDeg);
 end
 
+function params = parseSpherePolyworks(T, idx)
+%PARSESPHEREPOLYWORKS Function to parse parameters from the polyworks excel
+%sheet for spheres. Return a struct object with parsed results.
+    obj = "SPHERE" + string(idx);
+    Tobj = T(T.ObjectName == obj, :);
+
+    if isempty(Tobj)
+        error("No rows for '%s'", obj)
+    end
+    
+    radius = getControlMeasure(Tobj, "Radius");
+    x = getControlMeasure(Tobj, "X");
+    y = getControlMeasure(Tobj, "Y");
+    z = getControlMeasure(Tobj, "Z");
+
+    params.point = [x y z];
+    params.size = 2*radius;
+    params.angleRad = NaN;
+end
+
 %% Summarizing the errors
 
 function S = summarizeErrorVectors(values, labels)
@@ -664,20 +683,24 @@ geomOrder = ["Circle2D","Circle3D","Cone","Cylinder","Sphere","Line2D","Line3D",
 % cPolyworks = [0.35 0.35 0.35]; % gray
 
 % Color set 3
-cOpenDiMet = [1 0 0];
-cPolyworks = [0 0 1];
+% cOpenDiMet = [1 0 0]; % red
+% cPolyworks = [0 0 1]; % blue
+
+% Color set 4
+cOpenDiMet = [0 80 53]./255; % charlotte green
+cPolyworks = [0 0 1]; % blue
 
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "epsilon", "Location Error [mm]",  "Location Error, \epsilon", ... 
+plotGroupedBoxPlot(ax, resultsLog, "epsilon", "Location Error [mm]",  "\bf(a) Location Error, \epsilon", ... 
                         geomOrder, cOpenDiMet, cPolyworks, false, true);
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "alphaDeg",   "Orientation Error [deg]", "Orientation Error, \alpha", ...
+plotGroupedBoxPlot(ax, resultsLog, "alphaDeg",   "Orientation Error [deg]", "\bf(b) Orientation Error, \alpha", ...
                         geomOrder, cOpenDiMet, cPolyworks, false, true);
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "delta",   "Size Error [mm]",  "Size Error, \delta", ...
+plotGroupedBoxPlot(ax, resultsLog, "delta",   "Size Error [mm]",  "\bf(c) Size Error, \delta", ...
                         geomOrder, cOpenDiMet, cPolyworks, false, true);
 ax = nexttile;
-plotGroupedBoxPlot(ax, resultsLog, "psiDeg",     "Angle Error [deg]", "Angle Error, \psi", ...
+plotGroupedBoxPlot(ax, resultsLog, "psiDeg",     "Angle Error [deg]", "\bf(d) Angle Error, \psi", ...
                         geomOrder, cOpenDiMet, cPolyworks, true, true);
 
 % Helper function to plot grouped box plots
@@ -775,7 +798,7 @@ function plotGroupedBoxPlot(ax, resultsLog, metricName, yLab, ttl, ...
     % Legend inside each subplot 
     if showLegend     
         % Define location of the legend      
-        lx = 0.55; ly = 0.55; lw = 0.42; lh = 0.42;    
+        lx = 0.45; ly = 0.55; lw = 0.50; lh = 0.42;    
         % Call the helper       
         drawCustomLegendBox(ax, lx, ly, lw, lh, cOD, cPW);    
     end 
@@ -783,7 +806,7 @@ function plotGroupedBoxPlot(ax, resultsLog, metricName, yLab, ttl, ...
     % Export plot
     hold(ax, 'off');
     set(gcf, 'Units', 'inches');
-    set(gcf, 'Position', [1 1 8 6]); % 8 in wide and 6 inch tall
+    set(gcf, 'Position', [1 1 6.5 6]); % 6.5 in wide and 6.5 inch tall
     figName = 'Least-squares association error';
 
     % High-resolution raster file
