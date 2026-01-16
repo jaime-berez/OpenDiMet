@@ -78,6 +78,17 @@ deltaErrorsLabel = strings(0,1);
 psiErrors = [];
 psiErrorsLabel = strings(0,1);
 
+% Per-file audit log
+varNames = {'Geometry','Source','Member','FileIndex','dsFile','fitFile', ...
+            'epsilon','alpha','delta','psi','Note'};
+resultsLog = table( ...
+    strings(0,1), strings(0,1), strings(0,1), ...
+    zeros(0,1),   strings(0,1), strings(0,1), ...
+    NaN(0,1),     NaN(0,1),     NaN(0,1),     NaN(0,1), ...
+    strings(0,1), ...
+    'VariableNames', varNames );
+
+
 fprintf("=== Running benchmark across all geometries ===\n");
 
 for g = 1:numel(geometries)
@@ -118,10 +129,34 @@ for g = 1:numel(geometries)
                 else
                     params = M.benchmarkParser(T, i);
                 end
+                
+                % Debugging (cone #1 only, OpenDiMet only)
+                % if G.name=="Cone" && source=="OpenDiMet" && i==1
+                %     fprintf("feature.angle raw      = %.12g\n", feature.angle);
+                %     fprintf("feature.angle as deg   = %.6f\n", rad2deg(feature.angle));
+                %     fprintf("reference(8) raw       = %.12g\n", reference(8));
+                % end
 
                 % Compute errors vs NIST
                 [epsilonError, alphaError, deltaError, psiError] = computeErrors(G.name, ...
                     params, reference, data);
+
+                note = "";      
+                if source == "Polyworks" && G.name=="Cone" && isnan(deltaError)
+                    note = "Polyworks export missing cone distance -> delta undefined";
+                end
+                
+                if isnan(alphaError) && any(G.name==["Line2D","Line3D","Plane","Circle2D",...
+                            "Circle3D","Cylinder","Cone"])
+                    note = note + " alpha undefined";
+                end
+
+                % Append to audit log
+                resultsLog = [resultsLog; { ...
+                    G.name, source, M.folder, ...
+                    i, dsFile, fitFile, ...
+                    epsilonError, alphaError, deltaError, psiError, note ...
+                }];
 
                 epsilonVector(end+1,1) = epsilonError;
                 if ~isnan(alphaError)
@@ -172,38 +207,48 @@ for g = 1:numel(geometries)
     end
 end
 
-%% Viz Block
-figure('Name', 'Benchmark: OpenDiMet vs Polyworks vs NIST');
-t = tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'tight');
-t.Title.String = "Association errors compared to NIST (OpenDiMet and Polyworks)";
 
-nexttile;
-boxplot(epsilonErrors, categorical(epsilonErrorsLabel));
-set(gca, 'YScale', 'log');
-grid on;
-title("Location Error \epsilon");
-ylabel("Error (Length)");
+%% Populate the error table with results
 
-nexttile;
-boxplot(alphaErrors, categorical(alphaErrorsLabel));
-set(gca, 'YScale', 'log');
-grid on;
-title("Orientation Error \alpha");
-ylabel("Error (Radians)");
+epsilonSummary = summarizeErrorVectors(epsilonErrors, epsilonErrorsLabel);
+alphaSummary   = summarizeErrorVectors(alphaErrors,   alphaErrorsLabel);
+deltaSummary   = summarizeErrorVectors(deltaErrors,   deltaErrorsLabel);
+psiSummary     = summarizeErrorVectors(psiErrors,     psiErrorsLabel);
 
-nexttile;
-boxplot(deltaErrors, categorical(deltaErrorsLabel));
-set(gca, 'YScale', 'log');
-grid on;
-title("Size Error \delta");
-ylabel("Error (Length)");
+outFile = "benchmark_summary_tables.xlsx";
+writetable(epsilonSummary, outFile, "Sheet","epsilon");
+writetable(alphaSummary,   outFile, "Sheet","alpha");
+writetable(deltaSummary,   outFile, "Sheet","delta");
+writetable(psiSummary,     outFile, "Sheet","psi");
 
-nexttile;
-boxplot(psiErrors, categorical(psiErrorsLabel));
-set(gca, 'YScale', 'log');
-grid on;
-title("Angle Error \psi");
-ylabel("Error (Radians)");
+writetable(resultsLog, "benchmark_per_file_errors.xlsx");
+
+% Top 10 worst cone cases by metric (OpenDiMet + Polyworks)
+coneAll = resultsLog(resultsLog.Geometry=="Cone", :);
+
+for source = ["OpenDiMet","Polyworks"]
+    coneS = coneAll(coneAll.Source==source, :);
+
+    % epsilon
+    tmp = coneS(isfinite(coneS.epsilon), :);
+    tmp = sortrows(tmp, "epsilon", "descend");
+    writetable(tmp(1:min(10,height(tmp)),:), "cone_top10_epsilon_" + source + ".xlsx");
+
+    % alpha
+    tmp = coneS(isfinite(coneS.alpha), :);
+    tmp = sortrows(tmp, "alpha", "descend");
+    writetable(tmp(1:min(10,height(tmp)),:), "cone_top10_alpha_" + source + ".xlsx");
+
+    % delta
+    tmp = coneS(isfinite(coneS.delta), :);
+    tmp = sortrows(tmp, "delta", "descend");
+    writetable(tmp(1:min(10,height(tmp)),:), "cone_top10_delta_" + source + ".xlsx");
+
+    % psi
+    tmp = coneS(isfinite(coneS.psi), :);
+    tmp = sortrows(tmp, "psi", "descend");
+    writetable(tmp(1:min(10,height(tmp)),:), "cone_top10_psi_" + source + ".xlsx");
+end
 
 %% Helper functions
 
@@ -261,7 +306,7 @@ function params = paramsFromFeature(feature, geometryType)
     end
 
     if string(geometryType) == "Cone"
-        params.angleRad = deg2rad(feature.angle);
+        params.angleRad = 2 * feature.angle;
     else
         params.angleRad = NaN;
     end
@@ -299,9 +344,14 @@ function [epsilonError, alphaError, deltaError, psiError] = computeErrors(geomet
     if any(geometryName == ["Line2D", "Line3D", "Plane", "Circle2D", "Circle3D", "Cylinder", "Cone"])
         directionReference = reference(4:6).';
         directionReference = directionReference/norm(directionReference);
-        directionCosine = abs(dot(params.direction(:)', directionReference)); % abs to make flip invariant
-        directionCosine = max(min(directionCosine,1),-1);
-        alphaError = acos(directionCosine);
+        % directionCosine = abs(dot(params.direction(:)', directionReference)); % abs to make flip invariant
+        % directionCosine = max(min(directionCosine,1),-1);
+        % alphaError = acos(directionCosine);
+        directionCosine = params.direction(:)';
+        directionCosine = directionCosine/norm(directionCosine);
+        cosAlpha = abs(dot(directionCosine, directionReference));
+        sinAlpha = norm(cross(directionCosine, directionReference));
+        alphaError = atan2(sinAlpha, cosAlpha);
     end
 
     % Compute size error / deltaError
@@ -546,5 +596,357 @@ function params = parseConePolyworks(T, idx)
     params.size = distance;
     params.angleRad = deg2rad(angleDeg);
 end
+
+%% Summarizing the errors
+
+function S = summarizeErrorVectors(values, labels)
+%SUMMARIZEERRORVECTORS Function to summarize the error vectors for
+%analysis. Returns a table with summary stats.
+    tags = unique(labels);
+    nTags = numel(tags);
+
+    Tag = strings(nTags,1);
+    N = zeros(nTags,1);
+    Min = NaN(nTags,1);
+    Q1 = NaN(nTags,1);
+    Median = NaN(nTags,1);
+    Q3 = NaN(nTags,1);
+    IQR = NaN(nTags,1);
+    Max = NaN(nTags,1);
+    P95 = NaN(nTags,1);
+
+    for k = 1:nTags
+        t = tags(k);
+        v = values(labels == t);
+
+        v = v(isfinite(v));
+        v = v(v >= 0);
+
+        Tag(k) = string(t);
+        N(k) = numel(v);
+
+        if N(k) > 0
+            Min(k) = min(v);
+            Q1(k) = prctile(v,25);
+            Median(k) = median(v);
+            Q3(k) = prctile(v,75);
+            IQR(k) = Q3(k) - Q1(k);
+            Max(k) = max(v);
+            P95(k) = prctile(v,95);
+        end
+    end
+
+    S = table(Tag, N, Min, Q1, Median, Q3, IQR, P95, Max);
+    S = sortrows(S, "Tag");
+end
+
+
+%% Viz Block
+
+figure('Name', 'Benchmark: OpenDiMet vs Polyworks vs NIST');
+set(gcf, 'Color', 'w');
+t = tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+geomOrder = ["Circle2D","Circle3D","Cone","Cylinder","Sphere","Line2D","Line3D","Plane"];
+
+% Color set 1
+% cOpenDiMet = [0.10 0.60 0.20]; % green
+% cPolyworks = [0.15 0.35 0.85]; % blue
+
+% % Color set 2
+% cOpenDiMet = [0 0 0]; % black
+% cPolyworks = [0.35 0.35 0.35]; % gray
+
+% Color set 3
+cOpenDiMet = [1 0 0];
+cPolyworks = [0 0 1];
+
+ax = nexttile;
+plotGroupedBoxPlot(ax, resultsLog, "epsilon", "Error (Length)",  "Location Error \epsilon", ... 
+                        geomOrder, cOpenDiMet, cPolyworks, false, true);
+ax = nexttile;
+plotGroupedBoxPlot(ax, resultsLog, "alpha",   "Error (Radians)", "Orientation Error \alpha", ...
+                        geomOrder, cOpenDiMet, cPolyworks, false, true);
+ax = nexttile;
+plotGroupedBoxPlot(ax, resultsLog, "delta",   "Error (Length)",  "Size Error \delta", ...
+                        geomOrder, cOpenDiMet, cPolyworks, false, true);
+ax = nexttile;
+plotGroupedBoxPlot(ax, resultsLog, "psi",     "Error (Radians)", "Angle Error \psi", ...
+                        geomOrder, cOpenDiMet, cPolyworks, true, true);
+
+% Helper function to plot grouped box plots
+function plotGroupedBoxPlot(ax, resultsLog, metricName, yLab, ttl, ...
+        geomOrder, cOD, cPW, showLegend, showOnlyWithData)
+%PLOTGROUPEDBOXPLOT Function to plot grouped box plots of association
+%errors from resultsLog.
+
+    if nargin < 10    
+        showOnlyWithData = false;   
+    end
+    
+    metricName = string(metricName);
+    
+    % Pull data    
+    geom = string(resultsLog.Geometry);    
+    source = string(resultsLog.Source);    
+    y = resultsLog.(metricName);    
+    ok = isfinite(y) & ~isnan(y) & (y >= 0);    
+    geom = geom(ok);    
+    source = source(ok);    
+    y = y(ok);
+    
+    % Log scale can't show 0, map 0s to eps  
+    yPlot = y;    
+    yPlot(yPlot == 0) = eps;   
+
+    % Map geometry    
+    [tf, pos] = ismember(geom, geomOrder);    
+    geom = geom(tf);    
+    source = source(tf);    
+    yPlot = yPlot(tf);    
+    pos = pos(tf);
+    
+    % Split by source    
+    isOD = source == "OpenDiMet";    
+    isPW = source == "Polyworks";
+    
+    % Offsets so boxes sit side-by-side per geometry    
+    off = 0.18;    
+    hold(ax, 'on');    
+    ax.ColorOrder = [1 0 0; 0 0 1];    
+    ax.ColorOrderIndex = 1;    
+    if any(isOD)    
+        bc1 = boxchart(ax, pos(isOD) - off, yPlot(isOD));        
+        bc1.BoxFaceColor = 'none';        
+        bc1.BoxEdgeColor = cOD;        
+        bc1.WhiskerLineColor = cOD;        
+        bc1.MarkerColor = cOD;        
+        bc1.MarkerStyle = 'o';        
+        bc1.MarkerSize = 3;        
+        bc1.LineWidth = 1.0;    
+    end
+    
+    if any(isPW)  
+        bc2 = boxchart(ax, pos(isPW) + off, yPlot(isPW));     
+        bc2.BoxFaceColor = 'none';
+        bc2.BoxEdgeColor = cPW;        
+        bc2.WhiskerLineColor = cPW;        
+        bc2.MarkerColor = cPW;        
+        bc2.MarkerStyle = 's';       
+        bc2.MarkerSize = 3;        
+        bc2.LineWidth = 1.0;    
+    end
+    
+    % Formatting    
+    ax.YScale = 'log';    
+    ax.LineWidth = 1.2;    
+    ax.Box = 'on';    
+    ax.FontSize = 8;    
+    ax.FontName = 'Arial';    
+    grid(ax, 'on');    
+    ax.GridAlpha = 0.15;    
+    ax.MinorGridAlpha = 0.08;    
+    ax.XMinorTick = 'off';    
+    ax.YMinorTick = 'on';    
+    title(ax, ttl, 'FontSize', 8, 'FontName', 'Arial', 'FontWeight', 'normal');    
+    ylabel(ax, yLab, 'FontSize', 8);
+    
+    % Lock identical x-frame for all subplots    
+    ax.XLim = [0, numel(geomOrder) + 1];    
+    ax.XTick = 1:numel(geomOrder);    
+    ax.XTickLabel = geomOrder;    
+    ax.XTickLabelRotation = 25;
+    
+    % Only label geometries that appear in this metric    
+    if showOnlyWithData    
+        present = false(size(geomOrder));     
+        present(unique(pos)) = true;       
+        labels = strings(size(geomOrder));        
+        labels(present) = geomOrder(present);        
+        ax.XTickLabel = labels; % keeps spacing, hides unused labels    
+    end
+    
+    % Legend inside each subplot 
+    if showLegend     
+        % Define location of the legend      
+        lx = 0.40; ly = 0.55; lw = 0.58; lh = 0.40;    
+        % Call the helper       
+        drawCustomLegendBox(ax, lx, ly, lw, lh, cOD, cPW);    
+    end 
+
+    % Export plot
+    hold(ax, 'off');
+    set(gcf, 'Units', 'inches');
+    set(gcf, 'Position', [1 1 8 6]); % 8 in wide and 6 inch tall
+    figName = 'Least-squares association error';
+
+    % High-resolution raster file
+    exportgraphics(gcf, figName + ".png", ...
+                        'Resolution', 600, 'BackgroundColor', 'white');
+    % Vector formats
+    exportgraphics(gcf, figName + ".pdf", 'ContentType', 'vector');
+
+    exportgraphics(gcf, figName + ".svg", 'ContentType', 'vector');
+
+    exportgraphics(gcf, figName + ".eps", 'ContentType', 'vector');
+end
+
+function drawCustomLegendBox(ax, x, y, w, h, cOD, cPW)
+%DRAWCUSTOMLEGENDBOX Function to draw custom legend box inside the plot
+%with a specified length, width, height, and position.
+
+    % Setup & Helper for coordinate conversion
+    xLim = xlim(ax);
+    yLim = ylim(ax);
+    xLog = strcmp(ax.XScale, 'log');
+    yLog = strcmp(ax.YScale, 'log');
+
+    function val = n2d(normVal, lims, isLog)
+        if isLog
+            val = 10.^(log10(lims(1)) + normVal .* (log10(lims(2)) - log10(lims(1))));
+        else
+            val = lims(1) + normVal .* (lims(2) - lims(1));
+        end
+    end
+
+    % Draw Legend Background
+    rectX = n2d(x, xLim, xLog);
+    rectW = n2d(x + w, xLim, xLog) - rectX;
+    rectY_bottom = n2d(y, yLim, yLog);
+    rectY_top = n2d(y + h, yLim, yLog);
+    rectH = rectY_top - rectY_bottom;
+
+    rectangle(ax, 'Position', [rectX, rectY_bottom, rectW, rectH], ...
+        'Curvature', 0.02, ...
+        'FaceColor', 'w', 'EdgeColor', 'k', 'LineWidth', 1);
+
+    % Layout Constants
+    iconX_center = x + 0.07;   
+    icon_width   = 0.03;       
+    textX        = x + 0.16;   
+    
+    % Adjustment
+    y1_norm = y + h * 0.88; % OpenDiMet 
+    y2_norm = y + h * 0.78; % Polyworks 
+    yc_norm = y + h * 0.25; % Diagram Center
+
+    % Draw Series Lines
+    % OpenDiMet (Red)
+    lx1 = n2d(iconX_center - icon_width, xLim, xLog);
+    lx2 = n2d(iconX_center + icon_width, xLim, xLog);
+    ly1 = n2d(y1_norm, yLim, yLog);
+    plot(ax, [lx1 lx2], [ly1 ly1], '-', 'Color', cOD, 'LineWidth', 2);
+    text(ax, textX, y1_norm, 'OpenDiMet', 'Units', 'normalized', ...
+        'FontSize', 7, 'FontName', 'Arial', 'VerticalAlignment', 'middle');
+
+    % Polyworks (Blue)
+    ly2 = n2d(y2_norm, yLim, yLog);
+    plot(ax, [lx1 lx2], [ly2 ly2], '-', 'Color', cPW, 'LineWidth', 2);
+    text(ax, textX, y2_norm, 'Polyworks', 'Units', 'normalized', ...
+        'FontSize', 7, 'FontName', 'Arial', 'VerticalAlignment', 'middle');
+
+    % Draw Diagram Geometry
+    xc_norm = iconX_center; 
+    
+    % Dimensions
+    boxH_norm = 0.05;   
+    whiskH_norm = 0.10; 
+    boxW_norm = 0.03;   
+    outlier_gap = 0.05; 
+    
+    % Convert to data coords
+    wx          = n2d(xc_norm, xLim, xLog);
+    yBoxTop     = n2d(yc_norm + boxH_norm, yLim, yLog);    
+    yBoxBottom  = n2d(yc_norm - boxH_norm, yLim, yLog);    
+    yWhiskTop   = n2d(yc_norm + whiskH_norm, yLim, yLog);  
+    yWhiskBott  = n2d(yc_norm - whiskH_norm, yLim, yLog);  
+
+    % Whiskers
+    plot(ax, [wx wx], [yBoxTop yWhiskTop], 'k-', 'LineWidth', 1);
+    plot(ax, [wx wx], [yWhiskBott yBoxBottom], 'k-', 'LineWidth', 1);
+    
+    % Box
+    bx1 = n2d(xc_norm - boxW_norm, xLim, xLog);
+    bx2 = n2d(xc_norm + boxW_norm, xLim, xLog);
+    plot(ax, [bx1 bx2 bx2 bx1 bx1], [yBoxBottom yBoxBottom yBoxTop yBoxTop yBoxBottom], ...
+         'k-', 'LineWidth', 1);
+
+    % Median Line
+    my = n2d(yc_norm, yLim, yLog);
+    plot(ax, [bx1 bx2], [my my], 'k-', 'LineWidth', 1);
+    
+    % Caps
+    capW_norm = boxW_norm * 0.6; 
+    cx1 = n2d(xc_norm - capW_norm, xLim, xLog);
+    cx2 = n2d(xc_norm + capW_norm, xLim, xLog);
+    plot(ax, [cx1 cx2], [yWhiskTop yWhiskTop], 'k-', 'LineWidth', 1);
+    plot(ax, [cx1 cx2], [yWhiskBott yWhiskBott], 'k-', 'LineWidth', 1);
+
+    % Outliers (Circle & Square)
+    oy = n2d(yc_norm + whiskH_norm + outlier_gap, yLim, yLog);
+    wx_circle = n2d(xc_norm - 0.015, xLim, xLog); 
+    wx_square = n2d(xc_norm + 0.015, xLim, xLog);
+    plot(ax, wx_circle, oy, 'ko', 'MarkerSize', 3, 'LineWidth', 1); 
+    plot(ax, wx_square, oy, 'ks', 'MarkerSize', 3, 'LineWidth', 1); 
+
+    % Labels
+    fSz = 7; txtCol = 'k';
+    
+    % Outlier
+    text(ax, textX, yc_norm + whiskH_norm + outlier_gap, '\leftarrow Outlier', ...
+        'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
+
+    % Top Whisker
+    text(ax, textX, yc_norm + whiskH_norm, '\leftarrow 1.5 \cdot IQR', ...
+        'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
+
+    % Q3
+    text(ax, textX, yc_norm + boxH_norm, '\leftarrow 75^{th} Percentile', ...
+        'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
+
+    % Median
+    text(ax, textX, yc_norm, '\leftarrow Median', ...
+        'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
+
+    % Q1
+    text(ax, textX, yc_norm - boxH_norm, '\leftarrow 25^{th} Percentile', ...
+        'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
+        
+    % Bottom Whisker
+    text(ax, textX, yc_norm - whiskH_norm, '\leftarrow 1.5 \cdot IQR', ...
+        'Units', 'normalized', 'FontSize', fSz, 'Color', txtCol, 'VerticalAlignment', 'middle');
+end
+
+function drawBoxGlyph_Data(ax, xc_n, yc_n, col, sz_n, n2d, xLim, yLim, xLog, yLog)
+    % Converts centers to data and draws the mini glyph
+    xc = n2d(xc_n, xLim, xLog);
+    
+    % Whisker Y
+    wy1 = n2d(yc_n - sz_n*1.5, yLim, yLog);
+    wy2 = n2d(yc_n + sz_n*1.5, yLim, yLog);
+    
+    % Box X/Y
+    bx1 = n2d(xc_n - sz_n, xLim, xLog);
+    bx2 = n2d(xc_n + sz_n, xLim, xLog);
+    by1 = n2d(yc_n - sz_n, yLim, yLog);
+    by2 = n2d(yc_n + sz_n, yLim, yLog);
+    
+    % Median Y
+    my = n2d(yc_n, yLim, yLog);
+    
+    % Outlier Y
+    oy = n2d(yc_n + sz_n*2.2, yLim, yLog);
+
+    hold(ax, 'on');
+    % Whisker
+    plot(ax, [xc xc], [wy1 wy2], '-', 'Color', col, 'LineWidth', 1);
+    % Box
+    plot(ax, [bx1 bx2 bx2 bx1 bx1], [by1 by1 by2 by2 by1], '-', 'Color', col, 'LineWidth', 1);
+    % Median
+    plot(ax, [bx1, bx2], [my, my], '-', 'Color', col, 'LineWidth', 1);
+    % Outlier
+    plot(ax, xc, oy, 'o', 'Color', col, 'MarkerSize', 2, 'LineWidth', 1);
+end
+
+
 
 

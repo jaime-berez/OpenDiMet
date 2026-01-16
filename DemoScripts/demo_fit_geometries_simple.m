@@ -21,7 +21,7 @@ dataFolder = "Cone";       % <----- Input
 rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder);
 
 % Define files with raw coordinate data to import
-file = "con11.ds";   % <----- Input
+file = "con14.ds";   % <----- Input
 
 %% ---- Load data ----
 
