@@ -3,9 +3,8 @@ function feature = fitFeature(data, featureType, associationCriteria, featureNam
     arguments
         %data (:, 3) double {mustBeFinite, mustBeReal, mustBeNonempty, mustBeNonNan} 
         data {mustBeA(data, {'double', 'string', 'char'})}
-        featureType (1,1) {mustBeMember(featureType, ...
-            ["Line", "Plane", "Circle", "Sphere", "Cylinder", "Cone"])}
-        associationCriteria (1,1) AssociationCriteria
+        featureType {mustBeA(featureType, {'char', 'string'})}
+        associationCriteria {mustBeA(associationCriteria, {'AssociationCriteria', 'char', 'string'})}
         featureName (1,1) string = ""
         opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
         opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
@@ -29,6 +28,18 @@ function feature = fitFeature(data, featureType, associationCriteria, featureNam
     %         featureName = "UnnamedFeature";
     %     end
     % end
+
+    featureType = string(featureType);
+
+    validTypes = ["Line", "Plane", "Circle", "Cylinder", "Sphere", "Cone"];
+    if ~ismember(featureType, validTypes)
+        error("fitFeature:InvalidFeatureType", ...
+                "featureType must be one of: %s", strjoin(validTypes, ", "));
+    end
+
+    if ~isa(associationCriteria, "AssociationCriteria")
+        associationCriteria = AssociationCriteria.(string(associationCriteria));
+    end
 
     sourceFile = "";
     if isnumeric(data)
