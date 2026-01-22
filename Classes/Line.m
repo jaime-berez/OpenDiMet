@@ -67,20 +67,51 @@ classdef Line < Feature
             'Singular Value Decomposition.']);
         end
 
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, ax, lineStyle)
-            % Function to plot the fitted line
+        function h = plot(obj, opts)
+            % PLOT Plot line coordinate data and fitted line segment.
+            %
+            % h = obj.plot() uses defaults.
+            % h = obj.plot(Name = Value, ...) customizes appearance.
+            %
+            % Options (Name = Value)
+            % dataColor         : color name/'r'/RGB/[hex] (default: [0
+            %                     0.4470 0.7410])
+            % dataMarker        : marker char (default: '.')
+            % dataMarkerSize    : scalar (default: 12)
+            % dataLabel         : string (default: "<name> Data")
+            % fitColor          : color name/'r'/RGB/[hex] (default: [0 1
+            %                     0]
+            % fitLabel          : string (default: "<name> Fit")
+            % fitLineStyle      : 'solid' | 'dashed' | 'dotted' | 'dashdot'
+            %                     | 'none' (default: 'dashdot')
+            % fitLineWidth      : scalar (default: 2)
+            % ax                : axes handle (default: gca)
             arguments
                 obj               
-                dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
-                    mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = obj.name + ' Data'
-                fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
-                    mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit'
-                ax = []
-                lineStyle = 'g-.'
+                opts.dataColor = [0 0.4470 0.7410]
+                opts.dataLabel (1,1) string = obj.name + " Data"
+                opts.dataMarker (1,1) string = "."
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+        
+                opts.fitColor = [0 1 0]
+                opts.fitLabel (1,1) string = obj.name + " Fit"
+                opts.LineStyle (1,1) string = "dashdot"
+                opts.LineWidth (1,1) double {mustBeFinite,mustBePositive} = 2
+        
+                opts.ax = []
             end
-                
+
+            ax = opts.ax;
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            % Parse styling via feature helpers
+            dataColor = obj.parseColor(opts.dataColor);
+            fitColor  = obj.parseColor(opts.fitColor);
+            fitLS     = obj.parseLineStyle(opts.LineStyle);
+              
+            % Geometry
             data = obj.data;
             point = obj.point;
             direction = obj.direction;
@@ -88,14 +119,12 @@ classdef Line < Feature
             % hold on; grid on; axis equal; axis padded; %configure the figure
             % Plot.plotPoint(point); %plot the centroid
             %h = Plot.plotLine(data, point, direction, dataColor, dataLabel, fitColor, fitLabel, ax, linestyle);
-            if isempty(ax) || ~isvalid(ax)
-                ax = gca;
-            end
 
-            cla(ax); hold (ax, 'on'); axis(ax, 'equal'); grid(ax, 'on'); view(ax,3);
+            cla(ax); hold (ax, 'on'); axis(ax, 'equal'); axis(ax, 'padded'); grid(ax, 'on'); view(ax,3);
 
             % Plot the raw data
-            plot3(ax, data(:,1), data(:,2), data(:,3), '.', 'Color', dataColor, 'DisplayName', dataLabel);
+            plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), 'Color', dataColor,...
+                    'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
 
             % Plot the centroid point
             plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off')
@@ -107,9 +136,9 @@ classdef Line < Feature
             [pStart, pEnd] = calcLinePoints(point, direction, length, 0.5, 1);
             
             % Plot the line
-            h = plot3([pStart(1) pEnd(1)], [pStart(2) pEnd(2)], [pStart(3) pEnd(3)], lineStyle, ...
-                'Color', fitColor, 'LineWidth', 2, 'DisplayName', fitLabel);
-            title(ax, fitLabel);
+            h = plot3([pStart(1) pEnd(1)], [pStart(2) pEnd(2)], [pStart(3) pEnd(3)], 'LineStyle', fitLS, ...
+                'Color', fitColor, 'LineWidth', opts.LineWidth, 'DisplayName', opts.fitLabel);
+            title(ax, opts.fitLabel);
             xlabel(ax, 'x');    ylabel(ax, 'y');    zlabel(ax, 'z');
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
