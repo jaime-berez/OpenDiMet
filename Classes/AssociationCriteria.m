@@ -1,5 +1,5 @@
 classdef AssociationCriteria < int32
-    % AssociationCriteria Enumeration for different feature assoication methods.
+    % ASSOCIATIONCRITERIA Enumeration for different feature assoication methods.
     % Association Citeria:
     % LeastSquares          : Also known as Gaussian Fit/L2 fit. Minimizes the sum of
     %                         the squares of the residuals.
