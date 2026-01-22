@@ -126,47 +126,87 @@ classdef Cone < Feature
     end
 
     methods
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, faces, ax)
-            % Function to plot the fitted cone
+        function h = plot(obj, opts)
+            % PLOT Plot cone coordinate data and the fitted cone.
+            %
+            % h = obj.plot() uses defaults.
+            % h = obj.plot(Name = Value, ...) customizes appearance.
+            %
+            % Options (Name = Value)
+            % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
+            % dataMarker        : marker char (default: '.')
+            % dataMarkerSize    : scalar (default: 12)
+            % dataLabel         : string (default: "<name> Data")
+            % fitColor          : color name/'r'/RGB/[hex] (default: green)
+            % fitLabel          : string (default: "<name> Fit")
+            % lineStyle         : 'solid' | 'dashed' | 'dotted' | 'dashdot'
+            %                     | 'none' (default: 'dashdot')
+            % lineWidth         : scalar (default: 1)
+            % lineColor         : color name/'r'/RGB/hex
+            % nFitPoints        : number of samples for drawing the circle
+            %                     (default: 200)
+            % fitFaceAlpha      : scalar in [0,1] (default: 0.5)
+            % fitEdgeColor      : "none" or color (default: 27)
+            % faces             : cone mesh resolution (default: 27)
+            % ax                : axes handle (default: gca)
             arguments
                 obj
-                dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
-                    mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = obj.name + ' Data'
-                fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
-                    mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit'  
-                faces (1,1) double = 27
-                ax = []
+                opts.dataColor = [0 0.4470 0.7410]
+                opts.dataLabel (1,1) string = obj.name + " Data"
+                opts.dataMarker (1,1) string = "."
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+        
+                opts.fitColor = [0 1 0]
+                opts.fitLabel (1,1) string = obj.name + " Fit"
+                opts.fitFaceAlpha (1,1) double {mustBeFinite,mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0),mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.5
+                opts.fitEdgeColor = "none"   % "none" or a color
+                opts.faces (1,1) double {mustBeFinite,mustBePositive} = 27
+        
+                opts.lineStyle (1,1) string = "dashdot"
+                opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
+                opts.lineColor = "k"
+        
+                opts.ax = []
             end
+
+            ax = opts.ax;
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            % Parse styling via feature helpers
+            dataColor = Feature.parseColor(opts.dataColor);
+            fitColor  = Feature.parseColor(opts.fitColor);
+            centerLC  = Feature.parseColor(opts.lineColor);
+            centerLS  = Feature.parseLineStyle(opts.lineStyle);
+
+            if string(opts.fitEdgeColor) == "none"
+                fitEdgeColor = "none";
+            else
+                fitEdgeColor = Feature.parseColor(opts.fitEdgeColor);
+            end
+
+            % Geometry
             data = obj.data;
             point = obj.point;
             direction = obj.direction;
             smallR = obj.smallR;
             bigR = obj.bigR;
             height = obj.height;
-            %Plot.plotData(data);
-            % axis equal; axis padded; grid on; hold on;
-            % xlabel("x"); ylabel('y'); zlabel('z');
-            % hold on;
-            % h = Plot.plotCone(data, point, direction, smallR, bigR, height, ...
-            %     dataColor, dataLabel, fitColor, fitLabel, faces, ax);
-            if isempty(ax) || ~isvalid(ax)
-                ax = gca;
-            end
 
-            cla(ax); hold(ax,'on'); axis(ax,'equal'); grid(ax,'on'); view(ax,3);
+            cla(ax); hold(ax,'on'); axis(ax,'equal'); axis(ax, 'padded'); grid(ax,'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, fitLabel);
+            title(ax, opts.fitLabel);
 
             % Plot raw data
-            plot3(ax, data(:,1), data(:,2), data(:,3), '.', ...
-                    'Color', dataColor, 'DisplayName', dataLabel);
+            plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
+                    'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
 
             % Plot centroid
             plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility','off');
         
             % Create a cone based on the parameters calculated above
+            faces = round(opts.faces);
             [X,Y,Z] = cylinder([smallR bigR],faces);
             Z=Z*height-height/2;
             cone = xyz2Mat(X,Y,Z);
@@ -177,13 +217,15 @@ classdef Cone < Feature
             % Plot the cone
             [Xc,Yc,Zc]= mat2xyz(cone2);
         
-            h = surf(ax, Xc, Yc, Zc,'LineStyle','none','FaceAlpha',0.5,'FaceColor',fitColor, ...
-                'DisplayName', fitLabel);     
+            h = surf(ax, Xc, Yc, Zc,'LineStyle','none',...
+                    'EdgeColor', fitEdgeColor, 'FaceAlpha', opts.fitFaceAlpha, 'FaceColor',fitColor, ...
+                    'DisplayName', opts.fitLabel);     
 
             p1 = point - (height/2)*direction;
             p2 = point + (height/2)*direction;
             plot3(ax, [p1(1) p2(1)], [p1(2) p2(2)], [p1(3) p2(3)], ...
-                    'k-.', 'LineWidth',1, 'HandleVisibility','off');
+                    'LineStyle', centerLS, 'LineWidth', opts.lineWidth,...
+                    'Color', centerLC, 'HandleVisibility','off');
             legend(ax, 'show', 'FontSize', 12);
             hold(ax,'off');
         end

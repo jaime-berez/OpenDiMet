@@ -111,7 +111,7 @@ classdef Circle < Feature
             % dataMarker        : marker char (default: '.')
             % dataMarkerSize    : scalar (default: 12)
             % dataLabel         : string (default: "<name> Data")
-            % fitColor          : color name/'r'/RGB/[hex] (default: green
+            % fitColor          : color name/'r'/RGB/[hex] (default: green)
             % fitLabel          : string (default: "<name> Fit")
             % LineStyle         : 'solid' | 'dashed' | 'dotted' | 'dashdot'
             %                     | 'none' (default: 'solid')
