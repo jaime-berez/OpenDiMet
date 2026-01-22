@@ -57,9 +57,21 @@ function feature = fitFeature(data, featureType, associationCriteria, featureNam
             featureName = "UnnamedFeature";
         end
     end
+    
+    % Filter geometry inapplicable options before forwarding
+    optsForward = opts;
+
+    switch featureType
+        case {"Line","Plane","Circle"}
+            if optsForward.materialSide ~= MaterialSide.Unspecified
+                error("fitFeature:OptionNotApplicable", ...
+                    "Option 'materialSide' is not applicable to featureType '%s'.", featureType);
+            end
+            optsForward = rmfield(optsForward, "materialSide");
+    end
 
     % Convert opts to 'Name', Value list to forward to constructors
-    nameValue = namedargs2cell(opts);
+    nameValue = namedargs2cell(optsForward);
     nameValue = [nameValue, {'sourceFile', sourceFile}];
 
     % Fit the selected feature type
