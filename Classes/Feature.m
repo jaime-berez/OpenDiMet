@@ -1,14 +1,23 @@
-classdef Feature
+classdef Feature < handle
     % FEATURE Base class for geometric features.
     % The Feature class provides a foundation for the geometric feature
     % types. Each feature stores a descriptive name, an association type
     % and the raw coordinate data used for the fitting process.
     %
     % Properties:
-    % name - 1 x 1 string, user-defined name of the feature
-    % AssociationCriteria - 1 x 1 AssociationCriteria enumeration, fitting method
-    % used
-    % data - N x 3 double, coordinate points defining the feature
+    % name                - (1x1 string) user-defined name of the feature. If empty, the
+    %                       class attempts to infer a name from the source file; otherwise
+    %                       defaults to "UnnamedFeature".
+    % AssociationCriteria - (1x1 AssociationCriteria) Enumeration sepcifying the fitting method
+    %                       used to associate the feature to the input
+    %                       data.
+    % sigma               - (1x1 double) A nonnegative scalar reporting the standard deviation
+    %                       of the residuals of the fitted feature. 
+    % sourceFile          - (1x1 string) The full or relative path of the file from which the input
+    %                       coordinate data were loaded. Used for
+    %                       traceability, and naming.
+    % data                - (Nx3 double, private access) Coordinate points
+    %                       defining the feature. This array is stored exactly as provided by the user. 
 
     properties (GetAccess = public, SetAccess = public)
         name (1,1) string {mustBeTextScalar, mustBeNonempty} = ""
@@ -41,7 +50,7 @@ classdef Feature
             else
                 obj.name = string(name);
             end
-            %obj.name = name;
+            
             obj.AssociationCriteria = associationCriteria;
             obj.data = data;
         end
