@@ -165,8 +165,8 @@ classdef Cylinder < Feature
                 opts.fitEdgeColor = "none"   % "none" or a color
                 opts.fitLabel (1,1) string = obj.name + " Fit"
         
-                opts.LineStyle (1,1) string = "dashdot"
-                opts.LineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
+                opts.lineStyle (1,1) string = "dashdot"
+                opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
         
                 opts.faces (1,1) double {mustBeFinite,mustBePositive} = 50
                 opts.ax = []
@@ -187,7 +187,7 @@ classdef Cylinder < Feature
                 fitEdgeColor = obj.parseColor(opts.fitEdgeColor);
             end
 
-            centerLS = obj.parseLineStyle(opts.LineStyle);
+            centerLS = obj.parseLineStyle(opts.lineStyle);
             
             % Geometry
             data = obj.data;                 % Nx3
@@ -240,7 +240,7 @@ classdef Cylinder < Feature
             points2 = points1 + point;
 
             plot3(ax, points2(:,1),points2(:,2),points2(:,3),'LineStyle', centerLS, ...
-                'LineWidth', opts.LineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
+                'LineWidth', opts.lineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
 
             % End circles
             topPoint    = [0,0,height*0.5];     topPoint    = topPoint/Rz    + point;

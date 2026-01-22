@@ -82,9 +82,9 @@ classdef Line < Feature
             % fitColor          : color name/'r'/RGB/[hex] (default: [0 1
             %                     0]
             % fitLabel          : string (default: "<name> Fit")
-            % fitLineStyle      : 'solid' | 'dashed' | 'dotted' | 'dashdot'
+            % LineStyle         : 'solid' | 'dashed' | 'dotted' | 'dashdot'
             %                     | 'none' (default: 'dashdot')
-            % fitLineWidth      : scalar (default: 2)
+            % LineWidth         : scalar (default: 2)
             % ax                : axes handle (default: gca)
             arguments
                 obj               
@@ -95,8 +95,8 @@ classdef Line < Feature
         
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"
-                opts.LineStyle (1,1) string = "dashdot"
-                opts.LineWidth (1,1) double {mustBeFinite,mustBePositive} = 2
+                opts.lineStyle (1,1) string = "dashdot"
+                opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 2
         
                 opts.ax = []
             end
@@ -109,7 +109,7 @@ classdef Line < Feature
             % Parse styling via feature helpers
             dataColor = obj.parseColor(opts.dataColor);
             fitColor  = obj.parseColor(opts.fitColor);
-            fitLS     = obj.parseLineStyle(opts.LineStyle);
+            fitLS     = obj.parseLineStyle(opts.lineStyle);
               
             % Geometry
             data = obj.data;
@@ -137,7 +137,7 @@ classdef Line < Feature
             
             % Plot the line
             h = plot3([pStart(1) pEnd(1)], [pStart(2) pEnd(2)], [pStart(3) pEnd(3)], 'LineStyle', fitLS, ...
-                'Color', fitColor, 'LineWidth', opts.LineWidth, 'DisplayName', opts.fitLabel);
+                'Color', fitColor, 'LineWidth', opts.lineWidth, 'DisplayName', opts.fitLabel);
             title(ax, opts.fitLabel);
             xlabel(ax, 'x');    ylabel(ax, 'y');    zlabel(ax, 'z');
             legend(ax, "show", 'FontSize', 12);

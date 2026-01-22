@@ -100,47 +100,73 @@ classdef Circle < Feature
     end
 
     methods
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, ax)
-            % Function to plot fitted circle
+        function h = plot(obj, opts)
+            % PLOT Plot cirlce coordinate data and fitted circle.
+            %
+            % h = obj.plot() uses defaults.
+            % h = obj.plot(Name = Value, ...) customizes appearance.
+            %
+            % Options (Name = Value)
+            % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
+            % dataMarker        : marker char (default: '.')
+            % dataMarkerSize    : scalar (default: 12)
+            % dataLabel         : string (default: "<name> Data")
+            % fitColor          : color name/'r'/RGB/[hex] (default: green
+            % fitLabel          : string (default: "<name> Fit")
+            % LineStyle         : 'solid' | 'dashed' | 'dotted' | 'dashdot'
+            %                     | 'none' (default: 'solid')
+            % LineWidth         : scalar (default: 2)
+            % nFitPoints        : number of samples for drawing the circle
+            %                     (default: 200)
+            % ax                : axes handle (default: gca)
             arguments
                 obj
-                dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
-                    mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = obj.name + ' Data'
-                fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
-                    mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit'     
-                ax = []
+                opts.dataColor = [0 0.4470 0.7410]
+                opts.dataLabel (1,1) string = obj.name + " Data"
+                opts.dataMarker (1,1) string = "."
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+        
+                opts.fitColor = [0 1 0]
+                opts.fitLabel (1,1) string = obj.name + " Fit"
+                opts.lineStyle (1,1) string = "solid"
+                opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 2
+        
+                opts.nFitPoints (1,1) double {mustBeFinite,mustBePositive} = 200
+                opts.ax = []
             end
+
+            ax = opts.ax;
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            % Parse styling via feature helpers
+            dataColor = Feature.parseColor(opts.dataColor);
+            fitColor  = Feature.parseColor(opts.fitColor);
+            fitLS     = Feature.parseLineStyle(opts.lineStyle);
             
             data = obj.data;
             point = obj.point;
             direction = obj.direction;
             diameter = obj.diameter;
 
-            %h = Plot.plotCircle(data, point, direction, diameter, dataColor, dataLabel, fitColor, fitLabel, ax);
-            if isempty(ax) || ~isvalid(ax)
-                ax = gca;
-            end
-
-            cla(ax); hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax,'padded');
-            view(ax,3);
+            cla(ax); hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, fitLabel);
+            title(ax, opts.fitLabel);
 
             % Plot raw data
-            plot3(ax, data(:,1), data(:,2), data(:,3), '.', ...
-                    'Color', dataColor, 'DisplayName', dataLabel);
+            plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
+                    'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
 
             % Plot the centroid
             plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off');
             
-            pts = calcCirclePoints(point, direction, diameter, 100);
+            pts = calcCirclePoints(point, direction, diameter, round(opts.nFitPoints));
             [X, Y, Z] = separateData(pts);
 
             % Fitted circle
-            h = plot3(ax, X, Y, Z, '-', 'Color', fitColor, 'LineWidth', 2, ...
-                'DisplayName', fitLabel);
+            h = plot3(ax, X, Y, Z, 'LineStyle', fitLS, 'Color', fitColor, 'LineWidth', opts.lineWidth, ...
+                'DisplayName', opts.fitLabel);
 
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
