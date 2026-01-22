@@ -14,6 +14,7 @@ function feature = fitFeature(data, featureType, associationCriteria, featureNam
         opts.Lambda        (1,1) double {mustBeFinite, mustBePositive} = 1e-4
         opts.DampingCoeff  (1,1) double {mustBeFinite, mustBePositive} = 2
         opts.SuppressOutput(1,1) logical = true
+        opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
     end
 
     % if strlength(featureName) == 0

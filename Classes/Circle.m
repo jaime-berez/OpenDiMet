@@ -145,6 +145,17 @@ classdef Circle < Feature
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
         end
+        
+        function showFitInfo(obj)
+            if isempty(obj.fitInfo)
+                disp('No optimization information available for this object.');
+                return;
+            end
+            T = array2table(obj.fitInfo.history, 'VariableNames', obj.fitInfo.labels);
+            fprintf('--- Levenberg-Marquardt Optmization Summary ---\n');
+            fprintf('Iterations: %d\nFinal SSE: %.4e\n\n', obj.fitInfo.iter, obj.fitInfo.final_cost);
+            disp(T);
+        end
 
         function disp(obj)
             % Custom display for Circle objects
@@ -170,15 +181,11 @@ classdef Circle < Feature
             fprintf('  Data Size: [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
 
-        function showFitInfo(obj)
-            if isempty(obj.fitInfo)
-                disp('No optimization information available for this object.');
-                return;
-            end
-            T = array2table(obj.fitInfo.history, 'VariableNames', obj.fitInfo.labels);
-            fprintf('--- Levenberg-Marquardt Optmization Summary ---\n');
-            fprintf('Iterations: %d\nFinal SSE: %.4e\n\n', obj.fitInfo.iter, obj.fitInfo.final_cost);
-            disp(T);
+        function reverseDir(obj)
+            % REVERSEDIR Function to reverse the direction vector of the
+            % object.
+
+            obj.direction = -obj.direction;
         end
     end
 

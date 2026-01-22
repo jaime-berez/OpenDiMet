@@ -17,11 +17,11 @@ clc; close all; clear;
 %Define directory for data
 demoScriptDirectory = fileparts(mfilename('fullpath'));
 repoRoot = fileparts(demoScriptDirectory);
-dataFolder = "Cone";       % <----- Input
+dataFolder = "Cylinder";       % <----- Input
 rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder);
 
 % Define files with raw coordinate data to import
-file = "con28.ds";   % <----- Input
+file = "cyl27.ds";   % <----- Input
 
 %% ---- Load data ----
 
@@ -29,15 +29,15 @@ data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
 %% ---- Option 1: Fit the selected geometry using loaded data ----
 
-myFeature = fitFeature(data1, "Cone", "LeastSquares", "NAME", StepTol = 1e-9, ...
-    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
+myFeature = fitFeature(data1, "Cylinder", "LeastSquares", "Name", StepTol = 1e-9, ...
+    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2, materialSide = "Internal");  % <----- Input
 
 %% ---- Option 2: Fit the selected geometry using the file path ----
 
-path = fullfile(rootDirectory, file);
+% path = fullfile(rootDirectory, file);
 
-myFeature = fitFeature(path, "Cone", "LeastSquares", "con28", MaxIter = 5000, StepTOl = 1e-9, ...
-    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
+% myFeature = fitFeature(path, "Plane", "LeastSquares", "pla28", MaxIter = 5000, StepTOl = 1e-9, ...
+%     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
     
 %% ---- Report fitted parameters, plot result----
 disp(myFeature);

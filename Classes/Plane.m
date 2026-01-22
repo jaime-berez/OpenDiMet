@@ -1,27 +1,48 @@
 classdef Plane < Feature
-    % PLANE Class for fitting and representing a plane from data.
+    % PLANE Class for fitting and representing a plane from coordinate data.
     % The Plane class constructs a plane feature from measured coordinate points
     % according to the specified AssociationCriteria. It inherits 
     % from Feature and stores both the original data and the associated
     % feature parameters.
     %
     % Properties:
-    % point - 1 x 3 double, point on the associated plane.
-    % direction - 1 x 3 double, unit normal vector of the associated plane.
+    % point     : (1x3 double) point on the associated plane.
+    % direction : (1x3 double) unit normal vector of the associated plane.
+    % fitInfo   : (struct) struct describing how the plane was fit (e.g.,
+    %             method name, optimization history).
     %
     % Methods:
-    % Plane(name, data, AssociationCriteria) - construct and fit the plane.
-    % plot() - visualize the data and the fitted plane.
-    % disp() - formatted textual description.
+    % Plane(name, data, AssociationCriteria) : Construct and fit the plane from data.
+    % plot()                                 : Plot the coordinate data and the associated plane.
+    % disp()                                 : Formatted display of the
+    %                                          associated plane properties.
+    % showFitInfo()                          : Display stored association
+    %                                          metadata.
+    % reverseDir()                           : Reverse the direction of the
+    %                                          associated plane.
 
     properties (GetAccess = public, SetAccess = private)
         point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         fitInfo struct = struct()
     end
+
     methods
-        % Constructor method for the Plane class
         function obj = Plane(name, data, associationCriteria, opts)
+            % Plane Constructor
+            % obj = Plane(name, data, associationCriteria, opts)
+            % Construct a plane object and compute the associated plane
+            % from the supplied coordinate data.
+            % Inputs:
+            % name                  : (1x1 string) User-defined feature name. If empty, 
+            %                         the Feature base class will infer a
+            %                         name from the source file or assign "UnnamedFeature".
+            % data                  : (Nx3 double) 3D coordinate points
+            %                         defining the feature.
+            % associationCriteria   : AssociationCriteria enumeration
+            %                         specifies the association rule or method. only applicable
+            %                         criteria are permitted based on the list in
+            %                         validateAssociation in Feature class.
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -155,6 +176,13 @@ classdef Plane < Feature
             fprintf('  Direction: [%.4f  %.4f  %.4f]\n', direction);
             fprintf('  Sigma:     %.4f\n', sigma);
             fprintf('  Data Size: [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
+        end
+
+        function reverseDir(obj)
+            % REVERSEDIR Function to reverse the direction vector of the
+            % object.
+
+            obj.direction = -obj.direction;
         end
     end
 end

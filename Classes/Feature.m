@@ -23,7 +23,8 @@ classdef Feature < handle
         name (1,1) string {mustBeTextScalar, mustBeNonempty} = ""
         AssociationCriteria (1,1) AssociationCriteria = AssociationCriteria.LeastSquares 
         sigma (1,1) double {mustBeFinite, mustBeReal, mustBeNonnegative}
-        sourceFile (1,1) string = ""
+        sourceFile (1,1) string = ""   
+        materialSide (1,1) MaterialSide = MaterialSide.Unspecified
     end
 
     properties (GetAccess = public, SetAccess = private)
@@ -31,15 +32,17 @@ classdef Feature < handle
     end
 
     methods
-        function obj = Feature(name, data, associationCriteria, sourceFile)
+        function obj = Feature(name, data, associationCriteria, sourceFile, materialSide)
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 associationCriteria (1,1) AssociationCriteria
-                sourceFile (1,1) string = ""
+                sourceFile (1,1) string = ""        
+                materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
             obj.sourceFile = sourceFile;
+            obj.materialSide = materialSide;
             if strlength(name) == 0
                 if strlength(sourceFile) > 0
                     [~, base] = fileparts(sourceFile);

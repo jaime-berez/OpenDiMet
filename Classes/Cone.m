@@ -50,9 +50,10 @@ classdef Cone < Feature
                 opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
                 opts.SuppressOutput (1,1) logical = true
                 opts.sourceFile (1,1) string = ""
+                opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, associationCriteria, opts.sourceFile);
+            obj@Feature(name, data, associationCriteria, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
             % Useful document: https://www.mathworks.com/company/technical-articles/tips-and-tricks-combining-functions-using-anonymous-functions.html
             
@@ -215,10 +216,14 @@ classdef Cone < Feature
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);
+            materialSide = obj.materialSide;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:           %s\n', name);
+            if materialSide ~= MaterialSide.Unspecified
+                fprintf('  MatSide:        %s\n', char(materialSide));
+            end
             fprintf('  AssocCrit:      %s\n', char(associationCriteria));
             fprintf('  Point:          [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction:      [%.4f  %.4f  %.4f]\n', direction);

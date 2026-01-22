@@ -39,9 +39,10 @@ classdef Cylinder < Feature
                 opts.DampingCoeff (1,1) double {mustBeFinite, mustBePositive} = 2
                 opts.SuppressOutput (1,1) logical = true
                 opts.sourceFile (1,1) string = ""
+                opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, associationCriteria, opts.sourceFile);
+            obj@Feature(name, data, associationCriteria, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
             MaxIter = opts.MaxIter;
@@ -224,16 +225,27 @@ classdef Cylinder < Feature
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);
+            materialSide = obj.materialSide;
 
             % Print formatted output
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
+            if materialSide ~= MaterialSide.Unspecified
+                fprintf('  MatSide:   %s\n', char(materialSide));
+            end
             fprintf('  AssocCrit: %s\n', char(associationCriteria));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction: [%.4f  %.4f  %.4f]\n', direction);
             fprintf('  Diameter:  %.4f\n', diameter);
             fprintf('  Sigma:     %.4f\n', sigma);
             fprintf('  Data Size: [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
+        end
+
+        function reverseDir(obj)
+            % REVERSEDIR Function to reverse the direction vector of the
+            % object.
+
+            obj.direction = -obj.direction;
         end
     end
 end

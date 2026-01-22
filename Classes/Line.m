@@ -155,5 +155,12 @@ classdef Line < Feature
             fprintf('  Sigma:     %.4f\n', sigma);
             fprintf('  Data Size: [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
+        
+        function reverseDir(obj)
+            % REVERSEDIR Function to reverse the direction vector of the
+            % object.
+        
+            obj.direction = -obj.direction;
+        end
     end
 end
