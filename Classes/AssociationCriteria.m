@@ -15,15 +15,13 @@ classdef AssociationCriteria < int32
     %                         but the measured coordinate points are weighted based on uncertainty.
 
 
-    enumeration  
-        
+    enumeration        
         LeastSquares (1)
         MiniMax (2)
         MinimumCircumscribed (3)
         MaximumInscribed (4)
         MinimumTotalDistance (5)
         WeightedLeastSquares (6)
-
     end
 
     methods

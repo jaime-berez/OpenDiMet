@@ -5,18 +5,18 @@ classdef Feature < handle
     % and the raw coordinate data used for the fitting process.
     %
     % Properties:
-    % name                - (1x1 string) user-defined name of the feature. If empty, the
+    % name                : (1x1 string) user-defined name of the feature. If empty, the
     %                       class attempts to infer a name from the source file; otherwise
     %                       defaults to "UnnamedFeature".
-    % AssociationCriteria - (1x1 AssociationCriteria) Enumeration sepcifying the fitting method
+    % AssociationCriteria : (1x1 AssociationCriteria) Enumeration sepcifying the fitting method
     %                       used to associate the feature to the input
     %                       data.
-    % sigma               - (1x1 double) A nonnegative scalar reporting the standard deviation
+    % sigma               : (1x1 double) A nonnegative scalar reporting the standard deviation
     %                       of the residuals of the fitted feature. 
-    % sourceFile          - (1x1 string) The full or relative path of the file from which the input
+    % sourceFile          : (1x1 string) The full or relative path of the file from which the input
     %                       coordinate data were loaded. Used for
     %                       traceability, and naming.
-    % data                - (Nx3 double, private access) Coordinate points
+    % data                : (Nx3 double, private access) Coordinate points
     %                       defining the feature. This array is stored exactly as provided by the user. 
 
     properties (GetAccess = public, SetAccess = public)
