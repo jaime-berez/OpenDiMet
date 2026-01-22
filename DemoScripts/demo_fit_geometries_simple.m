@@ -21,7 +21,7 @@ dataFolder = "Cone";       % <----- Input
 rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder);
 
 % Define files with raw coordinate data to import
-file = "con1.ds";   % <----- Input
+file = "con28.ds";   % <----- Input
 
 %% ---- Load data ----
 
@@ -36,7 +36,7 @@ myFeature = fitFeature(data1, "Cone", "LeastSquares", "NAME", StepTol = 1e-9, ..
 
 path = fullfile(rootDirectory, file);
 
-myFeature = fitFeature(path, "Cone", "LeastSquares", "NAME", MaxIter = 5000, StepTOl = 1e-9, ...
+myFeature = fitFeature(path, "Cone", "LeastSquares", "con28", MaxIter = 5000, StepTOl = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
     
 %% ---- Report fitted parameters, plot result----

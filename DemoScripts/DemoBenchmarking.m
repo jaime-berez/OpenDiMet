@@ -8,7 +8,7 @@ clear; clc; close all
 
 % Define the polyworks results excel file, the root directory for the
 % reference dataset, and the number of files for each geometry.
-benchmarkFile = "G:\My Drive\PhD\Research\OpenDiMet\Polyworks_IR3.4_15_Decimals.xlsx";
+benchmarkFile = "G:\My Drive\PhD\Research\OpenDiMet\Polyworks Data\Polyworks_IR3.4_15_Decimals.xlsx";
 rootDirectory = "Data\nist-l2-reference-pairs\";
 numOfFiles = 30;
 
@@ -340,40 +340,84 @@ function [epsilonError, alphaError, deltaError, psiError] = computeErrors(geomet
         % In cases of cylinder and cone, compute the epsilonErrors by
         % projecting the centroid onto the axis of the geometry.
         centroid = mean(data,1);
-        pointProjection = pp2l(params.point, centroid, params.direction);
-        epsilonError = norm(pointProjection - pointReference);
+        if ~all(isfinite(params.point)) || ~all(isfinite(params.direction)) || norm(params.direction) < eps ...
+            || ~all(isfinite(centroid)) || ~all(isfinite(pointReference))
+            epsilonError = NaN;
+        else
+            pointProjection = pp2l(params.point, centroid, params.direction/norm(params.direction));
+            epsilonError = norm(pointProjection - pointReference);
+            %epsilonError = norm(params.point - pointReference);
+        end
     else
-        epsilonError = norm(params.point - pointReference);
+        if ~all(isfinite(params.point)) || ~all(isfinite(pointReference))
+            epsilonError = NaN;
+        else
+            epsilonError = norm(params.point - pointReference);
+        end
     end
 
     % Compute orientation error / alphaError
     if any(geometryName == ["Line2D", "Line3D", "Plane", "Circle2D", "Circle3D", "Cylinder", "Cone"])
         directionReference = reference(4:6).';
-        directionReference = directionReference/norm(directionReference);
+        % directionReference = directionReference/norm(directionReference);
         % directionCosine = abs(dot(params.direction(:)', directionReference)); % abs to make flip invariant
         % directionCosine = max(min(directionCosine,1),-1);
         % alphaError = acos(directionCosine);
         directionCosine = params.direction(:)';
-        directionCosine = directionCosine/norm(directionCosine);
-        cosAlpha = abs(dot(directionCosine, directionReference));
-        sinAlpha = norm(cross(directionCosine, directionReference));
-        alphaError = atan2(sinAlpha, cosAlpha);
+        if ~all(isfinite(directionCosine)) || norm(directionCosine) < eps ... 
+            || ~all(isfinite(directionReference)) || norm(directionReference) < eps
+            alphaError = NaN;
+        else
+            % atan2 computation block
+            % directionReference = directionReference/norm(directionReference);
+            % directionCosine = directionCosine/norm(directionCosine);
+            % cosAlpha = abs(dot(directionCosine, directionReference));
+            % cosAlpha = min(max(cosAlpha, 0), 1);
+            % sinAlpha = norm(cross(directionCosine, directionReference));
+            % alphaError = atan2(sinAlpha, cosAlpha);
+
+            % ISO 10360-6:2001 computation block
+            directionReference = directionReference/norm(directionReference);
+            directionCosine = directionCosine/norm(directionCosine);
+
+            % Flip invariant axis comparison
+            if dot(directionCosine, directionReference) < 0
+                directionCosine = -directionCosine;
+            end
+
+            % ISO: alphaError = 2*asin(||a-aR||/2)
+            d = norm(directionCosine - directionReference)/2;
+            d = min(max(d, 0), 1);
+            alphaError = 2*asin(d);
+        end
     end
 
     % Compute size error / deltaError
     if any(geometryName == ["Circle2D", "Circle3D", "Cylinder"])
-        deltaError = abs(params.size - reference(7));
+        refSize = reference(7);
     elseif geometryName == "Sphere"
-        deltaError = abs(params.size - reference(4));
+        refSize = reference(4);
     elseif geometryName == "Cone"
-        deltaError = abs(params.size - reference(7)); % distance
+        refSize = reference(7); % distance
+    else
+        refSize = NaN;
+    end
+
+    if ~isfinite(params.size) || ~isfinite(refSize)
+        deltaError = NaN;
+    else
+        deltaError = abs(params.size - refSize);
     end
 
     % Compute angle error / psiError
     if geometryName == "Cone"
         angleReferenceRad = deg2rad(reference(8));
-        d = params.angleRad - angleReferenceRad;
-        psiError = abs(mod(d + pi, 2*pi) - pi);   % wraps into (-pi,pi]
+        if ~isfinite(params.angleRad) || ~isfinite(angleReferenceRad)
+            psiError = NaN;
+        else
+            d = params.angleRad - angleReferenceRad;
+            psiError = abs(mod(d + pi, 2*pi) - pi);   % wraps into (-pi,pi]
+        end
     end
 end
 
@@ -806,7 +850,7 @@ function plotGroupedBoxPlot(ax, resultsLog, metricName, yLab, ttl, ...
     % Export plot
     hold(ax, 'off');
     set(gcf, 'Units', 'inches');
-    set(gcf, 'Position', [1 1 6.5 6]); % 6.5 in wide and 6.5 inch tall
+    set(gcf, 'Position', [1 1 6.5 5.5]); % 6.5 in wide and 5.5 inch tall
     figName = 'Least-squares association error';
 
     % High-resolution raster file
