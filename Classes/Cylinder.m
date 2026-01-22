@@ -130,50 +130,98 @@ classdef Cylinder < Feature
             end
         end
     
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, ax)
-            % Function to plot the fitted cylinder
+        function h = plot(obj, opts)
+            % PLOT Plot raw cylinder data and fitted cylinder surface.
+            %
+            % h = obj.plot() plots using defaults.
+            % h = obj.plot(Name = Value, ...) customizes appearance.
+            %
+            % Options (Name = Value)
+            % dataColor         : color name/'r'/RGB/[hex] (default: [0
+            %                     0.4470 0.7410])
+            % dataMarker        : marker char (default: '.')
+            % dataMarkerSize    : scalar (default: 12)
+            % dataLabel         : string (default: "<name> Data")
+            % fitColor          : color name/'r'/RGB/[hex] (default: [0 1
+            %                     0]
+            % fitFaceAlpha      : scalar in [0,1] (default: 0.4)
+            % fitEdgeColor      : 'none' or color (default: 'none')
+            % fitLabel          : string (default: "<name> Fit")
+            % centerLineStyle   : 'solid' | 'dashed' | 'dotted' | 'dashdot'
+            %                     | 'none' (default: 'dashdot')
+            % centerLineWidth   : scalar (default: 1)
+            % faces             : cylinder mesh faces (default: 50)
+            % ax                : axes handle (default: gca)
+
             arguments
                 obj
-                dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
-                    mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = obj.name + ' Data'
-                fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
-                    mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit'     
-                ax = []
+                opts.dataColor = [0 0.4470 0.7410]
+                opts.dataMarker (1,1) string = "."
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+                opts.dataLabel (1,1) string = obj.name + " Data"
+        
+                opts.fitColor = [0 1 0]
+                opts.fitFaceAlpha (1,1) double {mustBeFinite,mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0),mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.4
+                opts.fitEdgeColor = "none"   % "none" or a color
+                opts.fitLabel (1,1) string = obj.name + " Fit"
+        
+                opts.centerLineStyle (1,1) string = "dashdot"
+                opts.centerLineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
+        
+                opts.faces (1,1) double {mustBeFinite,mustBePositive} = 50
+                opts.ax = []
             end
 
+            ax = opts.ax;
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            % Parse styling
+            dataColor = obj.parseColor(opts.dataColor);
+            fitColor  = obj.parseColor(opts.fitColor);
+
+            if string(opts.fitEdgeColor) == "none"
+                fitEdgeColor = "none";
+            else
+                fitEdgeColor = obj.parseColor(opts.fitEdgeColor);
+            end
+
+            centerLS = obj.parseLineStyle(opts.centerLineStyle);
+            
+            % Geometry
             data = obj.data;                 % Nx3
             point  = obj.point(:).';            % 1x3
             direction  = obj.direction(:).';    % 1x3 (unit)
             distance  = obj.diameter/2;       
 
-            %h = Plot.plotCylinder(data, point, direction, radius, dataColor, dataLabel, fitColor, fitLabel, ax);
-            if isempty(ax) || ~isvalid(ax)
-                ax = gca;
-            end
-
-            cla(ax); hold (ax, 'on'); axis(ax, 'equal'); grid(ax, 'on'); view(ax,3);
-            % Plot raw data
-            plot3(ax, data(:,1),data(:,2),data(:,3),'.', 'Color',dataColor, 'DisplayName',dataLabel); 
-            hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on');
-            plot3(ax, point(1),point(2),point(3),'xk', 'HandleVisibility', 'off'); 
+            % Clear + axes setup
+            cla(ax); 
+            hold (ax, 'on'); axis(ax, 'equal'); axis (ax, 'padded'); grid(ax, 'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, sprintf('%s',fitLabel));
+            title(ax, opts.fitLabel);
 
+            % Plot raw data
+            plot3(ax, data(:,1),data(:,2),data(:,3), opts.dataMarker, 'Color', dataColor,  ...
+                                 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel); 
+            hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on');
+            % Mark centroid
+            plot3(ax, point(1),point(2),point(3),'xk', 'HandleVisibility', 'off'); 
+            
             % Create a Cylinder (radius = dis)
-            faces = 50;
+            faces = round(opts.faces);
             [X,Y,Z] = cylinder(distance,faces);
             cylData = xyz2Mat(X,Y,Z);
 
             % Height of the point cloud
             data1 = data - point; 
             a = direction(1); b = direction(2); c = direction(3);
+            
+            % Rotation that aligns axis with +Z
             Rz = [1-a^2/(1+c) -a*b/(1+c) a; -a*b/(1+c) 1-b^2/(1+c) b; -a -b c];
             data2 = data1*Rz;
             scale = 0.25; 
             height = (max(data2(:,3)) - min(data2(:,3))) * (1+scale);
-            %height = range(data2(:,3))*(1+scale);
 
             % Apply height, rotate back, translate
             cylData1 = cylData; 
@@ -182,14 +230,17 @@ classdef Cylinder < Feature
             cylData3 = cylData2 + point;
 
             [X2,Y2,Z2] = mat2xyz(cylData3);
-            h = surf(ax, X2,Y2,Z2,'EdgeColor','none','FaceColor',fitColor,'FaceAlpha',0.4, 'DisplayName',fitLabel);
+            h = surf(ax, X2,Y2,Z2,'EdgeColor',fitEdgeColor,'FaceColor', fitColor,...
+                    'FaceAlpha', opts.fitFaceAlpha, 'DisplayName', opts.fitLabel);
 
             % Centerline
             k = 1; 
             points = [0,0,(height/2)*(1+k)-(height/2); 0,0,(height/2)*(1-k)-(height/2)];
             points1 = points/Rz;
             points2 = points1 + point;
-            plot3(ax, points2(:,1),points2(:,2),points2(:,3),'k-.','LineWidth',1, 'HandleVisibility', 'off');
+
+            plot3(ax, points2(:,1),points2(:,2),points2(:,3),'LineStyle', centerLS, ...
+                'LineWidth', opts.centerLineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
 
             % End circles
             topPoint    = [0,0,height*0.5];     topPoint    = topPoint/Rz    + point;
@@ -198,7 +249,7 @@ classdef Cylinder < Feature
             plotEndCircle(bottomPoint,direction, distance*2, faces);
 
             % Legend
-            legend(ax, dataLabel, fitLabel, 'FontSize', 12);
+            legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
         end
 

@@ -83,4 +83,58 @@ classdef Feature < handle
             end
         end
     end
+
+    methods (Static, Access = protected)
+        function rgb = parseColor(c)
+            % Accept RGB (1x3), Matlab short codes, names, or hex
+            % '#RRGGBB'.
+
+            if isnumeric(c)
+                rgb = c;
+                return;
+            end
+            s = lower(strtrim(string(c)));
+
+            % Matlab like names and short codes
+            switch s
+                case {"r", "red"},    rgb = [1 0 0];
+                case {"g","green"},   rgb = [0 1 0];
+                case {"b","blue"},    rgb = [0 0 1];
+                case {"c","cyan"},    rgb = [0 1 1];
+                case {"m","magenta"}, rgb = [1 0 1];
+                case {"y","yellow"},  rgb = [1 1 0];
+                case {"k","black"},   rgb = [0 0 0];
+                case {"w","white"},   rgb = [1 1 1];
+
+                otherwise
+                % Hex color
+                if startsWith(s,"#") && strlength(s)==7
+                    vals = sscanf(char(extractAfter(s,1)), '%2x%2x%2x');
+                    rgb = (vals(:).'/255);
+                else
+                    error("Cylinder:InvalidColor", ...
+                        "Unrecognized color '%s'. Use a name (e.g. 'green'), short code (e.g. 'g'), hex '#RRGGBB', or RGB [1x3].", s);
+                end
+            end
+        end
+
+        function ls = parseLineStyle(style)
+            s = lower(strtrim(string(style)));
+            switch s
+                case {"solid","-"}
+                    ls = "-";
+                case {"dashed","dash","--"}
+                    ls = "--";
+                case {"dotted","dot",":"}
+                    ls = ":";
+                case {"dashdot","-."}
+                    ls = "-.";
+                case {"none",""}
+                    ls = "none";
+                otherwise
+                    error("Cylinder:InvalidLineStyle", ...
+                        "Unrecognized line style '%s'. Use: solid, dashed, dotted, dashdot, none.", s);
+            end
+        end
+    end
 end

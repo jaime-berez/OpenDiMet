@@ -17,11 +17,11 @@ clc; close all; clear;
 %Define directory for data
 demoScriptDirectory = fileparts(mfilename('fullpath'));
 repoRoot = fileparts(demoScriptDirectory);
-dataFolder = "Cylinder";       % <----- Input
+dataFolder = "Line3D";       % <----- Input
 rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder);
 
 % Define files with raw coordinate data to import
-file = "cyl27.ds";   % <----- Input
+file = "lin27.ds";   % <----- Input
 
 %% ---- Load data ----
 
@@ -29,7 +29,7 @@ data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
 %% ---- Option 1: Fit the selected geometry using loaded data ----
 
-myFeature = fitFeature(data1, "Cylinder", "LeastSquares", "Name", StepTol = 1e-9, ...
+myFeature = fitFeature(data1, "Line", "LeastSquares", "Name", StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2, materialSide = "Internal");  % <----- Input
 
 %% ---- Option 2: Fit the selected geometry using the file path ----
@@ -42,8 +42,16 @@ myFeature = fitFeature(data1, "Cylinder", "LeastSquares", "Name", StepTol = 1e-9
 %% ---- Report fitted parameters, plot result----
 disp(myFeature);
 
+% Style 1: No input arguments
 figure();
 myFeature.plot(); % Colors, labels, etc. all set by default
 
+% Style 2: string color names
 figure();
-myFeature.plot([1 0 0],"my data",[0 1 1],"my fit"); % You can also set the colors [R G B] and labels
+myFeature.plot(dataColor = "green", dataLabel = "my data", ...
+            fitColor = "red", fitLabel = "my fit", centerLineStyle = "dashed");
+
+% Style 3: [R G B] and [hex]
+figure();
+myFeature.plot(dataColor = "#ff8800", dataLabel = "my data", ...
+            fitColor = [0 0.5 1], fitLabel = "my fit", centerLineStyle = "dashdot");
