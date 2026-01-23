@@ -135,7 +135,7 @@ classdef Cone < Feature
             % Options (Name = Value)
             % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
             % dataMarker        : marker char (default: '.')
-            % dataMarkerSize    : scalar (default: 12)
+            % dataMarkerSize    : scalar (default: 10)
             % dataLabel         : string (default: "<name> Data")
             % fitColor          : color name/'r'/RGB/[hex] (default: green)
             % fitLabel          : string (default: "<name> Fit")
@@ -154,7 +154,7 @@ classdef Cone < Feature
                 opts.dataColor = [0 0.4470 0.7410]
                 opts.dataLabel (1,1) string = obj.name + " Data"
                 opts.dataMarker (1,1) string = "."
-                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 10
         
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"

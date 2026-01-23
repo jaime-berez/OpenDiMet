@@ -89,49 +89,83 @@ classdef Sphere < Feature
     end
 
     methods
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, faces, ax)
-            % Function to plot the fitted sphere
+        function h = plot(obj, opts)
+            % PLOT Plot sphere coordinate data and the fitted sphere.
+            %
+            % h = obj.plot() uses defaults.
+            % h = obj.plot(Name = Value, ...) customizes appearance.
+            %
+            % Options (Name = Value)
+            % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
+            % dataMarker        : marker char (default: '.')
+            % dataMarkerSize    : scalar (default: 10)
+            % dataLabel         : string (default: "<name> Data")
+            % fitColor          : color name/'r'/RGB/[hex] (default: green)
+            % fitLabel          : string (default: "<name> Fit")
+            % fitFaceAlpha      : scalar in [0,1] (default: 0.35)
+            % fitEdgeColor      : "none" or color (default: "none")
+            % faces             : sphere mesh resolution (default: 27)
+            % ax                : axes handle (default: gca)
             arguments
                 obj
-                dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
-                    mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = obj.name + ' Data'
-                fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
-                    mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit'  
-                faces (1,1) double = 27
-                ax = []
+                opts.dataColor = [0 0.4470 0.7410]
+                opts.dataLabel (1,1) string = obj.name + " Data"
+                opts.dataMarker (1,1) string = "."
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 10
+        
+                opts.fitColor = [0 1 0]
+                opts.fitLabel (1,1) string = obj.name + " Fit"
+                opts.fitFaceAlpha (1,1) double {mustBeFinite, ...
+                    mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0), ...
+                    mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.35
+                opts.fitEdgeColor = "none"     % "none" or a color
+                opts.faces (1,1) double {mustBeFinite,mustBePositive} = 27
+        
+                opts.ax = []
             end
-            data = obj.data;
-            point = obj.point;
-            diameter = obj.diameter;
 
-            %Plot.plotData(data);
-            %hold on; grid on; axis equal; axis padded; %configure the figure
-            %Plot.plotPoint(point);
-            %h = Plot.plotSphere(data, point, diameter, dataColor, dataLabel, fitColor, fitLabel, faces, ax);
-            %title("Coordinate data and associated sphereical surface");
-            %xlabel("x");    ylabel("y");    zlabel("z");
+            ax = opts.ax;
             if isempty(ax) || ~isvalid(ax)
                 ax = gca;
             end
+
+            % Parse styling via feature helpers
+            dataColor = Feature.parseColor(opts.dataColor);
+            fitColor  = Feature.parseColor(opts.fitColor);
+
+            if string(opts.fitEdgeColor) == "none"
+                fitEdgeColor = "none";
+            else
+                fitEdgeColor = Feature.parseColor(opts.fitEdgeColor);
+            end
+
+            % Geometry
+            data = obj.data;
+            point = obj.point;
+            diameter = obj.diameter;
             
-            cla(ax); hold(ax, 'on'); axis(ax,'equal'); grid(ax,'on'); view(ax,3);
+            cla(ax); hold(ax, 'on'); axis(ax,'equal'); axis(ax, 'padded'); grid(ax,'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, sprintf('%s', fitLabel));
+            title(ax, sprintf('%s', opts.fitLabel));
+            
+            % Plot coordinate data
+            plot3(ax, data(:,1),data(:,2),data(:,3),char(opts.dataMarker), ...
+                 'Color',dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
 
-            plot3(ax, data(:,1),data(:,2),data(:,3),'.', ...
-                 'Color',dataColor, 'DisplayName',dataLabel);
-
+            % Plot center
             plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off');
         
             % Plot a sphere
+            faces = round(opts.faces);
             [X,Y,Z] = sphere(faces);
             X=X*diameter/2+point(1);
             Y=Y*diameter/2+point(2);
             Z=Z*diameter/2+point(3);
-            h = surf(ax, X,Y,Z,'FaceColor',fitColor,'FaceAlpha',0.35,'EdgeColor',...
-                'none','EdgeAlpha',0.35, 'DisplayName',fitLabel); %plot the fitted sphere  
+            
+            % Plot the fitted sphere 
+            h = surf(ax, X,Y,Z,'LineStyle', 'none','FaceColor', fitColor, 'FaceAlpha', opts.fitFaceAlpha,'EdgeColor',...
+                fitEdgeColor,'EdgeAlpha',0.35, 'DisplayName', opts.fitLabel); 
+
             legend(ax, "show", 'FontSize',12);
             hold(ax, "off");
         end
