@@ -87,51 +87,93 @@ classdef Plane < Feature
             'Singular Value Decomposition.']);
         end
 
-        function h = plot(obj, dataColor, dataLabel, fitColor, fitLabel, showEdge, ax)
-            % Function to plot the fitted plane
+        function h = plot(obj, opts)
+            % PLOT Plot plane coordinate data and fitted plane.
+            %
+            % h = obj.plot() uses defaults.
+            % h = obj.plot(Name = Value, ...) customizes appearance.
+            %
+            % Options (Name = Value)
+            % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
+            % dataMarker        : marker char (default: '.')
+            % dataMarkerSize    : scalar (default: 10)
+            % dataLabel         : string (default: "<name> Data")
+            % fitColor          : color name/'r'/RGB/[hex] (default: green)
+            % fitLabel          : string (default: "<name> Fit")
+            % fitFaceAlpha      : scalar in [0,1] (default: 0.4)
+            % fitEdgeColor      : "none" or color (default: "k")
+            % ax                : axes handle (default: gca)
             arguments
                 obj
-                dataColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(dataColor,0),...
-                    mustBeLessThanOrEqual(dataColor,1)} = [0 0.4470 0.7410]
-                dataLabel (1,:) char = obj.name + ' Data'
-                fitColor (1,3) double {mustBeFinite, mustBeReal, mustBeGreaterThanOrEqual(fitColor,0),...
-                    mustBeLessThanOrEqual(fitColor,1)} = [0 1 0]
-                fitLabel (1,:) char = obj.name + ' Fit' 
-                showEdge (1,1) string = "N"
-                ax = []
+                opts.dataColor = [0 0.4470 0.7410]
+                opts.dataLabel (1,1) string = obj.name + " Data"
+                opts.dataMarker (1,1) string = "."
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 10
+        
+                opts.fitColor = [0 1 0]
+                opts.fitLabel (1,1) string = obj.name + " Fit"
+                opts.fitFaceAlpha (1,1) double {mustBeFinite, ...
+                    mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0), ...
+                    mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.4
+                opts.fitEdgeColor = "k"    % "none" or color
+        
+                opts.ax = []
             end
+
+            ax = opts.ax;
+            if isempty(ax) || ~isvalid(ax)
+                ax = gca;
+            end
+
+            % Parse styling
+            dataColor = Feature.parseColor(opts.dataColor);
+            fitColor  = Feature.parseColor(opts.fitColor);
+        
+            if string(opts.fitEdgeColor) == "none"
+                edgeColor = "none";
+            else
+                edgeColor = Feature.parseColor(opts.fitEdgeColor);
+            end
+
+            % Geometry
             data = obj.data;
             point = obj.point;
             direction = obj.direction;
-            
-            if isempty(ax) || ~isvalid(ax)
-                ax =gca;
-            end
 
-            % Plot raw data
-            plot3(ax, data(:,1), data(:,2), data(:,3), '.', ...
-                'Color', dataColor, 'DisplayName', dataLabel)
-            hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax,'padded');
+            cla(ax); hold(ax,'on'); grid(ax,'on');
+            axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
+            xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
+            title(ax, opts.fitLabel);
+
+            % Plot coordinate data
+            plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
+                'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel)
+            % hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax, 'padded'); view(ax, 3);
             
-            % Plot the centroid
+            % Plot centroid
             plot3(ax, point(1), point(2), point(3), 'xk', ...
                 'HandleVisibility', 'off');
             
             [X,Y,Z] = calcPlaneCorners(data, point, direction); %calculate the corners of the plane for plotting
             % Plot.plotPlane(X,Y,Z, fitColor, 0.4, "N", fitColor, fitLabel); %plot the associated plane
-            hold on;
-        
+            % hold on;
+
+            h = fill3(ax, X, Y, Z, fitColor, ...
+                'EdgeColor', edgeColor, ...
+                'FaceAlpha', opts.fitFaceAlpha, ...
+                'DisplayName', opts.fitLabel);
+                
             % Plot a plane using fill3()
-            if showEdge == "N"||"n"
-                h = fill3(X,Y,Z,fitColor,'EdgeColor','k', 'FaceAlpha', 0.4,'DisplayName',fitLabel);
-            elseif showEdge == "Y"||"y"
-                h = fill3(X,Y,Z,fitColor,'EdgeColor',fitColor, 'FaceAlpha',0.4, ...
-                    'DisplayName', fitLabel);
-            else
-                error("showEdge must be Y or N.");
-            end  
-            title(ax, fitLabel);
-            xlabel("x"); ylabel("y"); zlabel("z");
+            % if showEdge == "N"||"n"
+            %     h = fill3(X,Y,Z,fitColor,'EdgeColor','k', 'FaceAlpha', 0.4,'DisplayName',fitLabel);
+            % elseif showEdge == "Y"||"y"
+            %     h = fill3(X,Y,Z,fitColor,'EdgeColor',fitColor, 'FaceAlpha',0.4, ...
+            %         'DisplayName', fitLabel);
+            % else
+            %     error("showEdge must be Y or N.");
+            % end  
+            % title(ax, fitLabel);
+            % xlabel("x"); ylabel("y"); zlabel("z");
 
             legend(ax, "show", 'FontSize',12);
             hold(ax, "off");
