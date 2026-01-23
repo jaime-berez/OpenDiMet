@@ -12,9 +12,9 @@
 clc; close all; clear;
 
 
-%% ---- User Input ----
+%% User Input
 
-%Define directory for data
+% Define directory for data
 demoScriptDirectory = fileparts(mfilename('fullpath'));
 repoRoot = fileparts(demoScriptDirectory);
 dataFolder = "Plane";       % <----- Input
@@ -23,23 +23,23 @@ rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder
 % Define files with raw coordinate data to import
 file = "pla27.ds";   % <----- Input
 
-%% ---- Load data ----
+%% Load data
 
 data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
-%% ---- Option 1: Fit the selected geometry using loaded data ----
+%% Option 1: Fit the selected geometry using loaded data 
 
 myFeature = fitFeature(data1, "Plane", "LeastSquares", "Name", StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
 
-%% ---- Option 2: Fit the selected geometry using the file path ----
+%% Option 2: Fit the selected geometry using the file path
 
 % path = fullfile(rootDirectory, file);
 
 % myFeature = fitFeature(path, "Plane", "LeastSquares", "pla28", MaxIter = 5000, StepTOl = 1e-9, ...
 %     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);
     
-%% ---- Report fitted parameters, plot result----
+%% Report fitted parameters, plot result
 disp(myFeature);
 
 % Style 1: No input arguments
