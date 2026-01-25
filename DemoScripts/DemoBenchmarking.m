@@ -731,8 +731,12 @@ geomOrder = ["Circle2D","Circle3D","Cone","Cylinder","Sphere","Line2D","Line3D",
 % cPolyworks = [0 0 1]; % blue
 
 % Color set 4
-cOpenDiMet = [0 80 53]./255; % charlotte green
-cPolyworks = [0 0 1]; % blue
+% cOpenDiMet = [0 80 53]./255; % charlotte green
+% cPolyworks = [0 0 1]; % blue
+
+% Color set 5
+cOpenDiMet = [0 80 53]./255; % charlotte green - appears brownish
+cPolyworks = [230 159 0]./255; % vermillion (red-orange) - appears yellow-gold 
 
 ax = nexttile;
 plotGroupedBoxPlot(ax, resultsLog, "epsilon", "Location Error [mm]",  "\bf(a) Location Error, \epsilon", ... 
@@ -812,6 +816,11 @@ function plotGroupedBoxPlot(ax, resultsLog, metricName, yLab, ttl, ...
     
     % Formatting    
     ax.YScale = 'log';    
+    if metricName == "alphaDeg"
+        ax.YLim = [1e-30, 1e5];
+        ax.YTick = [1e-30 1e-25 1e-20 1e-15 1e-10 1e-5 1e0 1e5];
+    end
+    % ax.YLim = [1e-30, 1e5];
     ax.LineWidth = 1.2;    
     ax.Box = 'on';    
     ax.FontSize = 8;    
