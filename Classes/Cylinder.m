@@ -147,9 +147,9 @@ classdef Cylinder < Feature
             % fitFaceAlpha      : scalar in [0,1] (default: 0.4)
             % fitEdgeColor      : 'none' or color (default: 'none')
             % fitLabel          : string (default: "<name> Fit")
-            % centerLineStyle   : 'solid' | 'dashed' | 'dotted' | 'dashdot'
+            % lineStyle         : 'solid' | 'dashed' | 'dotted' | 'dashdot'
             %                     | 'none' (default: 'dashdot')
-            % centerLineWidth   : scalar (default: 1)
+            % lineWidth         : scalar (default: 1)
             % faces             : cylinder mesh faces (default: 50)
             % ax                : axes handle (default: gca)
 
