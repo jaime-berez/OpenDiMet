@@ -55,7 +55,7 @@ function [X,Y,Z] = calcPlaneCorners(data, point, direction, scalingFactor)
         %disp("X dominant");
     elseif dirInd==2 && abs(bcDiff)>.5; %if the Y direction is dominant, use the XZ corners and solve for Y values 
         X = corners3(:,1);
-        Y = (-direction(1)/direction(2))*(corners3(:,1)-point(1))+(-direction(3)/direction(2))*(corners3(:,2)-point(2))+point(2);
+        Y = (-direction(1)/direction(2))*(corners3(:,1)-point(1))+(-direction(3)/direction(2))*(corners3(:,3)-point(3))+point(2);
         Z = corners3(:,3);
         %disp("Y dominant");
     else dirInd==3; %if the Z direction is dominant, use the XY corners and solve for Z values
