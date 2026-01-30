@@ -111,7 +111,7 @@ classdef Sphere < Feature
                 opts.dataColor = [0 0.4470 0.7410]
                 opts.dataLabel (1,1) string = obj.name + " Data"
                 opts.dataMarker (1,1) string = "."
-                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 10
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
         
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"
