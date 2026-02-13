@@ -1,4 +1,4 @@
-classdef AssociationCriteria < int32
+classdef FittingCriteria < int32
     % ASSOCIATIONCRITERIA Enumeration for different feature assoication methods.
     % Association Citeria:
     % LeastSquares          : Also known as Gaussian Fit/L2 fit. Minimizes the sum of
@@ -29,17 +29,17 @@ classdef AssociationCriteria < int32
             % Function to list the supported geometries for each association
             % criterion.   
             switch geometry
-                case AssociationCriteria.LeastSquares
+                case FittingCriteria.LeastSquares
                     list = ["Line", "Plane", "Circle", "Sphere", "Cylinder", "Cone"];
-                case AssociationCriteria.MiniMax
+                case FittingCriteria.MiniMax
                     list = ["Line", "Plane", "Circle", "Sphere", "Cylinder", "Cone"];
-                case AssociationCriteria.MinimumCircumscribed
+                case FittingCriteria.MinimumCircumscribed
                     list = ["Cirlce", "Sphere", "Cylinder"];
-                case AssociationCriteria.MaximumInscribed
+                case FittingCriteria.MaximumInscribed
                     list = ["Cirlce", "Sphere", "Cylinder"];
-                case AssociationCriteria.MinimumTotalDistance
+                case FittingCriteria.MinimumTotalDistance
                     list = ["Line", "Plane", "Circle", "Sphere", "Cylinder", "Cone"];
-                case AssociationCriteria.WeightedLeastSquares
+                case FittingCriteria.WeightedLeastSquares
                     list = ["Line", "Plane", "Circle", "Sphere", "Cylinder", "Cone"];
                 otherwise
                     list = string.empty;
@@ -50,16 +50,16 @@ classdef AssociationCriteria < int32
     methods (Static)
         function list = implemented()
             % Function with the list of implemented association criteria.
-            list = [AssociationCriteria.LeastSquares];
+            list = [FittingCriteria.LeastSquares];
         end
 
         function list = unimplemented()
             % Function with the list of unimplemented association criteria.
-            list = [AssociationCriteria.MiniMax,
-                AssociationCriteria.MinimumCircumscribed,
-                AssociationCriteria.MaximumInscribed,
-                AssociationCriteria.MinimumTotalDistance,
-                AssociationCriteria.WeightedLeastSquares];
+            list = [FittingCriteria.MiniMax,
+                FittingCriteria.MinimumCircumscribed,
+                FittingCriteria.MaximumInscribed,
+                FittingCriteria.MinimumTotalDistance,
+                FittingCriteria.WeightedLeastSquares];
         end
     end
 end
