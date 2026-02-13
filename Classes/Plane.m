@@ -22,8 +22,8 @@ classdef Plane < Feature
     %                                          associated plane.
 
     properties (GetAccess = public, SetAccess = private)
-        point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         fitInfo struct = struct()
     end
 
@@ -81,8 +81,8 @@ classdef Plane < Feature
             direction = direction / norm(direction);
             residuals = X * direction.';   % Signed distance to the plane
             obj.sigma = std(residuals);
-            obj.point = centroid;
-            obj.direction = direction;
+            obj.pnt = centroid;
+            obj.dir = direction;
             obj.fitInfo = struct('method', 'SVD', 'description', ['Least-squares plane fit using ' ...
             'Singular Value Decomposition.']);
         end
@@ -137,8 +137,8 @@ classdef Plane < Feature
 
             % Geometry
             data = obj.data;
-            point = obj.point;
-            direction = obj.direction;
+            point = obj.pnt;
+            direction = obj.dir;
 
             cla(ax); hold(ax,'on'); grid(ax,'on');
             axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
@@ -204,8 +204,8 @@ classdef Plane < Feature
             name = string(obj.name);
             fittingCriteria = obj.FittingCriteria;
             data = obj.data;
-            point = obj.point(:).';
-            direction = obj.direction(:).';
+            point = obj.pnt(:).';
+            direction = obj.dir(:).';
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);
@@ -224,7 +224,7 @@ classdef Plane < Feature
             % REVERSEDIR Function to reverse the direction vector of the
             % object.
 
-            obj.direction = -obj.direction;
+            obj.dir = -obj.dir;
         end
     end
 end

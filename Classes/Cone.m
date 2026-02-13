@@ -22,8 +22,8 @@ classdef Cone < Feature
 % disp() - formatted textual description.
 
     properties (GetAccess = public, SetAccess = private)
-        point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         angle (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
         distance (1,1) double {mustBeFinite, mustBeReal, mustBeNonnegative, mustBeNonNan}
         apex (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan}
@@ -73,9 +73,9 @@ classdef Cone < Feature
             zD = data1(:,3);
             
             C = Cylinder("Cylinder", data1, FittingCriteria.LeastSquares);
-            cylPoint = C.point;
-            cylDirection = C.direction;
-            cylDiameter = C.diameter;
+            cylPoint = C.pnt;
+            cylDirection = C.dir;
+            cylDiameter = C.dia;
             point=cylPoint; %[x,y,z]
             direction=cylDirection; %[A,B,C]
             angle5 = deg2rad(1); 
@@ -110,8 +110,8 @@ classdef Cone < Feature
             % Derive smallR / bigR from data span
             [smallR, bigR, height] = calcConeRadii(data, point, apex, direction, angle, distance);
 
-            obj.point = point;
-            obj.direction = direction;
+            obj.pnt = point;
+            obj.dir = direction;
             obj.angle = angle;
             obj.distance = distance;
             obj.apex = apex;
@@ -188,8 +188,8 @@ classdef Cone < Feature
 
             % Geometry
             data = obj.data;
-            point = obj.point;
-            direction = obj.direction;
+            point = obj.pnt;
+            direction = obj.dir;
             smallR = obj.smallR;
             bigR = obj.bigR;
             height = obj.height;
@@ -247,8 +247,8 @@ classdef Cone < Feature
             name = string(obj.name);
             fittingCriteria = obj.FittingCriteria;
             data = obj.data;
-            point = obj.point(:).';
-            direction = obj.direction(:).';
+            point = obj.pnt(:).';
+            direction = obj.dir(:).';
             angle = obj.angle;
             distance = obj.distance;
             apex = obj.apex;

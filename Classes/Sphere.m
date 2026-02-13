@@ -15,8 +15,8 @@ classdef Sphere < Feature
     % disp(): formatted textual description.
 
     properties (GetAccess = public, SetAccess = private)
-        point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        diameter (1,1) double {mustBeFinite, mustBeReal}
+        pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dia (1,1) double {mustBeFinite, mustBeReal}
         fitInfo struct = struct()
     end
 
@@ -79,8 +79,8 @@ classdef Sphere < Feature
             point = [answer(1),answer(2),answer(3)];
             diameter =answer(4)*2;
             obj.sigma = std(residual);
-            obj.point = point;
-            obj.diameter = diameter;
+            obj.pnt = point;
+            obj.dia = diameter;
 
             if exist('info', 'var')
                 obj.fitInfo = info;
@@ -141,8 +141,8 @@ classdef Sphere < Feature
 
             % Geometry
             data = obj.data;
-            point = obj.point;
-            diameter = obj.diameter;
+            point = obj.pnt;
+            diameter = obj.dia;
             
             cla(ax); hold(ax, 'on'); axis(ax,'equal'); axis(ax, 'padded'); grid(ax,'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
@@ -187,8 +187,8 @@ classdef Sphere < Feature
             name = string(obj.name);
             fittingCriteria = obj.FittingCriteria;
             data = obj.data;
-            point = obj.point(:).';
-            diameter = obj.diameter;
+            point = obj.pnt(:).';
+            diameter = obj.dia;
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);

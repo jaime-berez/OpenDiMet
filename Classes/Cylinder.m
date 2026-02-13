@@ -16,9 +16,9 @@ classdef Cylinder < Feature
 % disp() - formatted textual description.
 
     properties (GetAccess = public, SetAccess = private)
-        point     (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        diameter  (1,1) double {mustBeFinite, mustBeReal}
+        pnt     (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dia  (1,1) double {mustBeFinite, mustBeReal}
         fitInfo struct = struct()
     end
 
@@ -60,11 +60,11 @@ classdef Cylinder < Feature
             % Initial guesses (point = centroid; directions = axes)
             point = centroid; 
             L = Line("Line", data, FittingCriteria.LeastSquares);
-            lpoint = L.point;
+            lpoint = L.pnt;
             direction1 = [1,0,0];
             direction2 = [0,1,0];
             direction3 = [0,0,1];
-            direction4 = L.direction;
+            direction4 = L.dir;
             distance1 = 2*std(yD);
             distance2 = 2*std(zD);
             distance3 = 2*std(xD);
@@ -121,9 +121,9 @@ classdef Cylinder < Feature
             % Compute standard deviation
             obj.sigma = std(residual);
             % Assign the values to properties
-            obj.point = points;
-            obj.direction = direction;
-            obj.diameter = radius * 2; % Diameter is twice the radius
+            obj.pnt = points;
+            obj.dir = direction;
+            obj.dia = radius * 2; % Diameter is twice the radius
 
             if exist('info', 'var')
                 obj.fitInfo = info;
@@ -191,9 +191,9 @@ classdef Cylinder < Feature
             
             % Geometry
             data = obj.data;                 % Nx3
-            point  = obj.point(:).';            % 1x3
-            direction  = obj.direction(:).';    % 1x3 (unit)
-            distance  = obj.diameter/2;       
+            point  = obj.pnt(:).';            % 1x3
+            direction  = obj.dir(:).';    % 1x3 (unit)
+            distance  = obj.dia/2;       
 
             % Clear + axes setup
             cla(ax); 
@@ -270,9 +270,9 @@ classdef Cylinder < Feature
             name  = string(obj.name);
             fittingCriteria = obj.FittingCriteria;
             data  = obj.data;
-            point     = obj.point(:).';
-            direction     = obj.direction(:).';
-            diameter    = obj.diameter;
+            point     = obj.pnt(:).';
+            direction     = obj.dir(:).';
+            diameter    = obj.dia;
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);
@@ -296,7 +296,7 @@ classdef Cylinder < Feature
             % REVERSEDIR Function to reverse the direction vector of the
             % object.
 
-            obj.direction = -obj.direction;
+            obj.dir = -obj.dir;
         end
     end
 end

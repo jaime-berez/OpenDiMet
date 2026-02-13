@@ -16,8 +16,8 @@ classdef Line < Feature
     % disp() - formatted textual description.
 
     properties (GetAccess = public, SetAccess = private)
-        point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         fitInfo struct = struct()
     end
 
@@ -61,8 +61,8 @@ classdef Line < Feature
             residuals = calcStraightnessResiduals(data, point, direction);
             obj.sigma = std(residuals);
 
-            obj.point = point;
-            obj.direction = direction; % Store the direction vector in the object
+            obj.pnt = point;
+            obj.dir = direction; % Store the direction vector in the object
             obj.fitInfo = struct('method', 'SVD', 'description', ['Least-squares line fit using ' ...
             'Singular Value Decomposition.']);
         end
@@ -113,8 +113,8 @@ classdef Line < Feature
               
             % Geometry
             data = obj.data;
-            point = obj.point;
-            direction = obj.direction;
+            point = obj.pnt;
+            direction = obj.dir;
             % Plot.plotData(data); %plot the data points 
             % hold on; grid on; axis equal; axis padded; %configure the figure
             % Plot.plotPoint(point); %plot the centroid
@@ -169,8 +169,8 @@ classdef Line < Feature
             name = string(obj.name);
             fittingCriteria = obj.FittingCriteria;
             data = obj.data;
-            point = obj.point;
-            direction = obj.direction;
+            point = obj.pnt;
+            direction = obj.dir;
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);
@@ -189,7 +189,7 @@ classdef Line < Feature
             % REVERSEDIR Function to reverse the direction vector of the
             % object.
         
-            obj.direction = -obj.direction;
+            obj.dir = -obj.dir;
         end
     end
 end

@@ -19,9 +19,9 @@ classdef Circle < Feature
 % disp() - formatted textual description.
 
     properties (GetAccess = public, SetAccess = private)
-        point (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        direction (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        diameter (1,1) double {mustBeFinite, mustBeReal}
+        pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
+        dia (1,1) double {mustBeFinite, mustBeReal}
         fitInfo struct = struct()
     end
 
@@ -58,8 +58,8 @@ classdef Circle < Feature
             % [centroid,dir] = fitPlane(data); %associated plane
 
             P = Plane("Plane", data, FittingCriteria.LeastSquares);
-            centroid = P.point;
-            direction = P.direction;
+            centroid = P.pnt;
+            direction = P.dir;
 
             % Second, fit a 2d circle using the plane point and direction
             data1 = data-centroid; % translate the data to the orgin
@@ -88,9 +88,9 @@ classdef Circle < Feature
             diameter = ans3d(4)*2; % ans3d(4) is the radius, so multiply by 2 to get the diameter
             point = point+centroid;
 
-            obj.point = point;
-            obj.direction = direction;
-            obj.diameter = diameter;
+            obj.pnt = point;
+            obj.dir = direction;
+            obj.dia = diameter;
             obj.sigma = std(residual3d);
 
             if exist('info', 'var')
@@ -146,9 +146,9 @@ classdef Circle < Feature
             fitLS     = Feature.parseLineStyle(opts.lineStyle);
             
             data = obj.data;
-            point = obj.point;
-            direction = obj.direction;
-            diameter = obj.diameter;
+            point = obj.pnt;
+            direction = obj.dir;
+            diameter = obj.dia;
 
             cla(ax); hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
@@ -189,9 +189,9 @@ classdef Circle < Feature
             name = string(obj.name);
             fittingCriteria = obj.FittingCriteria;
             data = obj.data;
-            point = obj.point(:).';
-            direction = obj.direction(:).';
-            diameter = obj.diameter;
+            point = obj.pnt(:).';
+            direction = obj.dir(:).';
+            diameter = obj.dia;
             sigma = obj.sigma;
             dataClass = class(data);
             dataSize = size(data);
@@ -211,7 +211,7 @@ classdef Circle < Feature
             % REVERSEDIR Function to reverse the direction vector of the
             % object.
 
-            obj.direction = -obj.direction;
+            obj.dir = -obj.dir;
         end
     end
 
