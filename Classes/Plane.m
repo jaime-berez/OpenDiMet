@@ -28,7 +28,7 @@ classdef Plane < Feature
     end
 
     methods
-        function obj = Plane(name, data, associationCriteria, opts)
+        function obj = Plane(name, data, fittingCriteria, opts)
             % Plane Constructor
             % obj = Plane(name, data, associationCriteria, opts)
             % Construct a plane object and compute the associated plane
@@ -46,7 +46,7 @@ classdef Plane < Feature
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
                 % Dummy LM-style options
                 opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
@@ -57,7 +57,7 @@ classdef Plane < Feature
                 opts.SuppressOutput(1,1) logical = true
                 opts.sourceFile (1,1) string = ""
             end
-            obj@Feature(name, data, associationCriteria, opts.sourceFile);
+            obj@Feature(name, data, fittingCriteria, opts.sourceFile);
             obj.validateAssociation();
             % Computes and plots the centroid of the plane
             dataOrig = data;
@@ -202,7 +202,7 @@ classdef Plane < Feature
             % Custom display for Plane object
             % Extract base info
             name = string(obj.name);
-            assoc = obj.AssociationCriteria;
+            fittingCriteria = obj.FittingCriteria;
             data = obj.data;
             point = obj.point(:).';
             direction = obj.direction(:).';
@@ -213,7 +213,7 @@ classdef Plane < Feature
             % Print formatted output
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
-            fprintf('  AssocCrit: %s\n', char(assoc));
+            fprintf('  AssocCrit: %s\n', char(fittingCriteria));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction: [%.4f  %.4f  %.4f]\n', direction);
             fprintf('  Sigma:     %.4f\n', sigma);
