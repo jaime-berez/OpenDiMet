@@ -268,7 +268,7 @@ classdef Cylinder < Feature
             % Custom display for Cylinder objects
             % Extract base info
             name  = string(obj.name);
-            associationCriteria = obj.AssociationCriteria;
+            fittingCriteria = obj.FittingCriteria;
             data  = obj.data;
             point     = obj.point(:).';
             direction     = obj.direction(:).';
@@ -284,7 +284,7 @@ classdef Cylinder < Feature
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:   %s\n', char(materialSide));
             end
-            fprintf('  AssocCrit: %s\n', char(associationCriteria));
+            fprintf('  AssocCrit: %s\n', char(fittingCriteria));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction: [%.4f  %.4f  %.4f]\n', direction);
             fprintf('  Diameter:  %.4f\n', diameter);
