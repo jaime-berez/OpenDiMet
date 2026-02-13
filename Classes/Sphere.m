@@ -22,11 +22,11 @@ classdef Sphere < Feature
 
     methods
         % Constructor for the sphere class
-        function obj = Sphere(name, data, associationCriteria, opts)
+        function obj = Sphere(name, data, fittingCriteria, opts)
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -40,7 +40,7 @@ classdef Sphere < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, associationCriteria, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, fittingCriteria, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
             MaxIter = opts.MaxIter;
@@ -185,7 +185,7 @@ classdef Sphere < Feature
             % Custom display for Sphere objects
             % Extract base info
             name = string(obj.name);
-            associationCriteria = obj.AssociationCriteria;
+            fittingCriteria = obj.FittingCriteria;
             data = obj.data;
             point = obj.point(:).';
             diameter = obj.diameter;
@@ -200,7 +200,7 @@ classdef Sphere < Feature
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:   %s\n', char(materialSide));
             end
-            fprintf('  AssocCrit: %s\n', char(associationCriteria));
+            fprintf('  AssocCrit: %s\n', char(fittingCriteria));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Diameter:  %.4f\n', diameter);
             fprintf('  Sigma:     %.4f\n', sigma);
