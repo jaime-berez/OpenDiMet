@@ -23,12 +23,12 @@ classdef Cylinder < Feature
     end
 
     methods
-        function obj = Cylinder(name, data, associationCriteria, opts)
+        function obj = Cylinder(name, data, fittingCriteria, opts)
             % Constructor method for the Cylinder class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -42,7 +42,7 @@ classdef Cylinder < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, associationCriteria, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, fittingCriteria, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
             MaxIter = opts.MaxIter;
@@ -59,7 +59,7 @@ classdef Cylinder < Feature
 
             % Initial guesses (point = centroid; directions = axes)
             point = centroid; 
-            L = Line("Line", data, AssociationCriteria.LeastSquares);
+            L = Line("Line", data, FittingCriteria.LeastSquares);
             lpoint = L.point;
             direction1 = [1,0,0];
             direction2 = [0,1,0];

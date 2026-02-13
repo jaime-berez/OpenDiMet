@@ -38,7 +38,7 @@ function feature = fitFeature(data, featureType, associationCriteria, featureNam
     end
 
     if ~isa(associationCriteria, "AssociationCriteria")
-        associationCriteria = AssociationCriteria.(string(associationCriteria));
+        associationCriteria = FittingCriteria.(string(associationCriteria));
     end
 
     sourceFile = "";

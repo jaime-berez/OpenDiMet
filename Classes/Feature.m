@@ -21,7 +21,7 @@ classdef Feature < handle
 
     properties (GetAccess = public, SetAccess = public)
         name (1,1) string {mustBeTextScalar, mustBeNonempty} = ""
-        AssociationCriteria (1,1) AssociationCriteria = AssociationCriteria.LeastSquares 
+        FittingCriteria (1,1) FittingCriteria = FittingCriteria.LeastSquares 
         sigma (1,1) double {mustBeFinite, mustBeReal, mustBeNonnegative}
         sourceFile (1,1) string = ""   
         materialSide (1,1) MaterialSide = MaterialSide.Unspecified
@@ -32,11 +32,11 @@ classdef Feature < handle
     end
 
     methods
-        function obj = Feature(name, data, associationCriteria, sourceFile, materialSide)
+        function obj = Feature(name, data, fittingCriteria, sourceFile, materialSide)
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
                 sourceFile (1,1) string = ""        
                 materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
@@ -54,7 +54,7 @@ classdef Feature < handle
                 obj.name = string(name);
             end
             
-            obj.AssociationCriteria = associationCriteria;
+            obj.FittingCriteria = fittingCriteria;
             obj.data = data;
         end
     end
@@ -63,7 +63,7 @@ classdef Feature < handle
         function validateAssociation(feature)
             % Function to validate the AssociationCriteria.
             geometry = class(feature);
-            criteria = feature.AssociationCriteria;
+            criteria = feature.FittingCriteria;
 
             % List of the supported geometries.
             supported_geometries = criteria.supportedGeometries();
@@ -75,7 +75,7 @@ classdef Feature < handle
             end
 
             % Check if the selected association criterion is implemented.
-            if any(criteria == AssociationCriteria.unimplemented())
+            if any(criteria == FittingCriteria.unimplemented())
                 err = MException("Feature:NotImplemented", ...
                     "The association criterion '%s' is not " + ...
                     "implemented for geometry '%s'. \nProcess terminated.", char(criteria), class(feature));

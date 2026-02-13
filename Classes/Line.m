@@ -22,12 +22,12 @@ classdef Line < Feature
     end
 
     methods
-        function obj = Line(name, data, associationCriteria, opts)
+        function obj = Line(name, data, fittingCriteria, opts)
             % Constructor function for the Line Class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
                 % Dummy LM-style options
                 opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
@@ -38,7 +38,7 @@ classdef Line < Feature
                 opts.SuppressOutput(1,1) logical = true
                 opts.sourceFile (1,1) string = ""
             end
-            obj@Feature(name, data, associationCriteria, opts.sourceFile);
+            obj@Feature(name, data, fittingCriteria, opts.sourceFile);
             obj.validateAssociation();
 
             point = mean(data);

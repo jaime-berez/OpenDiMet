@@ -34,12 +34,12 @@ classdef Cone < Feature
     end 
 
     methods
-        function obj = Cone(name, data, associationCriteria, opts)
+        function obj = Cone(name, data, fittingCriteria, opts)
             % Constructor method for the Cone class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -53,7 +53,7 @@ classdef Cone < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, associationCriteria, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, fittingCriteria, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
             % Useful document: https://www.mathworks.com/company/technical-articles/tips-and-tricks-combining-functions-using-anonymous-functions.html
             
@@ -72,7 +72,7 @@ classdef Cone < Feature
             yD = data1(:,2);
             zD = data1(:,3);
             
-            C = Cylinder("Cylinder", data1, AssociationCriteria.LeastSquares);
+            C = Cylinder("Cylinder", data1, FittingCriteria.LeastSquares);
             cylPoint = C.point;
             cylDirection = C.direction;
             cylDiameter = C.diameter;
@@ -245,7 +245,7 @@ classdef Cone < Feature
             % Custom display for Cone objects
             % Extract base info
             name = string(obj.name);
-            associationCriteria = obj.AssociationCriteria;
+            fittingCriteria = obj.FittingCriteria;
             data = obj.data;
             point = obj.point(:).';
             direction = obj.direction(:).';
@@ -266,7 +266,7 @@ classdef Cone < Feature
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:        %s\n', char(materialSide));
             end
-            fprintf('  AssocCrit:      %s\n', char(associationCriteria));
+            fprintf('  AssocCrit:      %s\n', char(fittingCriteria));
             fprintf('  Point:          [%.4f  %.4f  %.4f]\n', point);
             fprintf('  Direction:      [%.4f  %.4f  %.4f]\n', direction);
             fprintf('  Included Angle: %.4f\n', rad2deg(angle*2));
