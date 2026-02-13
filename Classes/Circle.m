@@ -26,12 +26,12 @@ classdef Circle < Feature
     end
 
     methods
-        function obj = Circle(name, data, associationCriteria, opts)
+        function obj = Circle(name, data, fittingCriteria, opts)
             % Constructor method for the Circle class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                associationCriteria (1,1) AssociationCriteria
+                fittingCriteria (1,1) FittingCriteria
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -44,7 +44,7 @@ classdef Circle < Feature
                 opts.sourceFile (1,1) string = ""
             end
 
-            obj@Feature(name, data, associationCriteria, opts.sourceFile);
+            obj@Feature(name, data, fittingCriteria, opts.sourceFile);
             obj.validateAssociation();
 
             MaxIter = opts.MaxIter;
@@ -57,7 +57,7 @@ classdef Circle < Feature
             % First fit a plane to get a point and direction
             % [centroid,dir] = fitPlane(data); %associated plane
 
-            P = Plane("Plane", data, AssociationCriteria.LeastSquares);
+            P = Plane("Plane", data, FittingCriteria.LeastSquares);
             centroid = P.point;
             direction = P.direction;
 
@@ -187,7 +187,7 @@ classdef Circle < Feature
             % Custom display for Circle objects
             % Extract base info
             name = string(obj.name);
-            associationCriteria = obj.AssociationCriteria;
+            fittingCriteria = obj.FittingCriteria;
             data = obj.data;
             point = obj.point(:).';
             direction = obj.direction(:).';
@@ -199,7 +199,7 @@ classdef Circle < Feature
             % Print formatted output
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
-            fprintf('  AssocCrit: %s\n', char(associationCriteria));
+            fprintf('  AssocCrit: %s\n', char(fittingCriteria));
             fprintf('  Point:     [%.5f  %.5f  %.5f]\n', point);
             fprintf('  Direction: [%.5f  %.5f  %.5f]\n', direction);
             fprintf('  Diameter:  %.5f\n', diameter);
