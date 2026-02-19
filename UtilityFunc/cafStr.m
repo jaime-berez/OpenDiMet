@@ -1,10 +1,10 @@
 % Calculates the amplification factor using the length of a line
-function [ampFac] = cafStr(straightness,lineLength,scalingFactor)
+function ampFac = cafStr(strErr, len, scaleFac)
     arguments
-        straightness (1,1) {mustBeNonempty}
-        lineLength (1,1) {mustBeNonzero}
-        scalingFactor {mustBeScalarOrEmpty} = 5
+        strErr (1,1) {mustBeNonempty}
+        len    (1,1) {mustBeNonzero}
+        scaleFac {mustBeScalarOrEmpty} = 5
     end
 
-    ampFac = scalingFactor * (1+(lineLength/straightness)^-1);
+    ampFac = scaleFac * (1 + (len/strErr)^-1);
 end

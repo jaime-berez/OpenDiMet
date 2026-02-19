@@ -1,16 +1,15 @@
 % Calculates the amplification factor for roundness error based on the MIC
 % and MCC radi
-function [ampFac] = cafrou(circError,Rmax,Rmin)
+function ampFac = cafrou(rndErr, rMax, rMin)
     arguments
-        circError {mustBeScalarOrEmpty}
-        Rmax {mustBeScalarOrEmpty}
-        Rmin {mustBeScalarOrEmpty}
+        rndErr {mustBeScalarOrEmpty}
+        rMax   {mustBeScalarOrEmpty}
+        rMin   {mustBeScalarOrEmpty}
     end
 
-    err2sz = circError/mean([Rmax Rmin]); %ratio of the roundness error to the approximate size of the feature
-    
-    %ampFac = 5+100^(err2sz); %amplification factor
-    %ampFac = 1/err2sz*.025;
-    ampFac = 0.05*(mean([Rmax Rmin])*2);
+    errRatio = rndErr / mean([rMax rMin]);  % ratio of roundness error to approximate size
 
+    %ampFac = 5 + 100^(errRatio);
+    %ampFac = 1/errRatio * .025;
+    ampFac = 0.05 * (mean([rMax rMin]) * 2);
 end

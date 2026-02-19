@@ -1,22 +1,25 @@
-function [ang axs] = calcAngBetweenVect(A, B)
-%CALCANGBETWEENVECT Calculates the angle (in degrees) between two vectors
-%   Description
+function [angDeg, ax] = calcAngBetweenVect(v1, v2)
+% CALCANGBETWEENVECT Calculates the angle (in degrees) between two vectors
+
 arguments (Input)
-    A
-    B
+    v1
+    v2
 end
 
 % 0. Normalize vectors
-A = A./norm(A);
-B = B./norm(B);
+v1 = v1 ./ norm(v1);
+v2 = v2 ./ norm(v2);
 
-axs = cross(A,B);
-ang = 2*atan2d(norm(norm(A)*B - norm(B)*A), norm((norm(A)*B + norm(B)*A)));
+ax = cross(v1, v2);
 
-% Note on computing angle: There are multiple possible methods. Performance
-% diverges for small angles. The chosen method is reported to have the best
-% performance on small angles.
-% ang2 = atan2d(norm(cross(A, B)), dot(A, B)); % Also performs ok
-% ang3 = acosd(dot(A, B)/(norm(A)*norm(B))); % Poor performance on small ang
+angDeg = 2 * atan2d( ...
+    norm(norm(v1) * v2 - norm(v2) * v1), ...
+    norm(norm(v1) * v2 + norm(v2) * v1) );
+
+% Note on computing angle: There are multiple possible methods.
+% Performance diverges for small angles. The chosen method is reported
+% to have the best performance on small angles.
+% ang2 = atan2d(norm(cross(v1, v2)), dot(v1, v2));
+% ang3 = acosd(dot(v1, v2)/(norm(v1)*norm(v2)));
 
 end

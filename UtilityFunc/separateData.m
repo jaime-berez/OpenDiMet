@@ -1,6 +1,6 @@
-function [xD,yD,zD] = separateData(data)
-    % This function breaks a matrix of row vectors into separate arrays for X Y & Z data
-    xD = data(:,1);
-    yD = data(:,2);
-    zD = data(:,3);
+function [xData, yData, zData] = separateData(data)
+    % This function breaks an Nx3 matrix into separate column arrays for X, Y & Z data
+    xData = data(:,1);
+    yData = data(:,2);
+    zData = data(:,3);
 end

@@ -2,10 +2,10 @@
 % plane has been previously associated using SVD or a different analytical
 % method rather than using an association algorithm
 
-function [residuals] = calcFlatnessResiduals(data,point,direction)
+function residual = calcFlatnessResiduals(data, pnt, dir)
 
-Rz = getRz(direction);
-data1 = data-point;
-data2 = data1*Rz;
+Rz = getRz(dir);
+data0 = data - pnt;
+data1 = data0 * Rz;
 
-residuals = data2(:,3);
+residual = data1(:,3);

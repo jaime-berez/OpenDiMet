@@ -1,11 +1,11 @@
-function feature = fitFeature(data, featureType, associationCriteria, featureName, opts)
+function feat = fitFeature(data, featType, ft, featName, opts)
     % Function to fit feature to coordinate data
     arguments
-        %data (:, 3) double {mustBeFinite, mustBeReal, mustBeNonempty, mustBeNonNan} 
+        %data (:, 3) double {mustBeFinite, mustBeReal, mustBeNonempty, mustBeNonNan}
         data {mustBeA(data, {'double', 'string', 'char'})}
-        featureType {mustBeA(featureType, {'char', 'string'})}
-        associationCriteria {mustBeA(associationCriteria, {'AssociationCriteria', 'char', 'string'})}
-        featureName (1,1) string = ""
+        featType {mustBeA(featType, {'char', 'string'})}
+        ft {mustBeA(ft, {'fitType', 'char', 'string'})}
+        featName (1,1) string = ""
         opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
         opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
         opts.GradTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-11
@@ -16,80 +16,70 @@ function feature = fitFeature(data, featureType, associationCriteria, featureNam
         opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
     end
 
-    % if strlength(featureName) == 0
-    %     try
-    %         % Try to find the file variable in caller workspace and infer
-    %         % the name.
-    %         fileVar = evalin('caller', 'file');
-    %         % Ignore the folder name and keep the base file name.
-    %         [~, inferredName] = fileparts(fileVar);
-    %         featureName = string(inferredName);
-    %     catch
-    %         featureName = "UnnamedFeature";
-    %     end
-    % end
+    featType = string(featType);
 
-    featureType = string(featureType);
-
-    validTypes = ["Line", "Plane", "Circle", "Cylinder", "Sphere", "Cone"];
-    if ~ismember(featureType, validTypes)
+    validFeatTypes = ["Line", "Plane", "Circle", "Cylinder", "Sphere", "Cone"];
+    if ~ismember(featType, validFeatTypes)
         error("fitFeature:InvalidFeatureType", ...
-                "featureType must be one of: %s", strjoin(validTypes, ", "));
+                "featType must be one of: %s", strjoin(validFeatTypes, ", "));
     end
 
-    if ~isa(associationCriteria, "AssociationCriteria")
-        associationCriteria = FittingCriteria.(string(associationCriteria));
+    % --- normalize fit type input ---
+    % Old code checked "AssociationCriteria" and used "FittingCriteria".
+    % Now the enum class is "fitType".
+    if ~isa(ft, "fitType")
+        ft = fitType.(string(ft));
     end
 
-    sourceFile = "";
+    srcFile = "";
     if isnumeric(data)
         data = data;
     else
-        sourceFile = string(data);
-        data = readData(sourceFile);
+        srcFile = string(data);
+        data = readData(srcFile);
     end
 
-    if strlength(featureName) == 0
-        if strlength(sourceFile) > 0
-            [~, base] = fileparts(sourceFile);
-            featureName = string(base);
+    if strlength(featName) == 0
+        if strlength(srcFile) > 0
+            [~, base] = fileparts(srcFile);
+            featName = string(base);
         else
-            featureName = "UnnamedFeature";
+            featName = "UnnamedFeature";
         end
     end
-    
+
     % Filter geometry inapplicable options before forwarding
     optsForward = opts;
 
-    switch featureType
+    switch featType
         case {"Line","Plane","Circle"}
             if optsForward.materialSide ~= MaterialSide.Unspecified
                 error("fitFeature:OptionNotApplicable", ...
-                    "Option 'materialSide' is not applicable to featureType '%s'.", featureType);
+                    "Option 'materialSide' is not applicable to featType '%s'.", featType);
             end
             optsForward = rmfield(optsForward, "materialSide");
     end
 
     % Convert opts to 'Name', Value list to forward to constructors
     nameValue = namedargs2cell(optsForward);
-    nameValue = [nameValue, {'sourceFile', sourceFile}];
+    nameValue = [nameValue, {'sourceFile', srcFile}];
 
     % Fit the selected feature type
-    switch featureType
+    switch featType
         case "Line"
-            feature = Line(featureName, data, associationCriteria, nameValue{:});
+            feat = Line(featName, data, ft, nameValue{:});
         case "Plane"
-            feature = Plane(featureName, data, associationCriteria, nameValue{:});
+            feat = Plane(featName, data, ft, nameValue{:});
         case "Circle"
-            feature = Circle(featureName, data, associationCriteria, nameValue{:});
+            feat = Circle(featName, data, ft, nameValue{:});
         case "Sphere"
-            feature = Sphere(featureName, data, associationCriteria, nameValue{:});
+            feat = Sphere(featName, data, ft, nameValue{:});
         case "Cylinder"
-            feature = Cylinder(featureName, data, associationCriteria, nameValue{:});
+            feat = Cylinder(featName, data, ft, nameValue{:});
         case "Cone"
-            feature = Cone(featureName, data, associationCriteria, nameValue{:});
+            feat = Cone(featName, data, ft, nameValue{:});
         otherwise
-            error(['Unsupported feature type: %s. featureType must be one of the following ' ...
-                'Line, Cylinder, Plane, Circle, Sphere, Cone.'], featureType);
+            error(['Unsupported feature type: %s. featType must be one of the following ' ...
+                'Line, Cylinder, Plane, Circle, Sphere, Cone.'], featType);
     end
 end

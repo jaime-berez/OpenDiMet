@@ -1,4 +1,4 @@
-function data = combineData(xD,yD,zD)
-    % Function to combine X Y & Z column arrays into a nx3 row-vector matrix 
-    data = [xD yD zD];
+function data = combineData(xData, yData, zData)
+    % Function to combine X, Y & Z column arrays into an Nx3 matrix
+    data = [xData yData zData];
 end

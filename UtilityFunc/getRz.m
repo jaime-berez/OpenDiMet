@@ -1,9 +1,9 @@
-function Rz = getRz(direction)
+function Rz = getRz(dir)
 %GETRZ Rotation matrix to align with [0 0 1]
-a=direction(1); b=direction(2); c=direction(3);
+a=dir(1); b=dir(2); c=dir(3);
 z = [0,0,1];
 % Make scalar logical
-if all(round(abs(direction),6) == z)
+if all(round(abs(dir),6) == z)
     Rz = eye(3);
     return
 end

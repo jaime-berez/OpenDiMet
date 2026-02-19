@@ -1,18 +1,6 @@
 classdef Sphere < Feature
     % SPHERE Class for fitting and representing a sphere form data.
-    % The Sphere class constructs a sphere feature from measured 3D points
-    % using a fit-based constructor using the specified AssociationCriteria. It inherits 
-    % from Feature and stores both geometric description and the fitting parameters 
-    % used to obtain it.
-    %
-    % Properties:
-    % point - 1 x 3 double, fitted sphere center
-    % diamater - 1 x 1 double, fitted sphere diameter
-    %
-    % Methods:
-    % Sphere(name, data, AssociationCriteria): construct and fit the sphere.
-    % plot(): visualize the data and the fitted sphere.
-    % disp(): formatted textual description.
+    % ...
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -22,11 +10,11 @@ classdef Sphere < Feature
 
     methods
         % Constructor for the sphere class
-        function obj = Sphere(name, data, fittingCriteria, opts)
+        function obj = Sphere(name, data, ft, opts)
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                fittingCriteria (1,1) FittingCriteria
+                ft (1,1) fitType
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -40,47 +28,44 @@ classdef Sphere < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, fittingCriteria, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, ft, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
-            MaxIter = opts.MaxIter;
-            StepTol = opts.StepTol;
-            GradTol = opts.GradTol;
-            SSETol = opts.SSETol;
-            Lambda = opts.Lambda;
-            DampingCoeff = opts.DampingCoeff;
-            SuppressOutput = opts.SuppressOutput;
+            maxIter = opts.MaxIter;
+            stepTol = opts.StepTol;
+            gradTol = opts.GradTol;
+            sseTol  = opts.SSETol;
+            lambda  = opts.Lambda;
+            dampingCoeff   = opts.DampingCoeff;
+            suppressOutput = opts.SuppressOutput;
 
-            centroid = mean(data);
+            pnt0 = mean(data);
+
             % Break up data into x,y,z components
-            [xD, yD, zD] = separateData(data);
+            [xData, yData, zData] = separateData(data);
 
-            % Initial guess data
-            point = centroid;
+            % Initial guess radius (Intersecting Chords Theorem heuristic)
+            rad0 = guess3dRad(data);
 
-            % Use the Instersecting Cords Theorem to guess Sphere's radius
-            radius = guess3dRad(data);
+            % Format the guess: [cx cy cz r]
+            q0 = [pnt0(1), pnt0(2), pnt0(3), rad0];
 
-            % Format the guess
-            guess = [point(1),point(2),point(3),radius];
-            
-            % Format the objective function
-            %fcn = @(q) abs(q(1)-data)-q(2);
-            %fcn = @(q) ((abs(q(1)-xD))+(abs(q(2)-yD))+(abs(q(3)-zD))-q(4));
-            x = @(q) q(1)-xD;
-            y = @(q) q(2)-yD;
-            z = @(q) q(3)-zD;
-            fcn = @(q) sqrt(x(q).^2+y(q).^2+z(q).^2)-q(4);
-            
-             % Associate a sphere
-            [answer, resnorm, residual, info] = LM.solve(fcn,guess, MaxIter, StepTol, GradTol, ...
-                SSETol, Lambda, DampingCoeff, SuppressOutput);
-        
-            point = [answer(1),answer(2),answer(3)];
-            diameter =answer(4)*2;
+            % Objective function
+            dx = @(q) q(1) - xData;
+            dy = @(q) q(2) - yData;
+            dz = @(q) q(3) - zData;
+            fcn = @(q) sqrt(dx(q).^2 + dy(q).^2 + dz(q).^2) - q(4);
+
+            % Associate a sphere
+            [qHat, resnorm, residual, info] = LM.solve(fcn, q0, maxIter, stepTol, gradTol, ...
+                sseTol, lambda, dampingCoeff, suppressOutput);
+
+            pntHat = [qHat(1), qHat(2), qHat(3)];
+            diaHat = qHat(4) * 2;
+
             obj.sigma = std(residual);
-            obj.pnt = point;
-            obj.dia = diameter;
+            obj.pnt = pntHat;
+            obj.dia = diaHat;
 
             if exist('info', 'var')
                 obj.fitInfo = info;
@@ -91,28 +76,13 @@ classdef Sphere < Feature
     methods
         function h = plot(obj, opts)
             % PLOT Plot sphere coordinate data and the fitted sphere.
-            %
-            % h = obj.plot() uses defaults.
-            % h = obj.plot(Name = Value, ...) customizes appearance.
-            %
-            % Options (Name = Value)
-            % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
-            % dataMarker        : marker char (default: '.')
-            % dataMarkerSize    : scalar (default: 10)
-            % dataLabel         : string (default: "<name> Data")
-            % fitColor          : color name/'r'/RGB/[hex] (default: green)
-            % fitLabel          : string (default: "<name> Fit")
-            % fitFaceAlpha      : scalar in [0,1] (default: 0.35)
-            % fitEdgeColor      : "none" or color (default: "none")
-            % faces             : sphere mesh resolution (default: 27)
-            % ax                : axes handle (default: gca)
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
                 opts.dataLabel (1,1) string = obj.name + " Data"
                 opts.dataMarker (1,1) string = "."
                 opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
-        
+
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"
                 opts.fitFaceAlpha (1,1) double {mustBeFinite, ...
@@ -120,7 +90,7 @@ classdef Sphere < Feature
                     mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.35
                 opts.fitEdgeColor = "none"     % "none" or a color
                 opts.faces (1,1) double {mustBeFinite,mustBePositive} = 27
-        
+
                 opts.ax = []
             end
 
@@ -134,39 +104,40 @@ classdef Sphere < Feature
             fitColor  = Feature.parseColor(opts.fitColor);
 
             if string(opts.fitEdgeColor) == "none"
-                fitEdgeColor = "none";
+                edgeColor = "none";
             else
-                fitEdgeColor = Feature.parseColor(opts.fitEdgeColor);
+                edgeColor = Feature.parseColor(opts.fitEdgeColor);
             end
 
             % Geometry
             data = obj.data;
-            point = obj.pnt;
-            diameter = obj.dia;
-            
-            cla(ax); hold(ax, 'on'); axis(ax,'equal'); axis(ax, 'padded'); grid(ax,'on'); view(ax,3);
+            pnt  = obj.pnt;
+            dia  = obj.dia;
+
+            cla(ax); hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
             title(ax, sprintf('%s', opts.fitLabel));
-            
+
             % Plot coordinate data
-            plot3(ax, data(:,1),data(:,2),data(:,3),char(opts.dataMarker), ...
-                 'Color',dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
+            plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
+                'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
 
             % Plot center
-            plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off');
-        
-            % Plot a sphere
-            faces = round(opts.faces);
-            [X,Y,Z] = sphere(faces);
-            X=X*diameter/2+point(1);
-            Y=Y*diameter/2+point(2);
-            Z=Z*diameter/2+point(3);
-            
-            % Plot the fitted sphere 
-            h = surf(ax, X,Y,Z,'LineStyle', 'none','FaceColor', fitColor, 'FaceAlpha', opts.fitFaceAlpha,'EdgeColor',...
-                fitEdgeColor,'EdgeAlpha',0.35, 'DisplayName', opts.fitLabel); 
+            plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
-            legend(ax, "show", 'FontSize',12);
+            % Plot a sphere mesh
+            faces = round(opts.faces);
+            [X, Y, Z] = sphere(faces);
+            X = X*(dia/2) + pnt(1);
+            Y = Y*(dia/2) + pnt(2);
+            Z = Z*(dia/2) + pnt(3);
+
+            % Plot the fitted sphere
+            h = surf(ax, X, Y, Z, 'LineStyle','none', 'FaceColor', fitColor, ...
+                'FaceAlpha', opts.fitFaceAlpha, 'EdgeColor', edgeColor, 'EdgeAlpha', 0.35, ...
+                'DisplayName', opts.fitLabel);
+
+            legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
         end
 
@@ -183,30 +154,28 @@ classdef Sphere < Feature
 
         function disp(obj)
             % Custom display for Sphere objects
-            % Extract base info
             name = string(obj.name);
-            fittingCriteria = obj.FittingCriteria;
+            ft   = obj.fitType;
             data = obj.data;
-            point = obj.pnt(:).';
-            diameter = obj.dia;
-            sigma = obj.sigma;
+
+            pnt = obj.pnt(:).';
+            dia = obj.dia;
+            sig = obj.sigma;
+
             dataClass = class(data);
             dataSize = size(data);
             materialSide = obj.materialSide;
 
-            % Print formatted output
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:   %s\n', char(materialSide));
             end
-            fprintf('  AssocCrit: %s\n', char(fittingCriteria));
-            fprintf('  Point:     [%.4f  %.4f  %.4f]\n', point);
-            fprintf('  Diameter:  %.4f\n', diameter);
-            fprintf('  Sigma:     %.4f\n', sigma);
+            fprintf('  AssocCrit: %s\n', char(ft));
+            fprintf('  Point:     [%.4f  %.4f  %.4f]\n', pnt);
+            fprintf('  Diameter:  %.4f\n', dia);
+            fprintf('  Sigma:     %.4f\n', sig);
             fprintf('  Data Size: [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
     end
 end
-
-    

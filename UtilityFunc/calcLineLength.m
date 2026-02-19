@@ -1,18 +1,27 @@
-function [len]=calcLineLength(data, point, direction, scalingFactor)
-    % This function calculates the length a line segment.
-    % Lines exist from -INF to INF. However, it is only necessary to find the
-    % length of the line segment represented by the data. This function returns
-    % that length multiplied by a scaling factor.
+function len = calcLineLength(data, pnt, dir, scalingFactor)
+    % Calculate the length of the line segment represented by the data.
+    % Since a mathematical line is infinite, we compute the span of the
+    % measured data projected onto the line axis and scale it.
 
-    data1=data-point; %translate the data to the origin
-    Rz=getRz(direction); %rotation matrix;
-    data2=data1*Rz; %rotate the data to align with the z axis
+    arguments
+        data (:,3) double
+        pnt (1,3) double
+        dir (1,3) double
+        scalingFactor (1,1) double = 1
+    end
 
-    mi=min(data2); %smallest Z value of the data. (Lowest data point)
-    mx=max(data2); %largest Z values of the data. (Highest data point)
+    % Translate to origin
+    data0 = data - pnt;
 
-    %height=range(data2(:,3)); %height of the data from lowest to highest point
-    height = max(data2(:,3)) - min(data2(:,3));
-    len = height*scalingFactor; %the length of the line is the height of the data multiplied by the scaling factor
-    
+    % Rotate so line direction aligns with Z-axis
+    Rz = getRz(dir);
+    data1 = data0 * Rz;
+
+    % Span along axis (Z after rotation)
+    zMin = min(data1(:,3));
+    zMax = max(data1(:,3));
+
+    height = zMax - zMin;
+
+    len = height * scalingFactor;
 end

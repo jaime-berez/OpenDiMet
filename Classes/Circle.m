@@ -3,20 +3,14 @@ classdef Circle < Feature
 % point cloud data. 
 % The circle class represents a circular feature reconstructed from 2D or
 % 3D coordinate data. The object is constructed directly via a fit-based
-% constructor using the specified AssociationCriteria. It inherits from
+% constructor using the specified fitType. It inherits from
 % Feature and stores both geometric description and the fitting parameters
 % used to obtain it.
 %
 % Properties:
-% point - 1 x 3 double, center of the fitted circle.
-% direction - 1 x 3 double, unit normal vector of the circle's plane.
-% diameter - 1 x 1 double, fitted circle diameter.
-%
-% Methods:
-% Circle(name, data, AssociationCriteria) - constructor performing the fit.
-% plot() - visualizes the circle and point data.
-% fit2dCircle() - static method for performing 2D Circle fit.
-% disp() - formatted textual description.
+% pnt - 1 x 3 double, center of the fitted circle.
+% dir - 1 x 3 double, unit normal vector of the circle's plane.
+% dia - 1 x 1 double, fitted circle diameter.
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -26,12 +20,12 @@ classdef Circle < Feature
     end
 
     methods
-        function obj = Circle(name, data, fittingCriteria, opts)
+        function obj = Circle(name, data, ft, opts)
             % Constructor method for the Circle class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                fittingCriteria (1,1) FittingCriteria
+                ft (1,1) fitType
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -44,53 +38,60 @@ classdef Circle < Feature
                 opts.sourceFile (1,1) string = ""
             end
 
-            obj@Feature(name, data, fittingCriteria, opts.sourceFile);
+            obj@Feature(name, data, ft, opts.sourceFile);
             obj.validateAssociation();
 
+            % --- LM options (keep names as-is; these are algorithm params) ---
             MaxIter = opts.MaxIter;
             StepTol = opts.StepTol;
             GradTol = opts.GradTol;
-            SSETol = opts.SSETol;
-            Lambda = opts.Lambda;
-            DampingCoeff = opts.DampingCoeff;
+            SSETol  = opts.SSETol;
+            Lambda  = opts.Lambda;
+            DampingCoeff   = opts.DampingCoeff;
             SuppressOutput = opts.SuppressOutput;
-            % First fit a plane to get a point and direction
-            % [centroid,dir] = fitPlane(data); %associated plane
 
-            P = Plane("Plane", data, FittingCriteria.LeastSquares);
-            centroid = P.pnt;
-            direction = P.dir;
+            % First fit a plane to get a point and direction
+            P = Plane("Plane", data, fitType.LeastSquares);
+            cent = P.pnt;      % centroid
+            dir  = P.dir;      % plane normal (unit)
 
             % Second, fit a 2d circle using the plane point and direction
-            data1 = data-centroid; % translate the data to the orgin
-            Rz=getRz(direction); % compute the rotation matrix to rotate dir to align with [0 0 1]
-            data2 = data1*Rz; % rotate the data to the XY plane
+            dataT = data - cent;     % translated data
+            Rz = getRz(dir);         % rotation matrix to align dir with [0 0 1]
+            dataTR = dataT * Rz;     % translated, then rotated data
 
-            rad = guess2dRad(data2); % guess for the radius of the circle
-            [point2d,diameter2d] = Circle.fit2dCircle(data,centroid,direction,rad); % associated 2d circle
+            rad = guess2dRad(dataTR); % guess for the radius of the circle
 
-            data3 = data-mean(data); % move the data to the origin
-            [xD,yD,zD]=separateData(data3);
-        
-            u=@(q) direction(3)*(q(2)-yD)-direction(2)*(q(3)-zD);
-            v=@(q) direction(1)*(q(3)-zD)-direction(3)*(q(1)-xD);
-            w=@(q) direction(2)*(q(1)-xD)-direction(1)*(q(2)-yD);
-            g=@(q) direction(1)*(q(1)-xD)+direction(2)*(q(2)-yD)+direction(3)*(q(3)-zD);
-            aNorm = sqrt(direction(1)^2+direction(2)^2+direction(3)^2);
-            f=@(q) sqrt( (u(q).^2+v(q).^2+w(q).^2)/aNorm );
+            % associated 2D circle
+            [pnt2d, dia2d] = Circle.fit2dCircle(data, cent, dir, rad);
+
+            dataT2 = data - mean(data);     % translated data (to origin via mean)
+            [xData, yData, zData] = separateData(dataT2);
+
+            u = @(q) dir(3)*(q(2)-yData) - dir(2)*(q(3)-zData);
+            v = @(q) dir(1)*(q(3)-zData) - dir(3)*(q(1)-xData);
+            w = @(q) dir(2)*(q(1)-xData) - dir(1)*(q(2)-yData);
+            g = @(q) dir(1)*(q(1)-xData) + dir(2)*(q(2)-yData) + dir(3)*(q(3)-zData);
+
+            aNorm = sqrt(dir(1)^2 + dir(2)^2 + dir(3)^2);
+
+            f = @(q) sqrt( (u(q).^2 + v(q).^2 + w(q).^2) / aNorm );
             fcn3D = @(q) sqrt( g(q).^2 + (f(q)-q(4)).^2 ); % objective function for 3D circle
-            radius = diameter2d/2;
-            guess3d = [point2d,direction,radius];
-         
-            [ans3d, resnorm3d, residual3d, info] = LM.solve(fcn3D,guess3d, MaxIter, StepTol, GradTol, ...
-                SSETol, Lambda, DampingCoeff, SuppressOutput);
-            point = [ans3d(1),ans3d(2),ans3d(3)];
-            diameter = ans3d(4)*2; % ans3d(4) is the radius, so multiply by 2 to get the diameter
-            point = point+centroid;
 
-            obj.pnt = point;
-            obj.dir = direction;
-            obj.dia = diameter;
+            rad3d = dia2d/2;
+            guess3d = [pnt2d, dir, rad3d];
+
+            [ans3d, resnorm3d, residual3d, info] = LM.solve(fcn3D, guess3d, MaxIter, StepTol, GradTol, ...
+                SSETol, Lambda, DampingCoeff, SuppressOutput);
+
+            pnt = [ans3d(1), ans3d(2), ans3d(3)];
+            dia = ans3d(4)*2; % ans3d(4) is the radius, so multiply by 2 to get the diameter
+
+            pnt = pnt + cent;
+
+            obj.pnt = pnt;
+            obj.dir = dir;
+            obj.dia = dia;
             obj.sigma = std(residual3d);
 
             if exist('info', 'var')
@@ -101,36 +102,18 @@ classdef Circle < Feature
 
     methods
         function h = plot(obj, opts)
-            % PLOT Plot cirlce coordinate data and fitted circle.
-            %
-            % h = obj.plot() uses defaults.
-            % h = obj.plot(Name = Value, ...) customizes appearance.
-            %
-            % Options (Name = Value)
-            % dataColor         : color name/'r'/RGB/[hex] (default: Matlab blue)
-            % dataMarker        : marker char (default: '.')
-            % dataMarkerSize    : scalar (default: 12)
-            % dataLabel         : string (default: "<name> Data")
-            % fitColor          : color name/'r'/RGB/[hex] (default: green)
-            % fitLabel          : string (default: "<name> Fit")
-            % LineStyle         : 'solid' | 'dashed' | 'dotted' | 'dashdot'
-            %                     | 'none' (default: 'solid')
-            % LineWidth         : scalar (default: 2)
-            % nFitPoints        : number of samples for drawing the circle
-            %                     (default: 200)
-            % ax                : axes handle (default: gca)
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
                 opts.dataLabel (1,1) string = obj.name + " Data"
                 opts.dataMarker (1,1) string = "."
                 opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
-        
+
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"
                 opts.lineStyle (1,1) string = "solid"
                 opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 2
-        
+
                 opts.nFitPoints (1,1) double {mustBeFinite,mustBePositive} = 200
                 opts.ax = []
             end
@@ -144,11 +127,11 @@ classdef Circle < Feature
             dataColor = Feature.parseColor(opts.dataColor);
             fitColor  = Feature.parseColor(opts.fitColor);
             fitLS     = Feature.parseLineStyle(opts.lineStyle);
-            
+
             data = obj.data;
-            point = obj.pnt;
-            direction = obj.dir;
-            diameter = obj.dia;
+            pnt  = obj.pnt;
+            dir  = obj.dir;
+            dia  = obj.dia;
 
             cla(ax); hold(ax,'on'); grid(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
@@ -158,10 +141,10 @@ classdef Circle < Feature
             plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
                     'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
 
-            % Plot the centroid
-            plot3(ax, point(1), point(2), point(3), 'xk', 'HandleVisibility', 'off');
-            
-            pts = calcCirclePoints(point, direction, diameter, round(opts.nFitPoints));
+            % Plot the centroid (circle center)
+            plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
+
+            pts = calcCirclePoints(pnt, dir, dia, round(opts.nFitPoints));
             [X, Y, Z] = separateData(pts);
 
             % Fitted circle
@@ -171,7 +154,7 @@ classdef Circle < Feature
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
         end
-        
+
         function showFitInfo(obj)
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
@@ -184,50 +167,46 @@ classdef Circle < Feature
         end
 
         function disp(obj)
-            % Custom display for Circle objects
-            % Extract base info
             name = string(obj.name);
-            fittingCriteria = obj.FittingCriteria;
+            ft = obj.fitType; % NOTE: requires Feature property rename done globally
             data = obj.data;
-            point = obj.pnt(:).';
-            direction = obj.dir(:).';
-            diameter = obj.dia;
-            sigma = obj.sigma;
-            dataClass = class(data);
-            dataSize = size(data);
 
-            % Print formatted output
+            pnt = obj.pnt(:).';
+            dir = obj.dir(:).';
+            dia = obj.dia;
+
+            sig = obj.sigma;
+
+            dataClass = class(data);
+            dataSize  = size(data);
+
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
-            fprintf('  AssocCrit: %s\n', char(fittingCriteria));
-            fprintf('  Point:     [%.5f  %.5f  %.5f]\n', point);
-            fprintf('  Direction: [%.5f  %.5f  %.5f]\n', direction);
-            fprintf('  Diameter:  %.5f\n', diameter);
-            fprintf('  Sigma:     %.5f\n', sigma);
+            fprintf('  AssocCrit: %s\n', char(ft));
+            fprintf('  Point:     [%.5f  %.5f  %.5f]\n', pnt);
+            fprintf('  Direction: [%.5f  %.5f  %.5f]\n', dir);
+            fprintf('  Diameter:  %.5f\n', dia);
+            fprintf('  Sigma:     %.5f\n', sig);
             fprintf('  Data Size: [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
 
         function reverseDir(obj)
-            % REVERSEDIR Function to reverse the direction vector of the
-            % object.
-
             obj.dir = -obj.dir;
         end
     end
 
     methods (Static)
-        % Associate a 2D circle to coordinate data
-        function [point, diameter] = fit2dCircle(data,point,direction,radius)      
-            data1 = data-point; % move the data to the origin
-            Rz=getRz(direction); % get a rotation matrix to align the data to the XY plane
-            data2 = data1*Rz; % rotate the data
-        
-            guess2d=[[0 0 0],radius]; % guess the point at the origin
-            [xD,yD,~]=separateData(data2);
-        
-            x = @(q) q(1)-xD;
-            y = @(q) q(2)-yD;
-            fcn2D = @(q) sqrt(x(q).^2+y(q).^2)-q(4); % format the objective function
+        function [pnt, dia] = fit2dCircle(data, pnt, dir, rad)
+            dataT = data - pnt;     % translated data
+            Rz = getRz(dir);        % rotation matrix to align the data to the XY plane
+            dataTR = dataT * Rz;    % rotate the data
+
+            guess2d = [[0 0 0], rad]; % guess the point at the origin
+            [xData, yData, ~] = separateData(dataTR);
+
+            x = @(q) q(1) - xData;
+            y = @(q) q(2) - yData;
+            fcn2D = @(q) sqrt(x(q).^2 + y(q).^2) - q(4);
 
             MaxIter        = 5000;
             StepTol        = 1e-20;
@@ -236,12 +215,13 @@ classdef Circle < Feature
             Lambda         = 1e-4;
             DampingCoeff   = 2;
             SuppressOutput = true;
-            
-            ans2d = LM.solve(fcn2D,guess2d, MaxIter, StepTol, GradTol, ...
+
+            ans2d = LM.solve(fcn2D, guess2d, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
-            point = [ans2d(1),ans2d(2),ans2d(3)];
-            rad2d=ans2d(4);
-            diameter=2*rad2d;
+
+            pnt = [ans2d(1), ans2d(2), ans2d(3)];
+            rad2d = ans2d(4);
+            dia = 2 * rad2d;
         end
     end
 end

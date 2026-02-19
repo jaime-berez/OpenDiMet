@@ -2,41 +2,35 @@
 % Amplify the flatness error of points by spreading the points away
 % from the ideal plane.
 
-function [fData,colors] = ampFlatness(data,residual,dir,ampFac,colorMap)
+function [fData, clr] = ampFlatness(data, res, dir, ampFac, cmap)
     arguments
         data (:,3) {mustBeMatrix}
-        residual(:,1) {mustBeColumn}
-        dir (1,3) {mustBeRow}
+        res (:,1)  {mustBeColumn}
+        dir (1,3)  {mustBeRow}
         ampFac (1,1) {mustBePositive}
-        colorMap (256,3) {mustBeMatrix} = colormap(turbo)
+        cmap (256,3) {mustBeMatrix} = colormap(turbo)
     end
 
-%% Calculate statistical parameters of the residuals
-    maxR=max(residual);
-    minR=min(residual);
-    meanR=mean(residual);
-    rangeR=range(residual);
+    %% Calculate statistical parameters of the residuals
+    rMax  = max(res);
+    rMin  = min(res);
+    rMean = mean(res);
+    rRng  = range(res);
 
-%% Compute values between 0 and 1 for each residual. This will be used to map the residuals to specific colors
-    if abs(minR) > abs(maxR)
-        fRange = 2*abs(minR); %the full range is from -abs(min) to abs(min)
-        values = (residual-minR)./(fRange);
+    %% Compute values between 0 and 1 for each residual (for colormap)
+    if abs(rMin) > abs(rMax)
+        rSpan = 2*abs(rMin);           % full range: [-abs(min), +abs(min)]
+        t = (res - rMin) ./ rSpan;
         disp('min based range');
     else
-        fRange = 2*abs(maxR); %the full range is from -abs(max) to abs(max)
-        values = (residual-minR)./(fRange);
+        rSpan = 2*abs(rMax);           % full range: [-abs(max), +abs(max)]
+        t = (res - rMin) ./ rSpan;     % (kept exactly as your code)
         disp('max based range');
     end
 
-    colors = colorMap(round(values*255)+1,:);
-    fData = data+(values-.5)*ampFac*dir;
+    clr   = cmap(round(t*255) + 1, :);
+    fData = data + (t - 0.5) * ampFac * dir;
 
-%% Calculate a percentage value for each residual
-% The percentage corresponds to redisual(i)'s "ranking" from the minimum
-% value of rangeR. Residuals at the lower end of the range should be close
-% to 0% and residuals at the higher end of the range should be close to
-% 100%.
-
-    
-    
+    %% Calculate a percentage value for each residual
+    % (left as-is / unfinished in original)
 end
