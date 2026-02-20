@@ -1,6 +1,10 @@
 classdef Line < Feature
     % LINE Class for fitting and representing a straight line form data.
-    % ...
+    % The Line class constructs a line feature from measured 3D points
+    % using a fit-based constructor using the specified AssociationCriteria. It inherits 
+    % from Feature and stores both geometric description and the fitting parameters 
+    % used to obtain it.
+    % 
     % Properties:
     % pnt - 1 x 3 double, point on the fitted line (centroid)
     % dir - 1 x 3 double, unit vector describing the line's orientation
@@ -19,7 +23,6 @@ classdef Line < Feature
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 ft (1,1) fitType
 
-                % Dummy LM-style options
                 opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
                 opts.GradTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-11

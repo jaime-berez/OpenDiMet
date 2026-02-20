@@ -1,6 +1,10 @@
 classdef Cylinder < Feature
 % CYLINDER Class for fitting and representing a Cylinder from 3D data.
-% ...
+% The Cylinder class constructs a cylindrical feature from measured 3D points
+% using a fit-based constructor using the specified AssociationCriteria. It inherits 
+% from Feature and stores both geometric description and the fitting parameters 
+% used to obtain it.
+%
 % Properties:
 % pnt - 1 x 3 double, point on the cylinder axis
 % dir - 1 x 3 double, unit vector of the cylinder axis
@@ -44,7 +48,7 @@ classdef Cylinder < Feature
             DampingCoeff   = opts.DampingCoeff;
             SuppressOutput = opts.SuppressOutput;
 
-            dataTmp = data;           % Nx3 (kept as a data copy)
+            dataTmp = data;           % Nx3
             cent = mean(dataTmp);
             xData = dataTmp(:,1);
             yData = dataTmp(:,2);
@@ -100,7 +104,7 @@ classdef Cylinder < Feature
 
             [ans4, resnorm(4), residual4, info4] = LM.solve(fcn, guess4, MaxIter, StepTol, GradTol, ...
                 SSETol, Lambda, DampingCoeff, SuppressOutput);
-                pnt4 = [ans4(1:3)]; % comment if the data is at the origin
+                pnt4 = [ans4(1:3)]; 
                 dir4 = [ans4(4:6)]; dir4 = dir4/norm(dir4);
                 dist4 = ans4(7);
 
@@ -188,7 +192,7 @@ classdef Cylinder < Feature
             % Mark centroid / axis point
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
-            % Create a Cylinder (radius = dist)
+            % Create a Cylinder
             faces = round(opts.faces);
             [X, Y, Z] = cylinder(dist, faces);
             cylData = xyz2Mat(X, Y, Z);

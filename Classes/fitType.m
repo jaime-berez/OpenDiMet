@@ -1,5 +1,20 @@
 classdef fitType < int32
 
+    % FITTYPE Enumeration for different feature assoication methods.
+    % Fit type:
+    % LeastSquares          : Also known as Gaussian Fit/L2 fit. Minimizes the sum of
+    %                         the squares of the residuals.
+    % MiniMax               : Also known as Minimum Zone fit/L inifinity fit/Chebyshev
+    %                         fit. Minimizes the size of the worst-case (largest) value residual.
+    % MinimumCircumscribed  : Finds the smallest possible shape that can
+    %                         completely enclose all the measured coordinate points.
+    % MaximumInscribed      : Finds the largest possible shape that can fit
+    %                         inside all the measured coordinate points.
+    % MinimumTotalDistance  : Also known as L1 fit. Minmizes the sum of the
+    %                         absolute values of the residuals.
+    % WeightedLeastSquares  : This is an ordinary least squares algorithms
+    %                         but the measured coordinate points are weighted based on uncertainty.
+
     enumeration
         LeastSquares (1)
         MiniMax (2)

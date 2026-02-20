@@ -3,7 +3,19 @@ classdef LM
     methods (Static)
         function [x,resnorm,residual,info] = solve(fcn,guess,maxIter,stepTol,gradTol,sseTol, ...
                 lambda,dampingCoeff,suppressOutput)
+            
             %   Levenberg-Marquardt Algorithm
+            %
+            %   func:       objective function to optimize (data is passed in through
+            %   the func)
+            %   guess:      matrix of the guess of parameters
+            %   maxIter:    Maximum number of iterations
+            %   tol:        Default value for the tolerances (step tolerance)
+            %   grad-tol:   Optional tolerance value for the gradient tolerance
+            %   SSE_tol:    Optional tolerance value for the sum squared error
+            %   tolerance
+            %
+            %   results:    Output matrix with the optimized parameters
             arguments
                 fcn
                 guess
@@ -21,13 +33,13 @@ classdef LM
             x = guess;
             x = x(:);
 
-            collectInfo = nargout > 3;  % only if user requests it
+            collectInfo = nargout > 3; 
             if collectInfo
                 info.history = zeros(maxIter,6);
             end
 
             for k = 1:maxIter
-                r = fcn(x); % Residual @ k
+                r = fcn(x); 
 
                 J = Jacobian(fcn,x); % Approximate Jacobian
 

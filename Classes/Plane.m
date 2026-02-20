@@ -25,7 +25,6 @@ classdef Plane < Feature
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 ft (1,1) fitType
 
-                % Dummy LM-style options
                 opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
                 opts.GradTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-11
@@ -44,7 +43,6 @@ classdef Plane < Feature
             cent = mean(dataOrig, 1);
             dataT = dataOrig - cent;
 
-            % Performs eig on covariance-like matrix
             A = dataT.' * dataT;
             [eigVec, eigValMat] = eig(A);
 

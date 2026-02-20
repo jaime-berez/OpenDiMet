@@ -1,6 +1,10 @@
 classdef Cone < Feature
 % CONE Class for fitting and representing a cone from 3D data.
-% ...
+% The Cone class constructs a conical feature from measured 3D points
+% using a fit-based constructor using the specified fitType. It inherits 
+% from Feature and stores both geometric description and the fitting parameters 
+% used to obtain it.
+%
 % Properties:
 % pnt    - 1 x 3 double, point on the cone axis
 % dir    - 1 x 3 double, unit vector of the cone axis
@@ -188,10 +192,10 @@ classdef Cone < Feature
 
             cone = xyz2Mat(X, Y, Z);
 
-            Rz = getRz(dir); % rotation matrix
+            R = getRz(dir); % rotation matrix
 
             % Rotate the cone to match the direction of the data, then translate to match the position
-            cone1 = cone / Rz;
+            cone1 = cone / R;
             cone2 = cone1 + pnt;
 
             % Plot the cone

@@ -1,6 +1,18 @@
 classdef Sphere < Feature
     % SPHERE Class for fitting and representing a sphere form data.
-    % ...
+    % The Sphere class constructs a sphere feature from measured 3D points
+    % using a fit-based constructor using the specified AssociationCriteria. It inherits 
+    % from Feature and stores both geometric description and the fitting parameters 
+    % used to obtain it.
+    %
+    % Properties:
+    % pnt - 1 x 3 double, fitted sphere center
+    % dia - 1 x 1 double, fitted sphere diameter
+    %
+    % Methods:
+    % Sphere(name, data, AssociationCriteria): construct and fit the sphere.
+    % plot(): visualize the data and the fitted sphere.
+    % disp(): formatted textual description.
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -16,7 +28,6 @@ classdef Sphere < Feature
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 ft (1,1) fitType
 
-                % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
                 opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
@@ -44,10 +55,9 @@ classdef Sphere < Feature
             % Break up data into x,y,z components
             [xData, yData, zData] = separateData(data);
 
-            % Initial guess radius (Intersecting Chords Theorem heuristic)
+            % Initial guess radius
             rad0 = guess3dRad(data);
 
-            % Format the guess: [cx cy cz r]
             q0 = [pnt0(1), pnt0(2), pnt0(3), rad0];
 
             % Objective function

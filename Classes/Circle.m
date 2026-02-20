@@ -41,7 +41,7 @@ classdef Circle < Feature
             obj@Feature(name, data, ft, opts.sourceFile);
             obj.validateAssociation();
 
-            % --- LM options (keep names as-is; these are algorithm params) ---
+            % LM options
             MaxIter = opts.MaxIter;
             StepTol = opts.StepTol;
             GradTol = opts.GradTol;
@@ -57,8 +57,8 @@ classdef Circle < Feature
 
             % Second, fit a 2d circle using the plane point and direction
             dataT = data - cent;     % translated data
-            Rz = getRz(dir);         % rotation matrix to align dir with [0 0 1]
-            dataTR = dataT * Rz;     % translated, then rotated data
+            R = getRz(dir);         % rotation matrix to align dir with [0 0 1]
+            dataTR = dataT * R;     % translated, then rotated data
 
             rad = guess2dRad(dataTR); % guess for the radius of the circle
 
@@ -168,7 +168,7 @@ classdef Circle < Feature
 
         function disp(obj)
             name = string(obj.name);
-            ft = obj.fitType; % NOTE: requires Feature property rename done globally
+            ft = obj.fitType; 
             data = obj.data;
 
             pnt = obj.pnt(:).';
