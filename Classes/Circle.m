@@ -198,8 +198,8 @@ classdef Circle < Feature
     methods (Static)
         function [pnt, dia] = fit2dCircle(data, pnt, dir, rad)
             dataT = data - pnt;     % translated data
-            Rz = getRz(dir);        % rotation matrix to align the data to the XY plane
-            dataTR = dataT * Rz;    % rotate the data
+            R = getRz(dir);        % rotation matrix to align the data to the XY plane
+            dataTR = dataT * R;    % rotate the data
 
             guess2d = [[0 0 0], rad]; % guess the point at the origin
             [xData, yData, ~] = separateData(dataTR);

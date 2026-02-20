@@ -34,8 +34,6 @@ classdef Cone < Feature
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
                 ft (1,1) fitType
-
-                % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-9
                 opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-11

@@ -24,9 +24,6 @@ function feat = fitFeature(data, featType, ft, featName, opts)
                 "featType must be one of: %s", strjoin(validFeatTypes, ", "));
     end
 
-    % --- normalize fit type input ---
-    % Old code checked "AssociationCriteria" and used "FittingCriteria".
-    % Now the enum class is "fitType".
     if ~isa(ft, "fitType")
         ft = fitType.(string(ft));
     end
