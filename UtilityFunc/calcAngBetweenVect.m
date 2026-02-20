@@ -6,7 +6,6 @@ arguments (Input)
     v2
 end
 
-% 0. Normalize vectors
 v1 = v1 ./ norm(v1);
 v2 = v2 ./ norm(v2);
 

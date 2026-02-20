@@ -31,6 +31,4 @@ function [fData, clr] = ampFlatness(data, res, dir, ampFac, cmap)
     clr   = cmap(round(t*255) + 1, :);
     fData = data + (t - 0.5) * ampFac * dir;
 
-    %% Calculate a percentage value for each residual
-    % (left as-is / unfinished in original)
 end

@@ -43,7 +43,6 @@ function [cData, clr] = ampCircularity(data, pnt, dir, rad, ampFac, cmap)
 
     clr = cmap(round(t*255) + 1, :);
 
-    % Amplify (t is [0,1], shift to [-0.5, +0.5] so "no error" stays put)
     dataAmp = ((t - 0.5) .* uHat .* ampFac) + dataTR;
 
     % Revert the transformations
