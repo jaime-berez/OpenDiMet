@@ -48,7 +48,9 @@ classdef Line < Feature
             dir = eigVec(:, idx).';
             dir = dir / norm(dir);
 
-            residuals = calcStraightnessResiduals(data, pnt, dir);
+            % residuals = calcStraightnessResiduals(data, pnt, dir);
+            proj = dataT * dir'; 
+            residuals = vecnorm(dataT - proj * dir, 2, 2);
             obj.sigma = std(residuals);
 
             obj.pnt = pnt;
