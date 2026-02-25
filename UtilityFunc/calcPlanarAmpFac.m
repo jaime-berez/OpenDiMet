@@ -1,5 +1,5 @@
 % Calculates the amplification factor by finding the length of a plane
-function ampFac = cafpla(X, Y, Z, scaleFac)
+function ampFac = calcPlanarAmpFac(X, Y, Z, scaleFac)
     arguments
         X {mustBeColumn}
         Y {mustBeColumn}

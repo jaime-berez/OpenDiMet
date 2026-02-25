@@ -1,5 +1,5 @@
 % Calculates the amplification factor using the length of a line
-function ampFac = cafStr(strErr, len, scaleFac)
+function ampFac = calcLinearAmpFac(strErr, len, scaleFac)
     arguments
         strErr (1,1) {mustBeNonempty}
         len    (1,1) {mustBeNonzero}

@@ -1,6 +1,6 @@
 % Calculates the amplification factor for roundness error based on the MIC
 % and MCC radi
-function ampFac = cafrou(rndErr, rMax, rMin)
+function ampFac = calcRadialAmpFac(rndErr, rMax, rMin)
     arguments
         rndErr {mustBeScalarOrEmpty}
         rMax   {mustBeScalarOrEmpty}
