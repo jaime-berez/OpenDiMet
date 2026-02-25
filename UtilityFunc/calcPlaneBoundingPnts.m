@@ -11,7 +11,7 @@ function [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir, scalingFactor)
     data0 = data - pnt; % data centered about the origin
 
     % Rotate the data to the xy plane
-    Rz = getRz(dir);
+    Rz = rotMatA2Z(dir);
     data1 = data0 * Rz; % Data rotated to the xy plane
 
     % Perform Principal Components Analysis on the Data. Then Rotate to align with X

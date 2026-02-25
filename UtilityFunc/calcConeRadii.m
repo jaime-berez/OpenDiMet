@@ -21,7 +21,7 @@ function [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, ang, dist)
 
     % Translate to origin then rotate to align with Z axis
     data0 = data - pnt;
-    R = getRz(dir);
+    R = rotMatA2Z(dir);
     data1 = data0 * R;
 
     % Z extents and height

@@ -190,7 +190,7 @@ classdef Cone < Feature
 
             cone = xyz2Mat(X, Y, Z);
 
-            R = getRz(dir); % rotation matrix
+            R = rotMatA2Z(dir); % rotation matrix
 
             % Rotate the cone to match the direction of the data, then translate to match the position
             cone1 = cone / R;

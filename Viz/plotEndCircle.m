@@ -14,7 +14,7 @@ function plotEndCircle(pnt,dir,dia,faces)
     Z=zeros(1,faces); % flat circle at origin
 
     % rotation & transform using helper.getRz
-    Rz = getRz(dir);
+    Rz = rotMatA2Z(dir);
     pnts=[X',Y',Z'];
     points1=pnts/(Rz);
 

@@ -57,7 +57,7 @@ classdef Circle < Feature
 
             % Second, fit a 2d circle using the plane point and direction
             dataT = data - cent;     % translated data
-            R = getRz(dir);         % rotation matrix to align dir with [0 0 1]
+            R = rotMatA2Z(dir);         % rotation matrix to align dir with [0 0 1]
             dataTR = dataT * R;     % translated, then rotated data
 
             rad = guess2dRad(dataTR); % guess for the radius of the circle
@@ -198,7 +198,7 @@ classdef Circle < Feature
     methods (Static)
         function [pnt, dia] = fit2dCircle(data, pnt, dir, rad)
             dataT = data - pnt;     % translated data
-            R = getRz(dir);        % rotation matrix to align the data to the XY plane
+            R = rotMatA2Z(dir);        % rotation matrix to align the data to the XY plane
             dataTR = dataT * R;    % rotate the data
 
             guess2d = [[0 0 0], rad]; % guess the point at the origin

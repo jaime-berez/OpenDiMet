@@ -13,7 +13,7 @@ function pts = calcPntsOnCirc(pnt, dir, dia, nFaces)
     zC = zeros(1, nFaces); % circle is flat at origin in local frame
 
     % Compute the rotation matrix and rotate the circle points
-    Rz = getRz(dir);
+    Rz = rotMatA2Z(dir);
 
     pts = [xC', yC', zC'];
     ptsR = pts / (Rz);
