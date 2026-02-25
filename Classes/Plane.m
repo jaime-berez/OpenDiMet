@@ -112,7 +112,7 @@ classdef Plane < Feature
             % Plot centroid
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
-            [X, Y, Z] = calcPlaneCorners(data, pnt, dir); % corners for plotting
+            [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir); % corners for plotting
 
             h = fill3(ax, X, Y, Z, fitColor, ...
                 'EdgeColor', edgeColor, ...

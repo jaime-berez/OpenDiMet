@@ -1,4 +1,4 @@
-function projPoint = pp2l(linePoint, queryPoint, lineDir)
+function projPoint = projPnts2Line(linePoint, queryPoint, lineDir)
 % (P)roject a (P)oint (2) to a (L)ine
 % Projects a query point onto a 3D line defined by:
 %   linePoint : a point on the line

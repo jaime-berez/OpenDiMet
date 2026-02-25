@@ -23,7 +23,7 @@ function [pnt, dir, ang, dist, apex] = formatConeOutput(ansVec, cent)
     end
     
     % Compute axis point closest to centroid
-    pnt = pp2l(rawPnt, cent, dir);
+    pnt = projPnts2Line(rawPnt, cent, dir);
 
     % Compute orthogonal distance to surface at pnt
     [dist, apex] = checkDistance(rawPnt, pnt, dir, rawDist, ang);

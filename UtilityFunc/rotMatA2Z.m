@@ -1,4 +1,4 @@
-function R = calcRotMat_A2Z(A)
+function R = rotMatA2Z(A)
 %CALCROTMAT_A2Z Calculates rotation matrix R to align A to the Z direction.
 %   Detailed explanation goes here
     arguments (Input)

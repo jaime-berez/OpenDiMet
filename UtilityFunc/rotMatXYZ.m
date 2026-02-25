@@ -1,4 +1,4 @@
-function R = calcRotMat_XYZ(angX, angY, angZ)
+function R = rotMatXYZ(angX, angY, angZ)
 %CALCROTMAT_XYZ Calculations rotation matrix about primary axes X, Y, Z.
 %   angX, angY, angZ are angles about the respective axes (in degrees). To
 %   rotate about a single axis, set the other angles to zero. The rotation

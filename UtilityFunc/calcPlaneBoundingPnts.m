@@ -1,4 +1,4 @@
-function [X, Y, Z] = calcPlaneCorners(data, pnt, dir, scalingFactor)
+function [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir, scalingFactor)
      % Calculate 4 corners for rotated rectangular data
     arguments
         data (:,3) {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

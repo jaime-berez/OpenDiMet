@@ -144,7 +144,7 @@ classdef Circle < Feature
             % Plot the centroid (circle center)
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
-            pts = calcCirclePoints(pnt, dir, dia, round(opts.nFitPoints));
+            pts = calcPntsOnCirc(pnt, dir, dia, round(opts.nFitPoints));
             [X, Y, Z] = separateData(pts);
 
             % Fitted circle

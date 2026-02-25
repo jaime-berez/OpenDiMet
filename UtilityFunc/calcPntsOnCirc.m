@@ -1,4 +1,4 @@
-function pts = calcCirclePoints(pnt, dir, dia, nFaces)
+function pts = calcPntsOnCirc(pnt, dir, dia, nFaces)
     arguments
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

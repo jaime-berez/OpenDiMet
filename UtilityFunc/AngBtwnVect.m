@@ -1,4 +1,4 @@
-function [angDeg, ax] = calcAngBetweenVect(v1, v2)
+function [angDeg, ax] = AngBtwnVect(v1, v2)
 % CALCANGBETWEENVECT Calculates the angle (in degrees) between two vectors
 
 arguments (Input)

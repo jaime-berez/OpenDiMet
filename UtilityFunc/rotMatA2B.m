@@ -1,4 +1,4 @@
-function R = calcRotMat_A2B(A, B)
+function R = rotMatA2B(A, B)
 %CALCROTMAT_A2B calculates rotation matrix R to align vector A to direction B.
 % Formulates rotation matrix that can be post-multiplied with row vector A
 % to align its direction with row vector B
