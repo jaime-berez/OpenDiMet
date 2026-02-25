@@ -7,7 +7,10 @@ function [direction, residual, resnorm] = Flatness(feature)
         point = feature.point;
         dGuess = feature.direction;
 
-        [xD,yD,zD] = separateData(data);
+        % [xD,yD,zD] = separateData(data);
+        xD = data(:,1);
+        yD = data(:,2);
+        zD = data(:,3);
     
         % Format objective function
         fcn = @(q) q(1)*(xD-point(1))+q(2)*(yD-point(2))+q(3)*(zD-point(3)); %my function

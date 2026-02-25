@@ -24,7 +24,10 @@ function plotCircularity(feature)
 
         % Nominal circle
         nominalCircle = calcCirclePoints(center, axisDir, diameter, 50);
-        [X,Y,Z] = separateData(nominalCircle);
+        % [X,Y,Z] = separateData(nominalCircle);
+        X = nominalCircle(:,1);
+        Y = nominalCircle(:,2);
+        Z = nominalCircle(:,3);
 
         plot3(X, Y, Z, 'g-', 'LineWidth', 1.5);
         plot3(center(1), center(2), center(3), 'k*');

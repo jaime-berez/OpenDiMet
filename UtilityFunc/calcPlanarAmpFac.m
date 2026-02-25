@@ -7,7 +7,7 @@ function ampFac = calcPlanarAmpFac(X, Y, Z, scaleFac)
         scaleFac {mustBeScalarOrEmpty} = 5
     end
 
-    pts = combineData(X, Y, Z);
+    pts = [X Y Z];
 
     %% Find the distances of point 1 to points 2,3,4
     % To find the length and width of a plane, calculate the distances from

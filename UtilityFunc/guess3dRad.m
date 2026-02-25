@@ -1,7 +1,10 @@
 function rad = guess3dRad(data)
 %GUESS3DRAD Estimate the radius of a circle or sphere from 3D coordinate data
 
-    [xData, yData, zData] = separateData(data);
+    % [xData, yData, zData] = separateData(data);
+    xData = data(:,1);
+    yData = data(:,2);
+    zData = data(:,3);
 
     rngVals = [max(xData) - min(xData), ...
                max(yData) - min(yData), ...

@@ -23,5 +23,5 @@ function pts = calcPntsOnCirc(pnt, dir, dia, nFaces)
     yW = (ptsR(:,2)) + pnt(2);
     zW = (ptsR(:,3)) + pnt(3);
 
-    pts = combineData(xW, yW, zW);
+    pts = [xW yW zW];
 end

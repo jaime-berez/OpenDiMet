@@ -66,7 +66,10 @@ classdef Circle < Feature
             [pnt2d, dia2d] = Circle.fit2dCircle(data, cent, dir, rad);
 
             dataT2 = data - mean(data);     % translated data (to origin via mean)
-            [xData, yData, zData] = separateData(dataT2);
+            % [xData, yData, zData] = separateData(dataT2);
+            xData = dataT2(:,1);
+            yData = dataT2(:,2);
+            zData = dataT2(:,3);
 
             u = @(q) dir(3)*(q(2)-yData) - dir(2)*(q(3)-zData);
             v = @(q) dir(1)*(q(3)-zData) - dir(3)*(q(1)-xData);
@@ -145,7 +148,10 @@ classdef Circle < Feature
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
             pts = calcPntsOnCirc(pnt, dir, dia, round(opts.nFitPoints));
-            [X, Y, Z] = separateData(pts);
+            % [X, Y, Z] = separateData(pts);
+            X = pts(:,1);
+            Y = pts(:,2);
+            Z = pts(:,3);
 
             % Fitted circle
             h = plot3(ax, X, Y, Z, 'LineStyle', fitLS, 'Color', fitColor, 'LineWidth', opts.lineWidth, ...
@@ -202,7 +208,9 @@ classdef Circle < Feature
             dataTR = dataT * R;    % rotate the data
 
             guess2d = [[0 0 0], rad]; % guess the point at the origin
-            [xData, yData, ~] = separateData(dataTR);
+            % [xData, yData, ~] = separateData(dataTR);
+            xData = dataTR(:,1);
+            yData = dataTR(:,2);
 
             x = @(q) q(1) - xData;
             y = @(q) q(2) - yData;

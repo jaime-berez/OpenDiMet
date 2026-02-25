@@ -53,7 +53,10 @@ classdef Sphere < Feature
             pnt0 = mean(data);
 
             % Break up data into x,y,z components
-            [xData, yData, zData] = separateData(data);
+            % [xData, yData, zData] = separateData(data);
+            xData = data(:,1);
+            yData = data(:,2);
+            zData = data(:,3);
 
             % Initial guess radius
             rad0 = guess3dRad(data);
