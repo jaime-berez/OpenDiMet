@@ -102,7 +102,7 @@ classdef Line < Feature
             len = calcLineLength(data, pnt, dir, 1);
 
             % Compute the end points of the line
-            [pStart, pEnd] = calcLinePoints(pnt, dir, len, 0.5, 1);
+            [pStart, pEnd] = calcFeatExtent(pnt, dir, len, 0.5, 1);
 
             % Plot the line
             h = plot3(ax, [pStart(1) pEnd(1)], [pStart(2) pEnd(2)], [pStart(3) pEnd(3)], ...

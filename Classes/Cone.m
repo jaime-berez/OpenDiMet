@@ -203,10 +203,18 @@ classdef Cone < Feature
                 'EdgeColor', edgeColor, 'FaceAlpha', opts.fitFaceAlpha, 'FaceColor', fitColor, ...
                 'DisplayName', opts.fitLabel);
 
-            p1 = pnt - (height/2)*dir;
-            p2 = pnt + (height/2)*dir;
+            % p1 = pnt - (height/2)*dir;
+            % p2 = pnt + (height/2)*dir;
+            % 
+            % plot3(ax, [p1(1) p2(1)], [p1(2) p2(2)], [p1(3) p2(3)], ...
+            %     'LineStyle', centerLS, 'LineWidth', opts.lineWidth, ...
+            %     'Color', centerLC, 'HandleVisibility','off');
 
-            plot3(ax, [p1(1) p2(1)], [p1(2) p2(2)], [p1(3) p2(3)], ...
+            % Centerline using the standardized utility function
+            [pnt1, pnt2] = calcFeatExtent(obj.pnt, obj.dir, obj.height, 0.5, 1.2);
+            
+            % Plot the centerline
+            plot3(ax, [pnt1(1) pnt2(1)], [pnt1(2) pnt2(2)], [pnt1(3) pnt2(3)], ...
                 'LineStyle', centerLS, 'LineWidth', opts.lineWidth, ...
                 'Color', centerLC, 'HandleVisibility','off');
 

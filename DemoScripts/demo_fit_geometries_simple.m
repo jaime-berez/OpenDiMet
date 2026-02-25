@@ -17,11 +17,11 @@ clc; close all; clear;
 % Define directory for data
 demoScriptDirectory = fileparts(mfilename('fullpath'));
 repoRoot = fileparts(demoScriptDirectory);
-dataFolder = "Line2D";       % <----- Input
+dataFolder = "Cone";       % <----- Input
 rootDirectory = fullfile(repoRoot, "Data", "nist-l2-reference-pairs", dataFolder);
 
 % Define files with raw coordinate data to import
-file = "lin2d27.ds";   % <----- Input
+file = "con27.ds";   % <----- Input
 
 %% Load data
 
@@ -29,7 +29,7 @@ data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
 %% Option 1: Fit the selected geometry using loaded data 
 
-myFeature = fitFeature(data1, "Line", "LeastSquares", "Name", StepTol = 1e-9, ...
+myFeature = fitFeature(data1, "Cone", "LeastSquares", "Name", StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
 
 %% Option 2: Fit the selected geometry using the file path

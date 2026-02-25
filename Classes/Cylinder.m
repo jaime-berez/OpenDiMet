@@ -219,12 +219,16 @@ classdef Cylinder < Feature
                 'FaceAlpha', opts.fitFaceAlpha, 'DisplayName', opts.fitLabel);
 
             % Centerline
-            k = 1;
-            pnts = [0, 0, (height/2)*(1+k) - (height/2); 0, 0, (height/2)*(1-k) - (height/2)];
-            pnts1 = pnts / Rz;
-            pnts2 = pnts1 + pnt;
+            % k = 1;
+            % pnts = [0, 0, (height/2)*(1+k) - (height/2); 0, 0, (height/2)*(1-k) - (height/2)];
+            % pnts1 = pnts / Rz;
+            % pnts2 = pnts1 + pnt;
+            % 
+            % plot3(ax, pnts2(:,1), pnts2(:,2), pnts2(:,3), 'LineStyle', centerLS, ...
+            %     'LineWidth', opts.lineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
 
-            plot3(ax, pnts2(:,1), pnts2(:,2), pnts2(:,3), 'LineStyle', centerLS, ...
+            [pnt1, pnt2] = calcFeatExtent(obj.pnt, obj.dir, height, 0.5, 1.2); % bias of 0.5
+            plot3(ax, [pnt1(1) pnt2(1)], [pnt1(2) pnt2(2)], [pnt1(3) pnt2(3)], 'LineStyle', centerLS, ...
                 'LineWidth', opts.lineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
 
             % End circles

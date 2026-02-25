@@ -1,4 +1,4 @@
-function [pStart, pEnd] = calcLinePoints(pnt, dir, len, bias, scalingFactor)
+function [pnt1, pnt2] = calcFeatExtent(pnt, dir, len, bias, scalingFactor)
     % calcLinePoints
     % Compute start/end points of a line segment from:
     %   pnt  : 1x3 point on the line (typically centroid)
@@ -23,6 +23,6 @@ function [pStart, pEnd] = calcLinePoints(pnt, dir, len, bias, scalingFactor)
     len = len * scalingFactor;
 
     % Compute the line end points
-    pStart = pnt - dir * bias * len;
-    pEnd   = pnt + dir * (1 - bias) * len;
+    pnt1 = pnt - dir * bias * len;
+    pnt2   = pnt + dir * (1 - bias) * len;
 end
