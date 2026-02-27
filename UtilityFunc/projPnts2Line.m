@@ -1,4 +1,4 @@
-function projPoint = projPnts2Line(linePoint, queryPoint, lineDir)
+function projPnt = projPnts2Line(linePnt, queryPnt, lineDir)
 % (P)roject a (P)oint (2) to a (L)ine
 % Projects a query point onto a 3D line defined by:
 %   linePoint : a point on the line
@@ -8,11 +8,11 @@ function projPoint = projPnts2Line(linePoint, queryPoint, lineDir)
     lineDir = lineDir / norm(lineDir);
 
     % Vector from line point to query point
-    vecLineToQuery = queryPoint - linePoint;
+    vecLineToQuery = queryPnt - linePnt;
 
     % Scalar projection onto the line direction
     scalarProj = dot(vecLineToQuery, lineDir);
 
     % Compute projected point
-    projPoint = linePoint + scalarProj * lineDir;
+    projPnt = linePnt + scalarProj * lineDir;
 end
