@@ -14,8 +14,8 @@ function len = calcLineLength(data, pnt, dir, scalingFactor)
     data0 = data - pnt;
 
     % Rotate so line direction aligns with Z-axis
-    Rz = rotMatA2Z(dir);
-    data1 = data0 * Rz;
+    R = rotMatA2Z(dir);
+    data1 = data0 * R;
 
     % Span along axis (Z after rotation)
     zMin = min(data1(:,3));
