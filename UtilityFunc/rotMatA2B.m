@@ -13,7 +13,7 @@ function R = rotMatA2B(A, B)
     
     % 1. Find the angle between A and B and the axis of rotation normal to
     % the plane that contains both vectors
-    [ang, axis] = calcAngBetweenVect(A, B);
+    [ang, axis] = AngBtwnVect(A, B);
     
     % Prevent singular matrix by detecting if A and B point in same or opposite
     % directions
@@ -28,12 +28,12 @@ function R = rotMatA2B(A, B)
     
     % 2. Rotate A and B s/t the axis of rotation normal to the plane that
     % contains them pionts to Z
-    R1 = calcRotMat_A2Z(axis);
+    R1 = rotMatXYZ(axis);
     A1 = A*R1;
     B1 = B*R1;
     
     % 3. Rotate A1 about Z by ang
-    R2 = calcRotMat_XYZ(0, 0, ang);
+    R2 = rotMatXYZ(0, 0, ang);
     A2 = A1*R2; %  A2 s/b equal to B1
     
     % 4. Create rot mat to transform A to B directly

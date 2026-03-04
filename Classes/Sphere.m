@@ -59,7 +59,7 @@ classdef Sphere < Feature
             zData = data(:,3);
 
             % Initial guess radius
-            rad0 = guess3dRad(data);
+            rad0 = guess3dCircRad(data);
 
             q0 = [pnt0(1), pnt0(2), pnt0(3), rad0];
 

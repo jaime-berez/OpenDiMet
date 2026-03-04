@@ -194,8 +194,7 @@ classdef Cylinder < Feature
 
             % Create a Cylinder
             faces = round(opts.faces);
-            [X, Y, Z] = cylinder(dist, faces);
-            cylData = xyz2Mat(X, Y, Z);
+            radius = obj.dia/2;
 
             % Height of the point cloud
             dataT = data - pnt;
@@ -208,15 +207,38 @@ classdef Cylinder < Feature
             scale = 0.25;
             height = (max(dataTR(:,3)) - min(dataTR(:,3))) * (1+scale);
 
-            % Apply height, rotate back, translate
-            cylData1 = cylData;
-            cylData1(:,3) = cylData(:,3)*height - (height/2);
-            cylData2 = cylData1 / Rz;
-            cylData3 = cylData2 + pnt;
+            [V, F] = genCylSurf(obj.pnt, obj.dir, radius, height, faces);
 
-            [X2, Y2, Z2] = mat2xyz(cylData3);
-            h = surf(ax, X2, Y2, Z2, 'EdgeColor', edgeColor, 'FaceColor', fitColor, ...
-                'FaceAlpha', opts.fitFaceAlpha, 'DisplayName', opts.fitLabel);
+            h = patch(ax, 'Vertices', V, 'Faces', F, ...
+                'FaceColor', fitColor, ...
+                'EdgeColor', edgeColor, ...
+                'FaceAlpha', opts.fitFaceAlpha, ...
+                'DisplayName', opts.fitLabel);
+
+
+            % [X, Y, Z] = cylinder(dist, faces);
+            % cylData = xyz2Mat(X, Y, Z);
+            % 
+            % % Height of the point cloud
+            % dataT = data - pnt;
+            % a = dir(1); b = dir(2); c = dir(3);
+            % 
+            % % Rotation that aligns axis with +Z
+            % Rz = [1-a^2/(1+c) -a*b/(1+c) a; -a*b/(1+c) 1-b^2/(1+c) b; -a -b c];
+            % dataTR = dataT * Rz;
+            % 
+            % scale = 0.25;
+            % height = (max(dataTR(:,3)) - min(dataTR(:,3))) * (1+scale);
+            % 
+            % % Apply height, rotate back, translate
+            % cylData1 = cylData;
+            % cylData1(:,3) = cylData(:,3)*height - (height/2);
+            % cylData2 = cylData1 / Rz;
+            % cylData3 = cylData2 + pnt;
+            % 
+            % [X2, Y2, Z2] = mat2xyz(cylData3);
+            % h = surf(ax, X2, Y2, Z2, 'EdgeColor', edgeColor, 'FaceColor', fitColor, ...
+            %     'FaceAlpha', opts.fitFaceAlpha, 'DisplayName', opts.fitLabel);
 
             % Centerline
             % k = 1;

@@ -185,23 +185,31 @@ classdef Cone < Feature
 
             % Create a cone based on the parameters calculated above
             faces = round(opts.faces);
-            [X, Y, Z] = cylinder([smallR bigR], faces);
-            Z = Z*height - height/2;
+            [V, F] = genConeSurf(pnt, dir, smallR, bigR, height, faces);
 
-            cone = xyz2Mat(X, Y, Z);
-
-            R = rotMatA2Z(dir); % rotation matrix
-
-            % Rotate the cone to match the direction of the data, then translate to match the position
-            cone1 = cone / R;
-            cone2 = cone1 + pnt;
-
-            % Plot the cone
-            [Xc, Yc, Zc] = mat2xyz(cone2);
-
-            h = surf(ax, Xc, Yc, Zc, 'LineStyle','none', ...
-                'EdgeColor', edgeColor, 'FaceAlpha', opts.fitFaceAlpha, 'FaceColor', fitColor, ...
+            % Plot using patch
+            h = patch(ax, 'Vertices', V, 'Faces', F, ...
+                'FaceColor', fitColor, ...
+                'EdgeColor', edgeColor, ...
+                'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
+            % [X, Y, Z] = cylinder([smallR bigR], faces);
+            % Z = Z*height - height/2;
+            % 
+            % cone = xyz2Mat(X, Y, Z);
+            % 
+            % R = rotMatA2Z(dir); % rotation matrix
+            % 
+            % % Rotate the cone to match the direction of the data, then translate to match the position
+            % cone1 = cone / R;
+            % cone2 = cone1 + pnt;
+            % 
+            % % Plot the cone
+            % [Xc, Yc, Zc] = mat2xyz(cone2);
+            % 
+            % h = surf(ax, Xc, Yc, Zc, 'LineStyle','none', ...
+            %     'EdgeColor', edgeColor, 'FaceAlpha', opts.fitFaceAlpha, 'FaceColor', fitColor, ...
+            %     'DisplayName', opts.fitLabel);
 
             % p1 = pnt - (height/2)*dir;
             % p2 = pnt + (height/2)*dir;

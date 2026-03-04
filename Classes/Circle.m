@@ -60,7 +60,7 @@ classdef Circle < Feature
             R = rotMatA2Z(dir);         % rotation matrix to align dir with [0 0 1]
             dataTR = dataT * R;     % translated, then rotated data
 
-            rad = guess2dRad(dataTR); % guess for the radius of the circle
+            rad = guess2dCircRad(dataTR); % guess for the radius of the circle
 
             % associated 2D circle
             [pnt2d, dia2d] = Circle.fit2dCircle(data, cent, dir, rad);

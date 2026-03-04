@@ -22,7 +22,7 @@ function [dia, residual, resnorm] = fitStraightness(data, pnt, dir)
     Rz = getRz(dir);
     data0 = data - pnt;
     data1 = data0 * Rz;
-    rad = guess2dRad(data1);
+    rad = guess2dCircRad(data1);
 
 %% Perform association
     [answ, residual, resnorm, info] = LM.solve(fcn, rad, MaxIter = 5000, StepTol = 1e-20);
