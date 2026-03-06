@@ -104,7 +104,7 @@ classdef Cone < Feature
 
             obj.sigma = std(resBest);
 
-            [pnt, dir, ang, dist, apex] = formatConeOutput(qbest, cent);
+            [pnt, dir, ang, dist, apex] = Cone.formatConeOutput(qbest, cent);
 
             % Derive smallR / bigR from data span
             [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, ang, dist);
