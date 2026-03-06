@@ -15,6 +15,70 @@ classdef Cone < Feature
 % bigR   - 1 x 1 double, radius at the far end
 % height - 1 x 1 double, cone height
 
+% NEW COMMENT BLOCK DRAFT
+% CONE Fit and represent a cone from 3D coordinate data.
+% 
+%   Syntax
+%     obj = Cone(name, data, fitCriterion)
+%     obj = Cone(name, data, fitCriterion, Name = Value)
+%
+%   Input Arguments
+%     name - Feature name
+%       string scalar | character vector
+%
+%     data - Measured 3D point coordinates
+%       Nx3 double matrix
+%
+%     fitCriterion - Fitting criterion
+%       fitType enumeration
+%
+%   Name-Value Arguments
+%     MaxIter - Maximum number of LM iterations
+%       positive scalar double
+%
+%     StepTol - Step-size convergence tolerance
+%       positive scalar double
+%
+%     GradTol - Gradient convergence tolerance
+%       positive scalar double
+%
+%     SSETol - Sum-of-squared-errors convergence tolerance
+%       positive scalar double
+%
+%     Lambda - Initial damping parameter for LM
+%       positive scalar double
+%
+%     DampingCoeff - LM damping update coefficient
+%       positive scalar double
+%
+%     SuppressOutput - Flag to suppress optimizer output
+%       logical scalar
+%
+%     sourceFile - Source file associated with the data
+%       string scalar
+%
+%     materialSide - Material-side designation
+%       MaterialSide enumeration
+%
+%   Output Arguments
+%     obj - Cone feature object
+%       Cone scalar
+%
+%   Properties
+%     pnt - 1 x 3 double, point on the cone axis
+%     dir - 1 x 3 double, unit vector of the cone axis
+%     ang - 1 x 1 double, cone angle
+%     dist - 1 x 1 double, orthogonal distance from point on the axis to the surface
+%     apex - 1 x 3 double, cone apex
+%     smallR - 1 x 1 double, radius near the apex
+%     bigR - 1 x 1 double, radius at the far end
+%     height - 1 x 1 double, axial extent of the fitted cone
+%     fitInfo - Optimization summary structure
+%
+%   Example
+%     C = Cone("Cone 1", data, fitType.LeastSquares);
+%     C.plot();
+
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -28,12 +92,12 @@ classdef Cone < Feature
     end
 
     methods
-        function obj = Cone(name, data, ft, opts)
+        function obj = Cone(name, data, fitCriterion, opts)
             % Constructor method for the Cone class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-9
                 opts.GradTol (1,1) double {mustBeFinite, mustBePositive} = 1e-11
@@ -45,7 +109,7 @@ classdef Cone < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, ft, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, fitCriterion, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
             MaxIter = opts.MaxIter;
