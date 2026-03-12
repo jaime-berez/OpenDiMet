@@ -1,13 +1,48 @@
 classdef Line < Feature
-    % LINE Class for fitting and representing a straight line form data.
-    % The Line class constructs a line feature from measured 3D points
-    % using a fit-based constructor using the specified AssociationCriteria. It inherits 
-    % from Feature and stores both geometric description and the fitting parameters 
-    % used to obtain it.
-    % 
-    % Properties:
-    % pnt - 1 x 3 double, point on the fitted line (centroid)
-    % dir - 1 x 3 double, unit vector describing the line's orientation
+    % LINE Fit and represent a straight line from 3D coordinate data.
+    %
+    %   Syntax
+    %     obj = Line(name, data, fitCriterion)
+    %     obj = Line(name, data, fitCriterion, Name = Value)
+    %
+    %   Input Arguments
+    %     name - Feature name
+    %       string scalar | character vector
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration
+    %
+    %   Name-Value Arguments
+    %     MaxIter - Maximum number of LM iterations
+    %       positive scalar double
+    %     StepTol - Step-size convergence tolerance
+    %       positive scalar double
+    %     GradTol - Gradient convergence tolerance
+    %       positive scalar double
+    %     SSETol - Sum-of-squared-errors convergence tolerance
+    %       positive scalar double
+    %     Lambda - Initial damping parameter for LM
+    %       positive scalar double
+    %     DampingCoeff - LM damping update coefficient
+    %       positive scalar double
+    %     SuppressOutput - Flag to suppress optimizer output
+    %       logical scalar
+    %     sourceFile - Source file associated with the data
+    %       string scalar
+    %
+    %   Output Arguments
+    %     obj - Line feature object
+    %       Line scalar
+    %
+    %   Properties
+    %     pnt - 1x3 double, point on the fitted line
+    %     dir - 1x3 double, unit direction vector of the fitted line
+    %     fitInfo - Structure containing fitting method information
+    %
+    %   Example
+    %     L = Line("Line 1", data, fitType.LeastSquares);
+    %     L.plot();
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -16,12 +51,12 @@ classdef Line < Feature
     end
 
     methods
-        function obj = Line(name, data, ft, opts)
-            % Constructor function for the Line Class
+        function obj = Line(name, data, fitCriterion, opts)
+            % Constructor for the Line Class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
 
                 opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
@@ -33,7 +68,7 @@ classdef Line < Feature
                 opts.sourceFile (1,1) string = ""
             end
 
-            obj@Feature(name, data, ft, opts.sourceFile);
+            obj@Feature(name, data, fitCriterion, opts.sourceFile);
             obj.validateAssociation();
 
             pnt = mean(data);
@@ -61,6 +96,43 @@ classdef Line < Feature
 
         function h = plot(obj, opts)
             % PLOT Plot line coordinate data and fitted line segment.
+            %
+            %   Syntax
+            %     h = plot(obj)
+            %     h = plot(obj, Name = Value)
+            %
+            %   Input Arguments
+            %     obj - Line feature object
+            %       Line scalar
+            %
+            %   Name-Value Arguments
+            %     dataColor - Color of plotted data points
+            %       RGB triplet | color name | short color code
+            %     dataLabel - Legend label for data points
+            %       string scalar
+            %     dataMarker - Marker symbol for data points
+            %       string scalar
+            %     dataMarkerSize - Marker size for data points
+            %       positive scalar double
+            %     fitColor - Color of fitted line
+            %       RGB triplet | color name | short color code
+            %     fitLabel - Legend label for fitted line
+            %       string scalar
+            %     lineStyle - Line style for fitted line
+            %       string scalar
+            %     lineWidth - Line width for fitted line
+            %       positive scalar double
+            %     ax - Target axes for plotting
+            %       matlab.graphics.axis.Axes object
+            %
+            %   Output Arguments
+            %     h - Handle to plotted fitted line
+            %       Line object
+            %
+            %   Example
+            %     L.plot();
+            %     L.plot(fitColor = [0 1 0], lineStyle = "--");
+
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
@@ -118,6 +190,18 @@ classdef Line < Feature
         end
 
         function showFitInfo(obj)
+            % SHOWFITINFO Display stored fitting information for the Line object.
+            %
+            %   Syntax
+            %     showFitInfo(obj)
+            %
+            %   Input Arguments
+            %     obj - Line feature object
+            %       Line scalar
+            %
+            %   Example
+            %     L.showFitInfo();
+
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
                 return;
@@ -137,7 +221,18 @@ classdef Line < Feature
         end
 
         function disp(obj)
-            % Custom display for Line objects
+            % DISP Display a formatted summary of the Line feature object.
+            %
+            %   Syntax
+            %     disp(obj)
+            %
+            %   Input Arguments
+            %     obj - Line feature object
+            %       Line scalar
+            %
+            %   Example
+            %     disp(L);
+
             name = string(obj.name);
             ft   = obj.fitType;
             data = obj.data;
@@ -159,6 +254,18 @@ classdef Line < Feature
         end
 
         function reverseDir(obj)
+            % REVERSEDIR Reverse the orientation of the fitted line direction vector.
+            %
+            %   Syntax
+            %     reverseDir(obj)
+            %
+            %   Input Arguments
+            %     obj - Line feature object
+            %       Line scalar
+            %
+            %   Example
+            %     L.reverseDir();
+            
             obj.dir = -obj.dir;
         end
     end

@@ -1,16 +1,49 @@
 classdef Circle < Feature
-% CIRCLE Class for fitting and representing a 2D or 3D circle feature from
-% point cloud data. 
-% The circle class represents a circular feature reconstructed from 2D or
-% 3D coordinate data. The object is constructed directly via a fit-based
-% constructor using the specified fitType. It inherits from
-% Feature and stores both geometric description and the fitting parameters
-% used to obtain it.
-%
-% Properties:
-% pnt - 1 x 3 double, center of the fitted circle.
-% dir - 1 x 3 double, unit normal vector of the circle's plane.
-% dia - 1 x 1 double, fitted circle diameter.
+    % CIRCLE Fit and represent a circular feature from 3D coordinate data.
+    %
+    %   Syntax
+    %     obj = Circle(name, data, fitCriterion)
+    %     obj = Circle(name, data, fitCriterion, Name = Value)
+    %
+    %   Input Arguments
+    %     name - Feature name
+    %       string scalar | character vector
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration
+    %
+    %   Name-Value Arguments
+    %     MaxIter - Maximum number of LM iterations
+    %       positive scalar double
+    %     StepTol - Step-size convergence tolerance
+    %       positive scalar double
+    %     GradTol - Gradient convergence tolerance
+    %       positive scalar double
+    %     SSETol - Sum-of-squared-errors convergence tolerance
+    %       positive scalar double
+    %     Lambda - Initial damping parameter for LM
+    %       positive scalar double
+    %     DampingCoeff - LM damping update coefficient
+    %       positive scalar double
+    %     SuppressOutput - Flag to suppress optimizer output
+    %       logical scalar
+    %     sourceFile - Source file associated with the data
+    %       string scalar
+    %
+    %   Output Arguments
+    %     obj - Circle feature object
+    %       Circle scalar
+    %
+    %   Properties
+    %     pnt - 1x3 double, center of the fitted circle
+    %     dir - 1x3 double, unit normal vector of the circle plane
+    %     dia - 1x1 double, circle diameter
+    %     fitInfo - Structure containing optimization history
+    %
+    %   Example
+    %     C = Circle("Circle 1", data, fitType.LeastSquares);
+    %     C.plot();
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -20,12 +53,12 @@ classdef Circle < Feature
     end
 
     methods
-        function obj = Circle(name, data, ft, opts)
-            % Constructor method for the Circle class
+        function obj = Circle(name, data, fitCriterion, opts)
+            % Constructor for the Circle class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -38,7 +71,7 @@ classdef Circle < Feature
                 opts.sourceFile (1,1) string = ""
             end
 
-            obj@Feature(name, data, ft, opts.sourceFile);
+            obj@Feature(name, data, fitCriterion, opts.sourceFile);
             obj.validateAssociation();
 
             % LM options
@@ -105,6 +138,46 @@ classdef Circle < Feature
 
     methods
         function h = plot(obj, opts)
+            % PLOT Plot circle coordinate data and fitted circle.
+            %
+            %   Syntax
+            %     h = plot(obj)
+            %     h = plot(obj, Name = Value)
+            %
+            %   Input Arguments
+            %     obj - Circle feature object
+            %       Circle scalar
+            %
+            %   Name-Value Arguments
+            %     dataColor - Color of plotted data points
+            %       RGB triplet | color name | short color code
+            %     dataLabel - Legend label for data points
+            %       string scalar
+            %     dataMarker - Marker symbol for data points
+            %       string scalar
+            %     dataMarkerSize - Marker size for data points
+            %       positive scalar double
+            %     fitColor - Color of fitted circle
+            %       RGB triplet | color name | short color code
+            %     fitLabel - Legend label for fitted circle
+            %       string scalar
+            %     lineStyle - Line style for fitted circle
+            %       string scalar
+            %     lineWidth - Line width for fitted circle
+            %       positive scalar double
+            %     nFitPoints - Number of points used to render fitted circle
+            %       positive scalar double
+            %     ax - Target axes for plotting
+            %       matlab.graphics.axis.Axes object
+            %
+            %   Output Arguments
+            %     h - Handle to plotted circle line
+            %       Line object
+            %
+            %   Example
+            %     C.plot();
+            %     C.plot(fitColor = [0 1 0], nFitPoints = 300);
+
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
@@ -162,6 +235,18 @@ classdef Circle < Feature
         end
 
         function showFitInfo(obj)
+            % SHOWFITINFO Display the stored Levenberg-Marquardt optimization summary.
+            %
+            %   Syntax
+            %     showFitInfo(obj)
+            %
+            %   Input Arguments
+            %     obj - Circle feature object
+            %       Circle scalar
+            %
+            %   Example
+            %     C.showFitInfo();
+
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
                 return;
@@ -173,6 +258,18 @@ classdef Circle < Feature
         end
 
         function disp(obj)
+            % DISP Display a formatted summary of the Circle feature object.
+            %
+            %   Syntax
+            %     disp(obj)
+            %
+            %   Input Arguments
+            %     obj - Circle feature object
+            %       Circle scalar
+            %
+            %   Example
+            %     disp(C);
+
             name = string(obj.name);
             ft = obj.fitType; 
             data = obj.data;
@@ -197,12 +294,48 @@ classdef Circle < Feature
         end
 
         function reverseDir(obj)
+            % REVERSEDIR Reverse the orientation of the circle normal vector.
+            %
+            %   Syntax
+            %     reverseDir(obj)
+            %
+            %   Input Arguments
+            %     obj - Circle feature object
+            %       Circle scalar
+            %
+            %   Example
+            %     C.reverseDir();
+
             obj.dir = -obj.dir;
         end
     end
 
     methods (Static)
         function [pnt, dia] = fit2dCircle(data, pnt, dir, rad)
+            % FIT2DCIRCLE Fit a circle to data projected onto a plane.
+            %
+            %   Syntax
+            %     [pnt, dia] = Circle.fit2dCircle(data, pnt, dir, rad)
+            %
+            %   Input Arguments
+            %     data - Measured 3D point coordinates
+            %       Nx3 double matrix
+            %     pnt - Point on the circle plane used for translation
+            %       1x3 double vector
+            %     dir - Unit normal vector of the circle plane
+            %       1x3 double vector
+            %     rad - Initial guess for the circle radius
+            %       positive scalar double
+            %
+            %   Output Arguments
+            %     pnt - Estimated center of the fitted circle
+            %       1x3 double vector
+            %     dia - Diameter of the fitted circle
+            %       1x1 double
+            %
+            %   Example
+            %     [pnt, dia] = Circle.fit2dCircle(data, pnt, dir, rad);
+
             dataT = data - pnt;     % translated data
             R = rotMatA2Z(dir);        % rotation matrix to align the data to the XY plane
             dataTR = dataT * R;    % rotate the data

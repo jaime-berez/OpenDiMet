@@ -1,21 +1,63 @@
 classdef LM
-    %LM Class for the Levenberg–Marquardt algorithm
+    % LM Utility class for Levenberg-Marquardt nonlinear least-squares optimization.
+    %
+    %   Syntax
+    %     [x, resnorm, residual] = LM.solve(fcn, guess, maxIter, stepTol, gradTol, sseTol, lambda,
+    % dampingCoeff, suppressOutput)
+    %     [x, resnorm, residual, info] = LM.solve(fcn, guess, maxIter, stepTol, gradTol, 
+    % sseTol, lambda, dampingCoeff, suppressOutput)
+    %
+    %   Methods
+    %     solve - Solve a nonlinear least-squares problem using the Levenberg-Marquardt algorithm
+    %
+    %   Example
+    %     [x, resnorm, residual, info] = LM.solve(fcn, guess, 5000, 1e-9, 1e-11, 1e-19, 1e-4, 2, true);
+
     methods (Static)
         function [x,resnorm,residual,info] = solve(fcn,guess,maxIter,stepTol,gradTol,sseTol, ...
                 lambda,dampingCoeff,suppressOutput)
             
-            %   Levenberg-Marquardt Algorithm
+            % SOLVE Solve a nonlinear least-squares problem using the Levenberg-Marquardt algorithm.
             %
-            %   func:       objective function to optimize (data is passed in through
-            %   the func)
-            %   guess:      matrix of the guess of parameters
-            %   maxIter:    Maximum number of iterations
-            %   tol:        Default value for the tolerances (step tolerance)
-            %   grad-tol:   Optional tolerance value for the gradient tolerance
-            %   SSE_tol:    Optional tolerance value for the sum squared error
-            %   tolerance
+            %   Syntax
+            %     [x, resnorm, residual] = LM.solve(fcn, guess, maxIter, stepTol, gradTol, sseTol,
+            % lambda, dampingCoeff, suppressOutput)
+            %     [x, resnorm, residual, info] = LM.solve(fcn, guess, maxIter, stepTol,
+                                        % gradTol, sseTol, lambda, dampingCoeff, suppressOutput)
             %
-            %   results:    Output matrix with the optimized parameters
+            %   Input Arguments
+            %     fcn - Residual function to be minimized
+            %       function handle
+            %     guess - Initial parameter estimate
+            %       numeric vector
+            %     maxIter - Maximum number of iterations
+            %       positive scalar double
+            %     stepTol - Step-size convergence tolerance
+            %       positive scalar double
+            %     gradTol - Gradient convergence tolerance
+            %       positive scalar double
+            %     sseTol - Sum-of-squared-errors convergence tolerance
+            %       positive scalar double
+            %     lambda - Initial damping parameter
+            %       positive scalar double
+            %     dampingCoeff - Damping update coefficient
+            %       positive scalar double
+            %     suppressOutput - Flag to suppress iterative command-window output
+            %       logical scalar
+            %
+            %   Output Arguments
+            %     x - Optimized parameter vector
+            %       1xN double vector
+            %     resnorm - Sum of squared residuals at the solution
+            %       1x1 double
+            %     residual - Residual vector at the solution
+            %       Nx1 double vector
+            %     info - Optimization summary structure
+            %       struct
+            %
+            %   Example
+            %     [x, resnorm, residual, info] = LM.solve(fcn, guess, 5000, 1e-9, 1e-11, 1e-19, 1e-4, 2, true);
+            
             arguments
                 fcn
                 guess

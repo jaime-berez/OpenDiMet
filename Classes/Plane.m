@@ -1,15 +1,48 @@
 classdef Plane < Feature
-    % PLANE Class for fitting and representing a plane from coordinate data.
-    % The Plane class constructs a plane feature from measured coordinate points
-    % according to the specified fitType. It inherits
-    % from Feature and stores both the original data and the associated
-    % feature parameters.
+    % PLANE Fit and represent a plane from 3D coordinate data.
     %
-    % Properties:
-    % pnt     : (1x3 double) point on the associated plane.
-    % dir     : (1x3 double) unit normal vector of the associated plane.
-    % fitInfo : (struct) struct describing how the plane was fit (e.g.,
-    %          method name, optimization history).
+    %   Syntax
+    %     obj = Plane(name, data, fitCriterion)
+    %     obj = Plane(name, data, fitCriterion, Name = Value)
+    %
+    %   Input Arguments
+    %     name - Feature name
+    %       string scalar | character vector
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration
+    %
+    %   Name-Value Arguments
+    %     MaxIter - Maximum number of LM iterations
+    %       positive scalar double
+    %     StepTol - Step-size convergence tolerance
+    %       positive scalar double
+    %     GradTol - Gradient convergence tolerance
+    %       positive scalar double
+    %     SSETol - Sum-of-squared-errors convergence tolerance
+    %       positive scalar double
+    %     Lambda - Initial damping parameter for LM
+    %       positive scalar double
+    %     DampingCoeff - LM damping update coefficient
+    %       positive scalar double
+    %     SuppressOutput - Flag to suppress optimizer output
+    %       logical scalar
+    %     sourceFile - Source file associated with the data
+    %       string scalar
+    %
+    %   Output Arguments
+    %     obj - Plane feature object
+    %       Plane scalar
+    %
+    %   Properties
+    %     pnt - 1x3 double, point on the fitted plane
+    %     dir - 1x3 double, unit normal vector of the fitted plane
+    %     fitInfo - Structure containing fitting method information
+    %
+    %   Example
+    %     P = Plane("Plane 1", data, fitType.LeastSquares);
+    %     P.plot();
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -18,12 +51,12 @@ classdef Plane < Feature
     end
 
     methods
-        function obj = Plane(name, data, ft, opts)
-            % Plane Constructor
+        function obj = Plane(name, data, fitCriterion, opts)
+            % Constructor for the Plane class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
 
                 opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
@@ -35,7 +68,7 @@ classdef Plane < Feature
                 opts.sourceFile (1,1) string = ""
             end
 
-            obj@Feature(name, data, ft, opts.sourceFile);
+            obj@Feature(name, data, fitCriterion, opts.sourceFile);
             obj.validateAssociation();
 
             % Computes and plots the centroid of the plane
@@ -63,6 +96,44 @@ classdef Plane < Feature
         end
 
         function h = plot(obj, opts)
+            % PLOT Plot plane coordinate data and fitted plane surface.
+            %
+            %   Syntax
+            %     h = plot(obj)
+            %     h = plot(obj, Name = Value)
+            %
+            %   Input Arguments
+            %     obj - Plane feature object
+            %       Plane scalar
+            %
+            %   Name-Value Arguments
+            %     dataColor - Color of plotted data points
+            %       RGB triplet | color name | short color code
+            %     dataLabel - Legend label for data points
+            %       string scalar
+            %     dataMarker - Marker symbol for data points
+            %       string scalar
+            %     dataMarkerSize - Marker size for data points
+            %       positive scalar double
+            %     fitColor - Face color of fitted plane
+            %       RGB triplet | color name | short color code
+            %     fitLabel - Legend label for fitted plane
+            %       string scalar
+            %     fitFaceAlpha - Face transparency of fitted plane
+            %       scalar double in the range [0, 1]
+            %     fitEdgeColor - Edge color of fitted plane
+            %       RGB triplet | color name | short color code | "none"
+            %     ax - Target axes for plotting
+            %       matlab.graphics.axis.Axes object
+            %
+            %   Output Arguments
+            %     h - Patch handle for fitted plane surface
+            %       Patch object
+            %
+            %   Example
+            %     P.plot();
+            %     P.plot(fitColor = [0 1 0], fitFaceAlpha = 0.3);
+
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
@@ -112,13 +183,6 @@ classdef Plane < Feature
             % Plot centroid
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
-            % [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir); % corners for plotting
-            % 
-            % h = fill3(ax, X, Y, Z, fitColor, ...
-            %     'EdgeColor', edgeColor, ...
-            %     'FaceAlpha', opts.fitFaceAlpha, ...
-            %     'DisplayName', opts.fitLabel);
-
             [V, F] = genPlaneSurf(data, pnt, dir);  % scalingFactor optional
 
             h = patch(ax, 'Vertices', V, 'Faces', F, ...
@@ -132,6 +196,18 @@ classdef Plane < Feature
         end
 
         function showFitInfo(obj)
+            % SHOWFITINFO Display stored fitting information for the Plane object.
+            %
+            %   Syntax
+            %     showFitInfo(obj)
+            %
+            %   Input Arguments
+            %     obj - Plane feature object
+            %       Plane scalar
+            %
+            %   Example
+            %     P.showFitInfo();
+
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
                 return;
@@ -151,7 +227,18 @@ classdef Plane < Feature
         end
 
         function disp(obj)
-            % Custom display for Plane object
+            % DISP Display a formatted summary of the Plane feature object.
+            %
+            %   Syntax
+            %     disp(obj)
+            %
+            %   Input Arguments
+            %     obj - Plane feature object
+            %       Plane scalar
+            %
+            %   Example
+            %     disp(P);
+
             name = string(obj.name);
             ft   = obj.fitType;
             data = obj.data;
@@ -173,6 +260,17 @@ classdef Plane < Feature
         end
 
         function reverseDir(obj)
+            % REVERSEDIR Reverse the orientation of the fitted plane normal vector.
+            %
+            %   Syntax
+            %     reverseDir(obj)
+            %
+            %   Input Arguments
+            %     obj - Plane feature object
+            %       Plane scalar
+            %
+            %   Example
+            %     P.reverseDir();
             obj.dir = -obj.dir;
         end
     end

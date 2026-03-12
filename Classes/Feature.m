@@ -1,23 +1,37 @@
 classdef Feature < handle
     % FEATURE Base class for geometric features.
-    % The Feature class provides a foundation for the geometric feature
-    % types. Each feature stores a descriptive name, an association type
-    % and the raw coordinate data used for the fitting process.
     %
-    % Properties:
-    % name                : (1x1 string) user-defined name of the feature. If empty, the
-    %                       class attempts to infer a name from the source file; otherwise
-    %                       defaults to "UnnamedFeature".
-    % fitType             : (1x1 fitType) Enumeration sepcifying the fitting method
-    %                       used to associate the feature to the input
-    %                       data.
-    % sigma               : (1x1 double) A nonnegative scalar reporting the standard deviation
-    %                       of the residuals of the fitted feature. 
-    % sourceFile          : (1x1 string) The full or relative path of the file from which the input
-    %                       coordinate data were loaded. Used for
-    %                       traceability, and naming.
-    % data                : (Nx3 double, private access) Coordinate points
-    %                       defining the feature. This array is stored exactly as provided by the user. 
+    %   Syntax
+    %     obj = Feature(name, data, fitCriterion)
+    %     obj = Feature(name, data, fitCriterion, sourceFile)
+    %     obj = Feature(name, data, fitCriterion, sourceFile, materialSide)
+    %
+    %   Input Arguments
+    %     name - Feature name
+    %       string scalar | character vector
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration
+    %     sourceFile - Source file associated with the data
+    %       string scalar
+    %     materialSide - Material-side designation
+    %       MaterialSide enumeration
+    %
+    %   Output Arguments
+    %     obj - Geometric feature base object
+    %       Feature scalar
+    %
+    %   Properties
+    %     name - 1x1 string, feature name
+    %     fitType - 1x1 fitType, association criterion used for fitting
+    %     sigma - 1x1 double, standard deviation of fitting residuals
+    %     sourceFile - 1x1 string, source file associated with the input data
+    %     materialSide - 1x1 MaterialSide, material-side designation
+    %     data - Nx3 double, measured coordinate points used to define the feature
+    %
+    %   Example
+    %     F = Feature("My Feature", data, fitType.LeastSquares);
 
     properties (GetAccess = public, SetAccess = public)
         name (1,1) string {mustBeTextScalar, mustBeNonempty} = ""
@@ -32,11 +46,12 @@ classdef Feature < handle
     end
 
     methods
-        function obj = Feature(name, data, ft, sourceFile, materialSide)
+        function obj = Feature(name, data, fitCriterion, sourceFile, materialSide)
+            % Constructor for feature class
             arguments
                 name (1,1) string {mustBeTextScalar, mustBeNonempty}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
                 sourceFile (1,1) string = ""
                 materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
@@ -55,14 +70,25 @@ classdef Feature < handle
                 obj.name = string(name);
             end
 
-            obj.fitType = ft;
+            obj.fitType = fitCriterion;
             obj.data = data;
         end
     end
 
     methods (Access = protected)
         function validateAssociation(feat)
-            % Function to validate the fitType
+            % VALIDATEASSOCIATION Validate that the selected fitting criterion supports the geometry.
+            %
+            %   Syntax
+            %     validateAssociation(feat)
+            %
+            %   Input Arguments
+            %     feat - Geometric feature object
+            %       Feature scalar
+            %
+            %   Example
+            %     feat.validateAssociation();
+
             geom = class(feat);
             ft = feat.fitType;
 
@@ -88,7 +114,22 @@ classdef Feature < handle
 
     methods (Static, Access = protected)
         function rgb = parseColor(clr)
-            % Accept RGB (1x3), Matlab short codes, names, or hex '#RRGGBB'.
+            % PARSECOLOR Convert a color specification to an RGB triplet.
+            %
+            %   Syntax
+            %     rgb = Feature.parseColor(clr)
+            %
+            %   Input Arguments
+            %     clr - Color specification
+            %       1x3 numeric RGB triplet | color name | short color code | hex string
+            %
+            %   Output Arguments
+            %     rgb - RGB color triplet
+            %       1x3 double vector
+            %
+            %   Example
+            %     rgb = Feature.parseColor("green");
+            %     rgb = Feature.parseColor("#00FF00");
 
             if isnumeric(clr)
                 rgb = clr;
@@ -121,6 +162,23 @@ classdef Feature < handle
         end
 
         function ls = parseLineStyle(style)
+            % PARSELINESTYLE Convert a line-style specification to a MATLAB line-style code.
+            %
+            %   Syntax
+            %     ls = Feature.parseLineStyle(style)
+            %
+            %   Input Arguments
+            %     style - Line-style specification
+            %       string scalar | character vector
+            %
+            %   Output Arguments
+            %     ls - MATLAB line-style code
+            %       string scalar
+            %
+            %   Example
+            %     ls = Feature.parseLineStyle("dashdot");
+            %     ls = Feature.parseLineStyle("--");
+
             s = lower(strtrim(string(style)));
             switch s
                 case {"solid","-"}

@@ -1,18 +1,50 @@
 classdef Sphere < Feature
-    % SPHERE Class for fitting and representing a sphere form data.
-    % The Sphere class constructs a sphere feature from measured 3D points
-    % using a fit-based constructor using the specified AssociationCriteria. It inherits 
-    % from Feature and stores both geometric description and the fitting parameters 
-    % used to obtain it.
+    % SPHERE Fit and represent a sphere from 3D coordinate data.
     %
-    % Properties:
-    % pnt - 1 x 3 double, fitted sphere center
-    % dia - 1 x 1 double, fitted sphere diameter
+    %   Syntax
+    %     obj = Sphere(name, data, fitCriterion)
+    %     obj = Sphere(name, data, fitCriterion, Name = Value)
     %
-    % Methods:
-    % Sphere(name, data, AssociationCriteria): construct and fit the sphere.
-    % plot(): visualize the data and the fitted sphere.
-    % disp(): formatted textual description.
+    %   Input Arguments
+    %     name - Feature name
+    %       string scalar | character vector
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration
+    %
+    %   Name-Value Arguments
+    %     MaxIter - Maximum number of LM iterations
+    %       positive scalar double
+    %     StepTol - Step-size convergence tolerance
+    %       positive scalar double
+    %     GradTol - Gradient convergence tolerance
+    %       positive scalar double
+    %     SSETol - Sum-of-squared-errors convergence tolerance
+    %       positive scalar double
+    %     Lambda - Initial damping parameter for LM
+    %       positive scalar double
+    %     DampingCoeff - LM damping update coefficient
+    %       positive scalar double
+    %     SuppressOutput - Flag to suppress optimizer output
+    %       logical scalar
+    %     sourceFile - Source file associated with the data
+    %       string scalar
+    %     materialSide - Material-side designation
+    %       MaterialSide enumeration
+    %
+    %   Output Arguments
+    %     obj - Sphere feature object
+    %       Sphere scalar
+    %
+    %   Properties
+    %     pnt - 1 x 3 double, fitted sphere center
+    %     dia - 1 x 1 double, fitted sphere diameter
+    %     fitInfo - Structure containing optimization history
+    %
+    %   Example
+    %     S = Sphere("Sphere 1", data, fitType.LeastSquares);
+    %     S.plot();
 
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -21,12 +53,12 @@ classdef Sphere < Feature
     end
 
     methods
-        % Constructor for the sphere class
-        function obj = Sphere(name, data, ft, opts)
+        % Constructor for the Sphere class
+        function obj = Sphere(name, data, fitCriterion, opts)
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
 
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
                 opts.StepTol (1,1) double {mustBeFinite, mustBePositive} = 1e-12
@@ -39,7 +71,7 @@ classdef Sphere < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, ft, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, fitCriterion, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
             maxIter = opts.MaxIter;
@@ -53,7 +85,6 @@ classdef Sphere < Feature
             pnt0 = mean(data);
 
             % Break up data into x,y,z components
-            % [xData, yData, zData] = separateData(data);
             xData = data(:,1);
             yData = data(:,2);
             zData = data(:,3);
@@ -88,7 +119,46 @@ classdef Sphere < Feature
 
     methods
         function h = plot(obj, opts)
-            % PLOT Plot sphere coordinate data and the fitted sphere.
+            % PLOT Plot sphere coordinate data and fitted sphere surface.
+            %
+            %   Syntax
+            %     h = plot(obj)
+            %     h = plot(obj, Name = Value)
+            %
+            %   Input Arguments
+            %     obj - Sphere feature object
+            %       Sphere scalar
+            %
+            %   Name-Value Arguments
+            %     dataColor - Color of plotted data points
+            %       RGB triplet | color name | short color code
+            %     dataLabel - Legend label for data points
+            %       string scalar
+            %     dataMarker - Marker symbol for data points
+            %       string scalar
+            %     dataMarkerSize - Marker size for data points
+            %       positive scalar double
+            %     fitColor - Face color of fitted sphere
+            %       RGB triplet | color name | short color code
+            %     fitLabel - Legend label for fitted sphere
+            %       string scalar
+            %     fitFaceAlpha - Face transparency of fitted sphere
+            %       scalar double in the range [0, 1]
+            %     fitEdgeColor - Edge color of fitted sphere
+            %       RGB triplet | color name | short color code | "none"
+            %     faces - Number of mesh subdivisions used to render the sphere
+            %       positive scalar double
+            %     ax - Target axes for plotting
+            %       matlab.graphics.axis.Axes object
+            %
+            %   Output Arguments
+            %     h - Surface handle for fitted sphere
+            %       Surface object
+            %
+            %   Example
+            %     S.plot();
+            %     S.plot(fitColor = [0 1 0], fitFaceAlpha = 0.3, faces = 40);
+
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
@@ -155,6 +225,18 @@ classdef Sphere < Feature
         end
 
         function showFitInfo(obj)
+            % SHOWFITINFO Display the stored Levenberg-Marquardt optimization summary.
+            %
+            %   Syntax
+            %     showFitInfo(obj)
+            %
+            %   Input Arguments
+            %     obj - Sphere feature object
+            %       Sphere scalar
+            %
+            %   Example
+            %     S.showFitInfo();
+
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
                 return;
@@ -166,7 +248,18 @@ classdef Sphere < Feature
         end
 
         function disp(obj)
-            % Custom display for Sphere objects
+            % DISP Display a formatted summary of the Sphere feature object.
+            %
+            %   Syntax
+            %     disp(obj)
+            %
+            %   Input Arguments
+            %     obj - Sphere feature object
+            %       Sphere scalar
+            %
+            %   Example
+            %     disp(S);
+            
             name = string(obj.name);
             ft   = obj.fitType;
             data = obj.data;

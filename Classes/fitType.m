@@ -1,19 +1,24 @@
 classdef fitType < int32
-
-    % FITTYPE Enumeration for different feature assoication methods.
-    % Fit type:
-    % LeastSquares          : Also known as Gaussian Fit/L2 fit. Minimizes the sum of
-    %                         the squares of the residuals.
-    % MiniMax               : Also known as Minimum Zone fit/L inifinity fit/Chebyshev
-    %                         fit. Minimizes the size of the worst-case (largest) value residual.
-    % MinimumCircumscribed  : Finds the smallest possible shape that can
-    %                         completely enclose all the measured coordinate points.
-    % MaximumInscribed      : Finds the largest possible shape that can fit
-    %                         inside all the measured coordinate points.
-    % MinimumTotalDistance  : Also known as L1 fit. Minmizes the sum of the
-    %                         absolute values of the residuals.
-    % WeightedLeastSquares  : This is an ordinary least squares algorithms
-    %                         but the measured coordinate points are weighted based on uncertainty.
+    % FITTYPE Enumeration of feature fitting criteria.
+    %
+    %   Syntax
+    %     fitCriterion = fitType.LeastSquares
+    %     fitCriterion = fitType.MiniMax
+    %     fitCriterion = fitType.MinimumCircumscribed
+    %     fitCriterion = fitType.MaximumInscribed
+    %     fitCriterion = fitType.MinimumTotalDistance
+    %     fitCriterion = fitType.WeightedLeastSquares
+    %
+    %   Enumeration Members
+    %     LeastSquares - Gaussian or L2 fit that minimizes the sum of squared residuals
+    %     MiniMax - Minimum-zone or Chebyshev fit that minimizes the maximum residual
+    %     MinimumCircumscribed - Smallest enclosing associated feature
+    %     MaximumInscribed - Largest inscribed associated feature
+    %     MinimumTotalDistance - L1 fit that minimizes the sum of absolute residuals
+    %     WeightedLeastSquares - Least-squares fit with weighted data points
+    %
+    %   Example
+    %     fitCriterion = fitType.LeastSquares;
 
     enumeration
         LeastSquares (1)
@@ -25,8 +30,24 @@ classdef fitType < int32
     end
 
     methods
-        function geomList = supportedGeometries(ft)
-            switch ft
+        function geomList = supportedGeometries(fitCriterion)
+            % SUPPORTEDGEOMETRIES Return the geometries supported by a fitting criterion.
+            %
+            %   Syntax
+            %     geomList = supportedGeometries(fitCriterion)
+            %
+            %   Input Arguments
+            %     fitCriterion - Fitting criterion
+            %       fitType enumeration
+            %
+            %   Output Arguments
+            %     geomList - Supported geometry names
+            %       string array
+            %
+            %   Example
+            %     geomList = fitType.LeastSquares.supportedGeometries();
+
+            switch fitCriterion
                 case fitType.LeastSquares
                     geomList = ["Line","Plane","Circle","Sphere","Cylinder","Cone"];
                 case fitType.MiniMax
@@ -47,10 +68,34 @@ classdef fitType < int32
 
     methods (Static)
         function fitList = implemented()
+            % IMPLEMENTED Return the list of fitting criteria currently implemented.
+            %
+            %   Syntax
+            %     fitList = fitType.implemented()
+            %
+            %   Output Arguments
+            %     fitList - Implemented fitting criteria
+            %       fitType array
+            %
+            %   Example
+            %     fitList = fitType.implemented();
+
             fitList = [fitType.LeastSquares];
         end
 
         function fitList = unimplemented()
+            % UNIMPLEMENTED Return the list of fitting criteria not yet implemented.
+            %
+            %   Syntax
+            %     fitList = fitType.unimplemented()
+            %
+            %   Output Arguments
+            %     fitList - Unimplemented fitting criteria
+            %       fitType array
+            %
+            %   Example
+            %     fitList = fitType.unimplemented();
+            
             fitList = [fitType.MiniMax,...
                        fitType.MinimumCircumscribed,...
                        fitType.MaximumInscribed,...

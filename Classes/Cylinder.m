@@ -1,14 +1,51 @@
 classdef Cylinder < Feature
-% CYLINDER Class for fitting and representing a Cylinder from 3D data.
-% The Cylinder class constructs a cylindrical feature from measured 3D points
-% using a fit-based constructor using the specified AssociationCriteria. It inherits 
-% from Feature and stores both geometric description and the fitting parameters 
-% used to obtain it.
-%
-% Properties:
-% pnt - 1 x 3 double, point on the cylinder axis
-% dir - 1 x 3 double, unit vector of the cylinder axis
-% dia - 1 x 1 double, cylinder diameter
+    % CYLINDER Fit and represent a cylinder from 3D coordinate data.
+    %
+    %   Syntax
+    %     obj = Cylinder(name, data, fitCriterion)
+    %     obj = Cylinder(name, data, fitCriterion, Name = Value)
+    %
+    %   Input Arguments
+    %     name - Feature name
+    %       string scalar | character vector
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration
+    %
+    %   Name-Value Arguments
+    %     MaxIter - Maximum number of LM iterations
+    %       positive scalar double
+    %     StepTol - Step-size convergence tolerance
+    %       positive scalar double
+    %     GradTol - Gradient convergence tolerance
+    %       positive scalar double
+    %     SSETol - Sum-of-squared-errors convergence tolerance
+    %       positive scalar double
+    %     Lambda - Initial damping parameter for LM
+    %       positive scalar double
+    %     DampingCoeff - LM damping update coefficient
+    %       positive scalar double
+    %     SuppressOutput - Flag to suppress optimizer output
+    %       logical scalar
+    %     sourceFile - Source file associated with the data
+    %       string scalar
+    %     materialSide - Material-side designation
+    %       MaterialSide enumeration
+    %
+    %   Output Arguments
+    %     obj - Cylinder feature object
+    %       Cylinder scalar
+    %
+    %   Properties
+    %     pnt - 1x3 double, point on the cylinder axis
+    %     dir - 1x3 double, unit vector of the cylinder axis
+    %     dia - 1x1 double, cylinder diameter
+    %     fitInfo - Structure containing optimization history
+    %
+    %   Example
+    %     C = Cylinder("Cylinder 1", data, fitType.LeastSquares);
+    %     C.plot();
 
     properties (GetAccess = public, SetAccess = private)
         pnt     (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
@@ -18,12 +55,12 @@ classdef Cylinder < Feature
     end
 
     methods
-        function obj = Cylinder(name, data, ft, opts)
-            % Constructor method for the Cylinder class
+        function obj = Cylinder(name, data, fitCriterion, opts)
+            % Constructor for the Cylinder class
             arguments
                 name (1,1) string {mustBeTextScalar}
                 data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-                ft (1,1) fitType
+                fitCriterion (1,1) fitType
 
                 % Name-value options for LM
                 opts.MaxIter (1,1) double {mustBeFinite, mustBePositive} = 5000
@@ -37,7 +74,7 @@ classdef Cylinder < Feature
                 opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
             end
 
-            obj@Feature(name, data, ft, opts.sourceFile, opts.materialSide);
+            obj@Feature(name, data, fitCriterion, opts.sourceFile, opts.materialSide);
             obj.validateAssociation();
 
             MaxIter = opts.MaxIter;
@@ -135,7 +172,50 @@ classdef Cylinder < Feature
         end
 
         function h = plot(obj, opts)
-            % PLOT Plot cylinder coordinate data and fitted cylinder surface.
+            % PLOT Plot cylinder coordinate data, fitted cylinder surface, and centerline.
+            %
+            %   Syntax
+            %     h = plot(obj)
+            %     h = plot(obj, Name = Value)
+            %
+            %   Input Arguments
+            %     obj - Cylinder feature object
+            %       Cylinder scalar
+            %
+            %   Name-Value Arguments
+            %     dataColor - Color of plotted data points
+            %       RGB triplet | color name | short color code
+            %     dataMarker - Marker symbol for data points
+            %       string scalar
+            %     dataMarkerSize - Marker size for data points
+            %       positive scalar double
+            %     dataLabel - Legend label for data points
+            %       string scalar
+            %     fitColor - Face color of fitted cylinder
+            %       RGB triplet | color name | short color code
+            %     fitFaceAlpha - Face transparency of fitted cylinder
+            %       scalar double in the range [0, 1]
+            %     fitEdgeColor - Edge color of fitted cylinder
+            %       RGB triplet | color name | short color code | "none"
+            %     fitLabel - Legend label for fitted cylinder
+            %       string scalar
+            %     lineStyle - Line style of cylinder centerline
+            %       string scalar
+            %     lineWidth - Line width of cylinder centerline
+            %       positive scalar double
+            %     faces - Number of circumferential faces used to render the cylinder
+            %       positive scalar double
+            %     ax - Target axes for plotting
+            %       matlab.graphics.axis.Axes object
+            %
+            %   Output Arguments
+            %     h - Patch handle for fitted cylinder surface
+            %       Patch object
+            %
+            %   Example
+            %     C.plot();
+            %     C.plot(fitColor = [0 1 0], fitFaceAlpha = 0.3, faces = 40);
+
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
@@ -215,40 +295,6 @@ classdef Cylinder < Feature
                 'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
 
-
-            % [X, Y, Z] = cylinder(dist, faces);
-            % cylData = xyz2Mat(X, Y, Z);
-            % 
-            % % Height of the point cloud
-            % dataT = data - pnt;
-            % a = dir(1); b = dir(2); c = dir(3);
-            % 
-            % % Rotation that aligns axis with +Z
-            % Rz = [1-a^2/(1+c) -a*b/(1+c) a; -a*b/(1+c) 1-b^2/(1+c) b; -a -b c];
-            % dataTR = dataT * Rz;
-            % 
-            % scale = 0.25;
-            % height = (max(dataTR(:,3)) - min(dataTR(:,3))) * (1+scale);
-            % 
-            % % Apply height, rotate back, translate
-            % cylData1 = cylData;
-            % cylData1(:,3) = cylData(:,3)*height - (height/2);
-            % cylData2 = cylData1 / Rz;
-            % cylData3 = cylData2 + pnt;
-            % 
-            % [X2, Y2, Z2] = mat2xyz(cylData3);
-            % h = surf(ax, X2, Y2, Z2, 'EdgeColor', edgeColor, 'FaceColor', fitColor, ...
-            %     'FaceAlpha', opts.fitFaceAlpha, 'DisplayName', opts.fitLabel);
-
-            % Centerline
-            % k = 1;
-            % pnts = [0, 0, (height/2)*(1+k) - (height/2); 0, 0, (height/2)*(1-k) - (height/2)];
-            % pnts1 = pnts / Rz;
-            % pnts2 = pnts1 + pnt;
-            % 
-            % plot3(ax, pnts2(:,1), pnts2(:,2), pnts2(:,3), 'LineStyle', centerLS, ...
-            %     'LineWidth', opts.lineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
-
             [pnt1, pnt2] = calcFeatExtent(obj.pnt, obj.dir, height, 0.5, 1.2); % bias of 0.5
             plot3(ax, [pnt1(1) pnt2(1)], [pnt1(2) pnt2(2)], [pnt1(3) pnt2(3)], 'LineStyle', centerLS, ...
                 'LineWidth', opts.lineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
@@ -266,6 +312,18 @@ classdef Cylinder < Feature
         end
 
         function showFitInfo(obj)
+            % SHOWFITINFO Display the stored Levenberg-Marquardt optimization summary.
+            %
+            %   Syntax
+            %     showFitInfo(obj)
+            %
+            %   Input Arguments
+            %     obj - Cylinder feature object
+            %       Cylinder scalar
+            %
+            %   Example
+            %     C.showFitInfo();
+
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
                 return;
@@ -277,7 +335,18 @@ classdef Cylinder < Feature
         end
 
         function disp(obj)
-            % Custom display for Cylinder objects
+            % DISP Display a formatted summary of the Cylinder feature object.
+            %
+            %   Syntax
+            %     disp(obj)
+            %
+            %   Input Arguments
+            %     obj - Cylinder feature object
+            %       Cylinder scalar
+            %
+            %   Example
+            %     disp(C);
+
             name  = string(obj.name);
             ft    = obj.fitType;
             data  = obj.data;
@@ -294,9 +363,11 @@ classdef Cylinder < Feature
 
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
+
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:   %s\n', char(materialSide));
             end
+
             fprintf('  AssocCrit: %s\n', char(ft));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', pnt);
             fprintf('  Direction: [%.4f  %.4f  %.4f]\n', dir);
@@ -306,6 +377,17 @@ classdef Cylinder < Feature
         end
 
         function reverseDir(obj)
+            % REVERSEDIR Reverse the orientation of the cylinder axis direction.
+            %
+            %   Syntax
+            %     reverseDir(obj)
+            %
+            %   Input Arguments
+            %     obj - Cylinder feature object
+            %       Cylinder scalar
+            %
+            %   Example
+            %     C.reverseDir();
             obj.dir = -obj.dir;
         end
     end
