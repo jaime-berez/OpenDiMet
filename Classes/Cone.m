@@ -1,21 +1,4 @@
 classdef Cone < Feature
-% CONE Class for fitting and representing a cone from 3D data.
-% The Cone class constructs a conical feature from measured 3D points
-% using a fit-based constructor using the specified fitType. It inherits 
-% from Feature and stores both geometric description and the fitting parameters 
-% used to obtain it.
-%
-% Properties:
-% pnt    - 1 x 3 double, point on the cone axis
-% dir    - 1 x 3 double, unit vector of the cone axis
-% ang    - 1 x 1 double, cone angle
-% dist   - 1 x 1 double, orthogonal distance from point on the axis to the surface
-% apex   - 1 x 3 double, cone apex
-% smallR - 1 x 1 double, radius near the apex
-% bigR   - 1 x 1 double, radius at the far end
-% height - 1 x 1 double, cone height
-
-% NEW COMMENT BLOCK DRAFT
 % CONE Fit and represent a cone from 3D coordinate data.
 % 
 %   Syntax
@@ -25,38 +8,28 @@ classdef Cone < Feature
 %   Input Arguments
 %     name - Feature name
 %       string scalar | character vector
-%
 %     data - Measured 3D point coordinates
 %       Nx3 double matrix
-%
 %     fitCriterion - Fitting criterion
 %       fitType enumeration
 %
 %   Name-Value Arguments
 %     MaxIter - Maximum number of LM iterations
 %       positive scalar double
-%
 %     StepTol - Step-size convergence tolerance
 %       positive scalar double
-%
 %     GradTol - Gradient convergence tolerance
 %       positive scalar double
-%
 %     SSETol - Sum-of-squared-errors convergence tolerance
 %       positive scalar double
-%
 %     Lambda - Initial damping parameter for LM
 %       positive scalar double
-%
 %     DampingCoeff - LM damping update coefficient
 %       positive scalar double
-%
 %     SuppressOutput - Flag to suppress optimizer output
 %       logical scalar
-%
 %     sourceFile - Source file associated with the data
 %       string scalar
-%
 %     materialSide - Material-side designation
 %       MaterialSide enumeration
 %
@@ -65,14 +38,14 @@ classdef Cone < Feature
 %       Cone scalar
 %
 %   Properties
-%     pnt - 1 x 3 double, point on the cone axis
-%     dir - 1 x 3 double, unit vector of the cone axis
-%     ang - 1 x 1 double, cone angle
-%     dist - 1 x 1 double, orthogonal distance from point on the axis to the surface
-%     apex - 1 x 3 double, cone apex
-%     smallR - 1 x 1 double, radius near the apex
-%     bigR - 1 x 1 double, radius at the far end
-%     height - 1 x 1 double, axial extent of the fitted cone
+%     pnt - 1x3 double, point on the cone axis
+%     dir - 1x3 double, unit vector of the cone axis
+%     ang - 1x1 double, cone angle
+%     dist - 1x1 double, orthogonal distance from point on the axis to the surface
+%     apex - 1x3 double, cone apex
+%     smallR - 1x1 double, radius near the apex
+%     bigR - 1x1 double, radius at the far end
+%     height - 1x1 double, axial extent of the fitted cone
 %     fitInfo - Optimization summary structure
 %
 %   Example
@@ -190,7 +163,52 @@ classdef Cone < Feature
 
     methods
         function h = plot(obj, opts)
-            % PLOT Plot cone coordinate data and the fitted cone.
+            % PLOT Plot cone coordinate data, fitted cone surface, and centerline.
+            %
+            %   Syntax
+            %     h = plot(obj)
+            %     h = plot(obj, Name = Value)
+            %
+            %   Input Arguments
+            %     obj - Cone feature object
+            %       Cone scalar
+            %
+            %   Name-Value Arguments
+            %     dataColor - Color of plotted data points
+            %       RGB triplet | color name | short color code
+            %     dataLabel - Legend label for data points
+            %       string scalar
+            %     dataMarker - Marker symbol for data points
+            %       string scalar
+            %     dataMarkerSize - Marker size for data points
+            %       positive scalar double
+            %     fitColor - Face color of fitted cone
+            %       RGB triplet | color name | short color code
+            %     fitLabel - Legend label for fitted cone
+            %       string scalar
+            %     fitFaceAlpha - Face transparency of fitted cone
+            %       scalar double in the range [0, 1]
+            %     fitEdgeColor - Edge color of fitted cone
+            %       RGB triplet | color name | short color code | "none"
+            %     faces - Number of circumferential faces used to render the cone
+            %       positive scalar double
+            %     lineStyle - Line style of cone centerline
+            %       string scalar
+            %     lineWidth - Line width of cone centerline
+            %       positive scalar double
+            %     lineColor - Color of cone centerline
+            %       RGB triplet | color name | short color code
+            %     ax - Target axes for plotting
+            %       matlab.graphics.axis.Axes object
+            %
+            %   Output Arguments
+            %     h - Patch handle for fitted cone surface
+            %       Patch object
+            %
+            %   Example
+            %     C.plot();
+            %     C.plot(fitColor = [0 1 0], fitFaceAlpha = 0.3, faces = 40);
+
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
@@ -257,30 +275,6 @@ classdef Cone < Feature
                 'EdgeColor', edgeColor, ...
                 'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
-            % [X, Y, Z] = cylinder([smallR bigR], faces);
-            % Z = Z*height - height/2;
-            % 
-            % cone = xyz2Mat(X, Y, Z);
-            % 
-            % R = rotMatA2Z(dir); % rotation matrix
-            % 
-            % % Rotate the cone to match the direction of the data, then translate to match the position
-            % cone1 = cone / R;
-            % cone2 = cone1 + pnt;
-            % 
-            % % Plot the cone
-            % [Xc, Yc, Zc] = mat2xyz(cone2);
-            % 
-            % h = surf(ax, Xc, Yc, Zc, 'LineStyle','none', ...
-            %     'EdgeColor', edgeColor, 'FaceAlpha', opts.fitFaceAlpha, 'FaceColor', fitColor, ...
-            %     'DisplayName', opts.fitLabel);
-
-            % p1 = pnt - (height/2)*dir;
-            % p2 = pnt + (height/2)*dir;
-            % 
-            % plot3(ax, [p1(1) p2(1)], [p1(2) p2(2)], [p1(3) p2(3)], ...
-            %     'LineStyle', centerLS, 'LineWidth', opts.lineWidth, ...
-            %     'Color', centerLC, 'HandleVisibility','off');
 
             % Centerline using the standardized utility function
             [pnt1, pnt2] = calcFeatExtent(obj.pnt, obj.dir, obj.height, 0.5, 1.2);
@@ -295,6 +289,18 @@ classdef Cone < Feature
         end
 
         function showFitInfo(obj)
+            % SHOWFITINFO Display the stored Levenberg-Marquardt optimization summary.
+            %
+            %   Syntax
+            %     showFitInfo(obj)
+            %
+            %   Input Arguments
+            %     obj - Cone feature object
+            %       Cone scalar
+            %
+            %   Example
+            %     C.showFitInfo();
+
             if isempty(obj.fitInfo)
                 disp('No optimization information available for this object.');
                 return;
@@ -306,7 +312,17 @@ classdef Cone < Feature
         end
 
         function disp(obj)
-            % Custom display for Cone objects
+            % DISP Display a custom summary of the Cone feature object.
+            %
+            %   Syntax
+            %     disp(obj)
+            %
+            %   Input Arguments
+            %     obj - Cone feature object
+            %       Cone scalar
+            %
+            %   Example
+            %     disp(C);
             name = string(obj.name);
             ft   = obj.fitType;
             data = obj.data;
@@ -348,7 +364,29 @@ classdef Cone < Feature
 
     methods (Static, Access = private)
         function r = opFun(q, xData, yData, zData)
-            % q = [x, y, z, A, B, C, angle, s]
+            % OPFUN Compute cone residuals for nonlinear least-squares optimization.
+            %
+            %   Syntax
+            %     r = Cone.opFun(q, xData, yData, zData)
+            %
+            %   Input Arguments
+            %     q - Cone parameter vector
+            %       1x8 double vector
+            %       Format: [x, y, z, A, B, C, angle, s]
+            %     xData - X-coordinates of translated data
+            %       Nx1 double vector
+            %     yData - Y-coordinates of translated data
+            %       Nx1 double vector
+            %     zData - Z-coordinates of translated data
+            %       Nx1 double vector
+            %
+            %   Output Arguments
+            %     r - Residual vector for cone fitting
+            %       Nx1 double vector
+            %
+            %   Example
+            %     r = Cone.opFun(q, xData, yData, zData);
+
             qq = q;
 
             % Angle normalization
@@ -377,6 +415,32 @@ classdef Cone < Feature
         end
 
         function [pnt, dir, ang, dist, apex] = formatConeOutput(ansVec, cent)
+            % FORMATCONEOUTPUT Normalize fitted cone parameters and compute derived outputs.
+            %
+            %   Syntax
+            %     [pnt, dir, ang, dist, apex] = Cone.formatConeOutput(ansVec, cent)
+            %
+            %   Input Arguments
+            %     ansVec - Raw optimizer solution vector
+            %       1x8 double vector
+            %       Format: [x, y, z, A, B, C, angle, distance]
+            %     cent - Data centroid used during translation
+            %       1x3 double vector
+            %
+            %   Output Arguments
+            %     pnt - Point on cone axis closest to centroid
+            %       1x3 double vector
+            %     dir - Unit direction vector of cone axis
+            %       1x3 double vector
+            %     ang - Cone semi-angle
+            %       1x1 double
+            %     dist - Orthogonal distance from axis point to surface
+            %       1x1 double
+            %     apex - Cone apex location
+            %       1x3 double vector
+            %
+            %   Example
+            %     [pnt, dir, ang, dist, apex] = Cone.formatConeOutput(ansVec, cent);
 
             rawPnt = [ansVec(1), ansVec(2), ansVec(3)] + cent;
             dir = -[ansVec(4), ansVec(5), ansVec(6)];
