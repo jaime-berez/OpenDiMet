@@ -1,7 +1,8 @@
 function R = rotMatA2BR(A, B)
-%CALCROTMAT_A2B calculates rotation matrix R to align vector A to direction B.
-% Formulates rotation matrix that can be post-multiplied with row vector A
-% to align its direction with row vector B
+% Calculates rotation matrix R that maps direction A to direction B
+% in column-vector convention.
+% For row-vector point arrays V (N×3), apply as:
+%   Vrot = V * R.'
     arguments (Input)
         A (1,3) double {isreal isfinite} % Vector representing direction
         B (1,3) double {isreal isfinite} % Desired alignment direction
@@ -40,6 +41,7 @@ function R = rotMatA2BR(A, B)
               z   0  -x;
              -y   x   0 ];
         R = eye(3) + sin(angRad)*K + (1-cos(angRad))*(K*K);
+
         return
     end
     

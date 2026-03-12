@@ -28,7 +28,7 @@ function R = rotMatA2B(A, B)
     
     % 2. Rotate A and B s/t the axis of rotation normal to the plane that
     % contains them pionts to Z
-    R1 = rotMatXYZ(axis);
+    R1 = rotMatXYZ(axis(1), axis(2), axis(3));
     A1 = A*R1;
     B1 = B*R1;
     
