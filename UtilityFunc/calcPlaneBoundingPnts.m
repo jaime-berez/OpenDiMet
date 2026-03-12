@@ -1,5 +1,31 @@
 function [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir, scalingFactor)
-     % Calculate 4 corners for rotated rectangular data
+    % CALCPLANEBOUNDINGPNTS Compute four bounding corner points for a fitted plane.
+    %
+    %   Syntax
+    %     [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir)
+    %     [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir, scalingFactor)
+    %
+    %   Input Arguments
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     pnt - Reference point on the plane
+    %       1x3 double vector
+    %     dir - Unit normal vector of the plane
+    %       1x3 double vector
+    %     scalingFactor - Optional multiplier used to expand the bounding corners
+    %       positive scalar double
+    %
+    %   Output Arguments
+    %     X - X-coordinates of the four plane corner points
+    %       4x1 double vector
+    %     Y - Y-coordinates of the four plane corner points
+    %       4x1 double vector
+    %     Z - Z-coordinates of the four plane corner points
+    %       4x1 double vector
+    %
+    %   Example
+    %     [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir);
+    %     [X, Y, Z] = calcPlaneBoundingPnts(data, pnt, dir, 1.1);
     arguments
         data (:,3) {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         pnt (1,3) {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

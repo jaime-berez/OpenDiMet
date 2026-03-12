@@ -1,8 +1,32 @@
-%% Function to amplify the straightness deviation of data from a line
-% Amplify the flatness error of points by spreading the points away from
-% the idea line
-
 function [fData, clr] = ampStraightness(data, res, dir, ampFac, cmap)
+    % AMPSTRAIGHTNESS Amplify straightness deviation of linear data relative to an associated line.
+    %
+    %   Syntax
+    %     [fData, clr] = ampStraightness(data, res, dir, ampFac)
+    %     [fData, clr] = ampStraightness(data, res, dir, ampFac, cmap)
+    %
+    %   Input Arguments
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     res - Residuals from the associated line
+    %       Nx1 double vector
+    %     dir - Unit direction vector of the associated line
+    %       1x3 double vector
+    %     ampFac - Amplification factor for straightness deviation
+    %       positive scalar double
+    %     cmap - Colormap used to color amplified deviations
+    %       256x3 double matrix
+    %
+    %   Output Arguments
+    %     fData - Amplified coordinate data
+    %       Nx3 double matrix
+    %     clr - RGB colors associated with amplified deviation values
+    %       Nx3 double matrix
+    %
+    %   Example
+    %     [fData, clr] = ampStraightness(data, res, dir, 50);
+    %     [fData, clr] = ampStraightness(data, res, dir, 50, turbo(256));
+    
     arguments
         data (:,3) {mustBeMatrix}
         res  (:,1) {mustBeColumn}
@@ -11,13 +35,13 @@ function [fData, clr] = ampStraightness(data, res, dir, ampFac, cmap)
         cmap (256,3) {mustBeMatrix} = colormap(turbo)
     end
 
-    %% Calculate statistical parameters of the residuals
+    % Calculate statistical parameters of the residuals
     rMax  = max(res);
     rMin  = min(res);
     rMean = mean(res);
     rRng  = range(res);
 
-    %% Compute values between 0 and 1 for each residual (for colormap)
+    % Compute values between 0 and 1 for each residual (for colormap)
     if abs(rMin) > abs(rMax)
         rSpan = 2*abs(rMin);              % full range: [-abs(min), +abs(min)]
         t = (res - rMin) ./ rSpan;

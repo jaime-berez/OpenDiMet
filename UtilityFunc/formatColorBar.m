@@ -1,6 +1,19 @@
-% Format the colorbar for form error figures
 function formatColorBar(ax, res, location)
-
+    % FORMATCOLORBAR Format the colorbar for form-error visualization.
+    %
+    %   Syntax
+    %     formatColorBar(ax, res, location)
+    %
+    %   Input Arguments
+    %     ax - Target axes containing the plotted data
+    %       matlab.graphics.axis.Axes object
+    %     res - Residual values used to determine color scale limits
+    %       Nx1 double vector
+    %     location - Colorbar placement relative to the axes
+    %       string scalar | character vector
+    %
+    %   Example
+    %     formatColorBar(gca, residuals, "eastoutside");
     minRes = min(res);     % minimum residual
     maxRes = max(res);     % maximum residual
     N = 9;                 % number of ticks on the colorbar

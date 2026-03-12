@@ -1,6 +1,27 @@
 function R = rotMatA2Z(A)
-%CALCROTMAT_A2Z Calculates rotation matrix R to align A to the Z direction.
-%   Detailed explanation goes here
+    % ROTMATA2Z Compute a rotation matrix that aligns a direction vector with the Z-axis.
+    %
+    %   Syntax
+    %     R = rotMatA2Z(A)
+    %
+    %   Description
+    %     Computes a rotation matrix that aligns vector A with the positive
+    %     Z direction. The returned matrix is intended for post-multiplication
+    %     with row vectors.
+    %
+    %   Input Arguments
+    %     A
+    %         1x3 double
+    %         Vector representing the initial direction.
+    %
+    %   Output Arguments
+    %     R
+    %         3x3 double
+    %         Rotation matrix that aligns A with the Z-axis.
+    %
+    %   Example
+    %     A = [1 1 1];
+    %     R = rotMatA2Z(A);
     arguments (Input)
         A (1,3) double {mustBeReal mustBeFinite}
     end

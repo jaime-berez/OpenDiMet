@@ -1,27 +1,48 @@
 function R = rotMatA2BR(A, B)
-% Calculates rotation matrix R that maps direction A to direction B
-% in column-vector convention.
-% For row-vector point arrays V (N×3), apply as:
-%   Vrot = V * R.'
+    % ROTMATA2BR Compute a rotation matrix that aligns one direction vector with another
+    % using Rodrigues' rotation formula.
+    %
+    %   Syntax
+    %     R = rotMatA2BR(A, B)
+    %
+    %   Description
+    %     Computes a rotation matrix that maps direction A to direction B
+    %     using axis-angle rotation. The returned matrix is expressed in
+    %     column-vector convention. For row-vector point arrays V (Nx3),
+    %     apply the rotation as:
+    %
+    %         Vrot = V * R.'
+    %
+    %   Input Arguments
+    %     A - 1x3 double - Vector representing the initial direction.
+    %     B - 1x3 double - Vector representing the desired direction.
+    %
+    %   Output Arguments
+    %     R - 3x3 double - Rotation matrix that maps A to B.
+
+    %   Example
+    %     A = [0 0 1];
+    %     B = [1 0 0];
+    %     R = rotMatA2BR(A, B);
+
     arguments (Input)
         A (1,3) double {isreal isfinite} % Vector representing direction
         B (1,3) double {isreal isfinite} % Desired alignment direction
     end
     
-    % Dev notes
-    %   Works if A and B are not unit vectors, A magnitude is maintained
-    %   Is my flip R right??
     
-    % 1. Find the angle between A and B and the axis of rotation normal to
+    % Find the angle between A and B and the axis of rotation normal to
     % the plane that contains both vectors
     [ang, axis] = AngBtwnVect(A, B);
     
     % Prevent singular matrix by detecting if A and B point in same or opposite
     % directions
     tol = 1e-12;
+
     if abs(ang) < tol
         R = [1 0 0; 0 1 0; 0 0 1];
         return
+        
     elseif abs(ang-180) < tol
         % Robust 180° rotation: rotate about ANY axis perpendicular to A
         a = A./norm(A);

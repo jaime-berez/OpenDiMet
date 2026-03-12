@@ -1,4 +1,27 @@
 function pts = calcPntsOnCirc(pnt, dir, dia, nFaces)
+    % CALCPNTSONCIRC Compute points on a circle in 3D space from center, normal, and diameter.
+    %
+    %   Syntax
+    %     pts = calcPntsOnCirc(pnt, dir, dia)
+    %     pts = calcPntsOnCirc(pnt, dir, dia, nFaces)
+    %
+    %   Input Arguments
+    %     pnt - Center point of the circle
+    %       1x3 double vector
+    %     dir - Unit normal vector of the circle plane
+    %       1x3 double vector
+    %     dia - Circle diameter
+    %       scalar double
+    %     nFaces - Number of points used to discretize the circle
+    %       positive scalar double
+    %
+    %   Output Arguments
+    %     pts - Points sampled on the circle
+    %       Nx3 double matrix
+    %
+    %   Example
+    %     pts = calcPntsOnCirc(pnt, dir, dia);
+    %     pts = calcPntsOnCirc(pnt, dir, dia, 50);
     arguments
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

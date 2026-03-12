@@ -1,19 +1,26 @@
 function pnts = calcPntsOnLine(pnt, dir, shift)
-% CALCPNTSONLINE
-% Function to generate points along a line defined by a base point and direction.
-%
-%   pnt   : 1x3 point on the line (Base point)
-%   dir   : 1x3 direction vector of the line (Does not need to be unit. Normalized inside.)
-%   shift : 1xN or Nx1 offsets along the line
-%
-%   pnts  : Nx3 matrix of points, where
-%           pnts(i,:) = pnt + shift(i) * dir_hat
-%
-% Example usage:
-%   pnt   = [0 0 0];
-%   dir   = [1 0 0];
-%   shift = linspace(-5, 5, 11);
-%   pnts  = calcPntsOnLine(pnt, dir, shift);
+    % CALCPNTSONLINE Generate points along a line from a base point and direction.
+    %
+    %   Syntax
+    %     pnts = calcPntsOnLine(pnt, dir, shift)
+    %
+    %   Input Arguments
+    %     pnt - Base point on the line
+    %       1x3 double vector
+    %     dir - Direction vector of the line
+    %       1x3 double vector (normalized internally)
+    %     shift - Offsets along the line direction
+    %       Nx1 double vector
+    %
+    %   Output Arguments
+    %     pnts - Generated points along the line
+    %       Nx3 double matrix
+    %
+    %   Example
+    %     pnt   = [0 0 0];
+    %     dir   = [1 0 0];
+    %     shift = linspace(-5,5,11)';
+    %     pnts  = calcPntsOnLine(pnt, dir, shift);
 
     arguments
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

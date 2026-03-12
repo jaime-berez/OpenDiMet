@@ -1,9 +1,29 @@
 function R = rotMatXYZ(angX, angY, angZ)
-%CALCROTMAT_XYZ Calculations rotation matrix about primary axes X, Y, Z.
-%   angX, angY, angZ are angles about the respective axes (in degrees). To
-%   rotate about a single axis, set the other angles to zero. The rotation
-%   matrix will be formated to be post-multplied with a row vector, V, such
-%   that A*R is equivalent to A*Rx*Ry*Rz.
+    % ROTMATXYZ Compute a rotation matrix about the primary X, Y, and Z axes.
+    %
+    %   Syntax
+    %     R = rotMatXYZ(angX, angY, angZ)
+    %
+    %   Description
+    %     Computes a rotation matrix from successive rotations about the
+    %     primary X, Y, and Z axes. The input angles are specified in degrees.
+    %     The returned matrix is intended for post-multiplication with row
+    %     vectors, such that:
+    %         Vrot = V * R
+    %     and
+    %         V * R = V * Rx * Ry * Rz
+    %
+    %   Input Arguments
+    %     angX - 1x1 double - Rotation angle about the X-axis, in degrees.
+    %     angY - 1x1 double - Rotation angle about the Y-axis, in degrees.
+    %     angZ - 1x1 double - Rotation angle about the Z-axis, in degrees.
+    %
+    %   Output Arguments
+    %     R - 3x3 double - Rotation matrix formed from the X-, Y-, and Z-axis rotations.
+    %         
+    %   Example
+    %     R = rotMatXYZ(90, 0, 0);
+    %     R = rotMatXYZ(0, 45, 30);
     arguments (Input)
         angX (1,1) double {mustBeReal mustBeFinite}
         angY (1,1) double {mustBeReal mustBeFinite}

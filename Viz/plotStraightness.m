@@ -1,5 +1,27 @@
 function plotStraightness(feature)    
-%PLOTSTRAIGHTNESS Function to plot straightness of a line feature.
+    % PLOTSTRAIGHTNESS Plot the straightness error of a Line feature.
+    %
+    %   Syntax
+    %     plotStraightness(feature)
+    %
+    %   Description
+    %     Visualizes the straightness deviation of a fitted Line feature.
+    %     The function generates plots of the measured coordinate data, the
+    %     associated fitted line, a containing cylinder used for straightness
+    %     evaluation, and an amplified view of the straightness residuals.
+    %
+    %   Input Arguments
+    %     feature
+    %         Line object
+    %         Line feature containing the coordinate data and fitted line
+    %         parameters.
+    %
+    %   Output
+    %     This function produces graphical plots of the straightness error.
+    %
+    %   Example
+    %     feat = fitFeature(data,"Line","LeastSquares");
+    %     plotStraightness(feat);
     if isa(feature, "Line")
         data = feature.data;
         point = feature.point;

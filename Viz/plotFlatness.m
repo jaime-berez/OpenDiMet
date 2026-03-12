@@ -1,5 +1,28 @@
 function plotFlatness(feature)
-%PLOTFLATNESS Function to plot flatness of a plane feature.
+    % PLOTFLATNESS Plot the flatness error of a Plane feature.
+    %
+    %   Syntax
+    %     plotFlatness(feature)
+    %
+    %   Description
+    %     Visualizes the flatness deviation of a fitted Plane feature.
+    %     The function generates flatness plots using the associated plane
+    %     and amplified residual data. The current implementation includes
+    %     work-in-progress visualizations for both minimax and least-squares
+    %     based flatness evaluation.
+    %
+    %   Input Arguments
+    %     feature
+    %         Plane object
+    %         Plane feature containing the coordinate data and fitted plane
+    %         parameters.
+    %
+    %   Output
+    %     This function produces graphical plots of the flatness error.
+    %
+    %   Example
+    %     feat = fitFeature(data,"Plane","LeastSquares");
+    %     plotFlatness(feat);
     if isa(feature, "Plane")
         data = feature.data;
         point = feature.point;

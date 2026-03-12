@@ -1,6 +1,23 @@
-% Calculates the amplification factor for roundness error based on the MIC
-% and MCC radi
 function ampFac = calcRadialAmpFac(rndErr, rMax, rMin)
+    % CALCRADIALAMPFAC Compute amplification factor for radial form deviations.
+    %
+    %   Syntax
+    %     ampFac = calcRadialAmpFac(rndErr, rMax, rMin)
+    %
+    %   Input Arguments
+    %     rndErr - Roundness error magnitude
+    %       scalar double
+    %     rMax - Maximum radial distance (e.g., MCC radius)
+    %       scalar double
+    %     rMin - Minimum radial distance (e.g., MIC radius)
+    %       scalar double
+    %
+    %   Output Arguments
+    %     ampFac - Amplification factor used to exaggerate radial deviations
+    %       scalar double
+    %
+    %   Example
+    %     ampFac = calcRadialAmpFac(rndErr, rMax, rMin);
     arguments
         rndErr {mustBeScalarOrEmpty}
         rMax   {mustBeScalarOrEmpty}

@@ -1,5 +1,26 @@
 function [angDeg, ax] = AngBtwnVect(v1, v2)
-% CALCANGBETWEENVECT Calculates the angle (in degrees) between two vectors
+    % ANGBTWNVECT Compute the angle between two vectors and the corresponding rotation axis.
+    %
+    %   Syntax
+    %     angDeg = AngBtwnVect(v1, v2)
+    %     [angDeg, ax] = AngBtwnVect(v1, v2)
+    %
+    %   Input Arguments
+    %     v1 - First vector
+    %       1x3 double vector
+    %     v2 - Second vector
+    %       1x3 double vector
+    %
+    %   Output Arguments
+    %     angDeg - Angle between the two vectors
+    %       scalar double (degrees)
+    %     ax - Axis perpendicular to both vectors (cross-product direction)
+    %       1x3 double vector
+    %
+    %   Example
+    %     v1 = [1 0 0];
+    %     v2 = [0 1 0];
+    %     [ang, ax] = AngBtwnVect(v1, v2);
 
     arguments (Input)
         v1

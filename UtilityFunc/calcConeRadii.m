@@ -1,14 +1,33 @@
 function [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, ang, dist)
-    % data: nx3 matrix of row-vector coordinate points
-    % pnt: 1x3 point in space along the axis of the cone, closest to centroid
-    % apex: 1x3 point in space describing the tip of the cone
-    % dir: 1x3 direction cosines of the axis
-    % ang: scalar value for the semi-angle of the cone in radians
-    % dist: scalar orthogonal distance from pnt to the cone surface
+    % CALCCONERADII Compute end radii and axial extent of a fitted cone from 3D coordinate data.
     %
-    % smallR: radius closest to the apex
-    % bigR:   radius furthest from the apex
-    % height:      cone height based on point distribution
+    %   Syntax
+    %     [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, ang, dist)
+    %
+    %   Input Arguments
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     pnt - Point on the cone axis closest to the data centroid
+    %       1x3 double vector
+    %     apex - Cone apex location
+    %       1x3 double vector
+    %     dir - Unit direction vector of the cone axis
+    %       1x3 double vector
+    %     ang - Cone semi-angle
+    %       1x1 double (radians)
+    %     dist - Orthogonal distance from the axis point to the cone surface
+    %       1x1 double
+    %
+    %   Output Arguments
+    %     smallR - Cone radius at the end closest to the apex
+    %       1x1 double
+    %     bigR - Cone radius at the end farthest from the apex
+    %       1x1 double
+    %     height - Axial extent of the cone based on the data distribution
+    %       1x1 double
+    %
+    %   Example
+    %     [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, ang, dist);
 
     arguments
         data (:,3)

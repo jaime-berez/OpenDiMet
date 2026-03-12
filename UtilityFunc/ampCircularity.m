@@ -1,7 +1,34 @@
-% Function to amplify the roundness deviation of data from a circle.
-% Requires a direction; do not use for spheres.
-
 function [cData, clr] = ampCircularity(data, pnt, dir, rad, ampFac, cmap)
+    % AMPCIRCULARITY Amplify roundness deviation of circular data relative to an associated circle.
+    %
+    %   Syntax
+    %     [cData, clr] = ampCircularity(data, pnt, dir, rad, ampFac)
+    %     [cData, clr] = ampCircularity(data, pnt, dir, rad, ampFac, cmap)
+    %
+    %   Input Arguments
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     pnt - Center point of the associated circle
+    %       1x3 double vector
+    %     dir - Unit normal vector of the associated circle plane
+    %       1x3 double vector
+    %     rad - Associated circle radius
+    %       positive scalar double
+    %     ampFac - Amplification factor for radial deviation
+    %       positive scalar double
+    %     cmap - Colormap used to color amplified deviations
+    %       256x3 double matrix
+    %
+    %   Output Arguments
+    %     cData - Amplified coordinate data
+    %       Nx3 double matrix
+    %     clr - RGB colors associated with amplified deviation values
+    %       Nx3 double matrix
+    %
+    %   Example
+    %     [cData, clr] = ampCircularity(data, pnt, dir, rad, 50);
+    %     [cData, clr] = ampCircularity(data, pnt, dir, rad, 50, turbo(256));
+    
     arguments
         data (:,3) {mustBeMatrix}               % matrix of data points
         pnt (1,3)  {mustBeRow}                  % center point

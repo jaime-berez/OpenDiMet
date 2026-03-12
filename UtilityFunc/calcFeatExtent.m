@@ -1,11 +1,35 @@
 function [pnt1, pnt2] = calcFeatExtent(pnt, dir, len, bias, scalingFactor)
-    % calcLinePoints
-    % Compute start/end points of a line segment from:
-    %   pnt  : 1x3 point on the line (typically centroid)
-    %   dir  : 1x3 direction vector of the line
-    %   len  : segment length (e.g., from calcLineLength)
-    %   bias : where pnt lies along the segment (0=start, 1=end, 0.5=center)
-    %   scalingFactor : optional multiplier for len
+    % CALCFEATEXTENT Compute the start and end points of a feature axis segment.
+    %
+    %   Syntax
+    %     [pnt1, pnt2] = calcFeatExtent(pnt, dir, len)
+    %     [pnt1, pnt2] = calcFeatExtent(pnt, dir, len, bias)
+    %     [pnt1, pnt2] = calcFeatExtent(pnt, dir, len, bias, scalingFactor)
+    %
+    %   Input Arguments
+    %     pnt - Reference point on the feature axis
+    %       1x3 double vector
+    %     dir - Direction vector of the feature axis
+    %       1x3 double vector
+    %     len - Length of the axis segment
+    %       positive scalar double
+    %     bias - Position of pnt along the segment
+    %       scalar double in the range [0, 1]
+    %       0   → pnt at start of segment
+    %       0.5 → pnt at center of segment
+    %       1   → pnt at end of segment
+    %     scalingFactor - Optional multiplier applied to the segment length
+    %       positive scalar double
+    %
+    %   Output Arguments
+    %     pnt1 - Start point of the axis segment
+    %       1x3 double vector
+    %     pnt2 - End point of the axis segment
+    %       1x3 double vector
+    %
+    %   Example
+    %     [p1, p2] = calcFeatExtent(pnt, dir, 50);
+    %     [p1, p2] = calcFeatExtent(pnt, dir, 50, 0.5, 1.2);
 
     arguments
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

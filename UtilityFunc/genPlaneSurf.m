@@ -1,11 +1,29 @@
 function [V, F] = genPlaneSurf(data, pnt, dir, scalingFactor)
-%GENPLANESURF Generate a triangulated plane patch mesh.
-%   [V,F] = genPlaneSurf(data, pnt, dir, scalingFactor)
-%   Uses calcPlaneBoundingPnts to get 4 corners, then orders them and returns
-%   a 2-triangle mesh suitable for patch().
-%
-%   V: 4x3 vertices
-%   F: 2x3 faces
+    % GENPLANESURF Generate a triangulated plane patch mesh.
+    %
+    %   Syntax
+    %     [V, F] = genPlaneSurf(data, pnt, dir)
+    %     [V, F] = genPlaneSurf(data, pnt, dir, scalingFactor)
+    %
+    %   Input Arguments
+    %     data - Measured 3D point coordinates
+    %       Nx3 double matrix
+    %     pnt - Reference point on the plane
+    %       1x3 double vector
+    %     dir - Unit normal vector of the plane
+    %       1x3 double vector
+    %     scalingFactor - Optional multiplier used to expand the plane patch
+    %       positive scalar double
+    %
+    %   Output Arguments
+    %     V - Vertex coordinates of the plane patch
+    %       4x3 double matrix
+    %     F - Triangle face connectivity of the plane patch
+    %       2x3 double matrix
+    %
+    %   Example
+    %     [V, F] = genPlaneSurf(data, pnt, dir);
+    %     [V, F] = genPlaneSurf(data, pnt, dir, 1.1);
 
     arguments
         data (:,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

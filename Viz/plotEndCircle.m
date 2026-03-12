@@ -1,4 +1,30 @@
 function plotEndCircle(pnt,dir,dia,faces)
+    % PLOTENDCIRCLE Plot a circular cross-section oriented in 3D space.
+    %
+    %   Syntax
+    %     plotEndCircle(pnt, dir, dia)
+    %     plotEndCircle(pnt, dir, dia, faces)
+    %
+    %   Description
+    %     Plots a circle in 3D space centered at the specified point and
+    %     oriented perpendicular to the given direction vector. The circle
+    %     is generated in a local XY-plane and then rotated so that its
+    %     normal aligns with the specified direction.
+    %
+    %   Input Arguments
+    %     pnt - 1x3 double - Center point of the circle.
+    %     dir - 1x3 double - Direction vector defining the normal of the circle.
+    %     dia - 1x1 double - Diameter of the circle.
+    %     faces - 1x1 double - Number of sample points used to generate the
+    %     circle. Default: 27
+    %         
+    %   Output
+    %     This function produces a 3D plot of the circle.
+    %
+    %   Example
+    %     p = [0 0 0];
+    %     d = [0 0 1];
+    %     plotEndCircle(p, d, 10);
     arguments
         pnt (1,3) double
         dir (1,3) double

@@ -1,14 +1,33 @@
 function [V, F] = genConeSurf(pnt, dir, smallR, bigR, height, nTheta)
-%GENCONESURF Generate a triangulated cone (frustum) surface mesh.
-%   [V,F] = genConeSurf(pnt, dir, smallR, bigR, height, nTheta, capped)
-%   returns vertices V (N×3) and triangle faces F (M×3).
-%
-%   pnt     : 1×3 point at cone center (mid-height) on the axis
-%   dir     : 1×3 cone axis direction (need not be unit; will be normalized)
-%   smallR  : radius at z = -height/2 (near apex side in your current plot convention)
-%   bigR    : radius at z = +height/2 (far end side in your current plot convention)
-%   height  : cone height (along axis)
-%   nTheta  : number of circumferential samples (>= 3)
+    % GENCONESURF Generate a triangulated cone or cone-frustum surface mesh.
+    %
+    %   Syntax
+    %     [V, F] = genConeSurf(pnt, dir, smallR, bigR, height)
+    %     [V, F] = genConeSurf(pnt, dir, smallR, bigR, height, nTheta)
+    %
+    %   Input Arguments
+    %     pnt - Point at the cone center (mid-height) on the axis
+    %       1x3 double vector
+    %     dir - Cone axis direction
+    %       1x3 double vector
+    %     smallR - Radius at the end located at z = -height/2 in the local frame
+    %       nonnegative scalar double
+    %     bigR - Radius at the end located at z = +height/2 in the local frame
+    %       nonnegative scalar double
+    %     height - Cone height along the axis
+    %       nonnegative scalar double
+    %     nTheta - Number of circumferential samples used to discretize the surface
+    %       positive scalar double
+    %
+    %   Output Arguments
+    %     V - Vertex coordinates of the cone surface mesh
+    %       Nx3 double matrix
+    %     F - Triangle face connectivity of the cone surface mesh
+    %       Mx3 double matrix
+    %
+    %   Example
+    %     [V, F] = genConeSurf(pnt, dir, smallR, bigR, height);
+    %     [V, F] = genConeSurf(pnt, dir, smallR, bigR, height, 50);
 
     arguments
         pnt    (1,3) double {mustBeFinite,mustBeReal}

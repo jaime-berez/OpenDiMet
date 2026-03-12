@@ -1,13 +1,31 @@
 function [V, F] = genCylSurf(pnt, dir, radius, height, nTheta)
-%GENCYLSURF Generate a triangulated cylinder surface mesh.
-%   [V,F] = genCylSurf(pnt, dir, radius, height, nTheta, capped)
-%   returns vertices V (N×3) and triangle faces F (M×3).
-%
-%   pnt    : 1×3 point at cylinder center (mid-height) on the axis
-%   dir    : 1×3 axis direction (need not be unit; will be normalized)
-%   radius : scalar cylinder radius (>=0)
-%   height : scalar cylinder height (>=0)
-%   nTheta : number of circumferential samples
+    % GENCYLSURF Generate a triangulated cylinder surface mesh.
+    %
+    %   Syntax
+    %     [V, F] = genCylSurf(pnt, dir, radius, height)
+    %     [V, F] = genCylSurf(pnt, dir, radius, height, nTheta)
+    %
+    %   Input Arguments
+    %     pnt - Point at the cylinder center (mid-height) on the axis
+    %       1x3 double vector
+    %     dir - Cylinder axis direction
+    %       1x3 double vector
+    %     radius - Cylinder radius
+    %       nonnegative scalar double
+    %     height - Cylinder height along the axis
+    %       nonnegative scalar double
+    %     nTheta - Number of circumferential samples used to discretize the surface
+    %       positive scalar double
+    %
+    %   Output Arguments
+    %     V - Vertex coordinates of the cylinder surface mesh
+    %       Nx3 double matrix
+    %     F - Triangle face connectivity of the cylinder surface mesh
+    %       Mx3 double matrix
+    %
+    %   Example
+    %     [V, F] = genCylSurf(pnt, dir, radius, height);
+    %     [V, F] = genCylSurf(pnt, dir, radius, height, 50);
 
     arguments
         pnt    (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}

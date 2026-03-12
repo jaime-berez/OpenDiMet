@@ -1,5 +1,21 @@
 function Jmat = jacobian_cd(fcn, paramVec)
-%JACOBIAN_CD Computes Jacobian matrix using central differences.
+    % JACOBIAN_CD Compute the Jacobian matrix of a function using central differences.
+    %
+    %   Syntax
+    %     Jmat = jacobian_cd(fcn, paramVec)
+    %
+    %   Input Arguments
+    %     fcn - Function handle returning residual values
+    %       function handle
+    %     paramVec - Parameter vector at which the Jacobian is evaluated
+    %       Nx1 or 1xN double vector
+    %
+    %   Output Arguments
+    %     Jmat - Jacobian matrix of partial derivatives
+    %       (M*K) x N double matrix
+    %
+    %   Example
+    %     J = jacobian_cd(fcn, paramVec);
 
     nParams = numel(paramVec);
 

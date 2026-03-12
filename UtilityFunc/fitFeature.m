@@ -1,10 +1,52 @@
-function feat = fitFeature(data, featType, ft, featName, opts)
-    % Function to fit feature to coordinate data
+function feat = fitFeature(data, featType, fitCriterion, featName, opts)
+    % FITFEATURE Fit a geometric feature to coordinate data.
+    %
+    %   Syntax
+    %     feat = fitFeature(data, featType, fitCriterion)
+    %     feat = fitFeature(data, featType, fitCriterion, featName)
+    %     feat = fitFeature(data, featType, fitCriterion, featName, Name = Value)
+    %
+    %   Input Arguments
+    %     data - Measured coordinate data or path to a data file
+    %       Nx3 double matrix | string scalar | character vector
+    %     featType - Geometry type to be fitted
+    %       string scalar | character vector
+    %       Supported values: "Line", "Plane", "Circle", "Sphere", "Cylinder", "Cone"
+    %     fitCriterion - Fitting criterion
+    %       fitType enumeration | string scalar | character vector
+    %     featName - Name assigned to the created feature
+    %       string scalar
+    %
+    %   Name-Value Arguments
+    %     MaxIter - Maximum number of LM iterations
+    %       positive scalar double
+    %     StepTol - Step-size convergence tolerance
+    %       positive scalar double
+    %     GradTol - Gradient convergence tolerance
+    %       positive scalar double
+    %     SSETol - Sum-of-squared-errors convergence tolerance
+    %       positive scalar double
+    %     Lambda - Initial damping parameter for LM
+    %       positive scalar double
+    %     DampingCoeff - LM damping update coefficient
+    %       positive scalar double
+    %     SuppressOutput - Flag to suppress optimizer output
+    %       logical scalar
+    %     materialSide - Material-side designation for applicable geometries
+    %       MaterialSide enumeration
+    %
+    %   Output Arguments
+    %     feat - Fitted feature object
+    %       Line | Plane | Circle | Sphere | Cylinder | Cone
+    %
+    %   Example
+    %     feat = fitFeature(data, "Plane", fitType.LeastSquares);
+    %     feat = fitFeature("points.txt", "Cylinder", fitType.LeastSquares, "Cylinder 1");
+    
     arguments
-        %data (:, 3) double {mustBeFinite, mustBeReal, mustBeNonempty, mustBeNonNan}
         data {mustBeA(data, {'double', 'string', 'char'})}
         featType {mustBeA(featType, {'char', 'string'})}
-        ft {mustBeA(ft, {'fitType', 'char', 'string'})}
+        fitCriterion {mustBeA(fitCriterion, {'fitType', 'char', 'string'})}
         featName (1,1) string = ""
         opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
         opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9
@@ -24,8 +66,8 @@ function feat = fitFeature(data, featType, ft, featName, opts)
                 "featType must be one of: %s", strjoin(validFeatTypes, ", "));
     end
 
-    if ~isa(ft, "fitType")
-        ft = fitType.(string(ft));
+    if ~isa(fitCriterion, "fitType")
+        fitCriterion = fitType.(string(fitCriterion));
     end
 
     srcFile = "";
@@ -64,17 +106,17 @@ function feat = fitFeature(data, featType, ft, featName, opts)
     % Fit the selected feature type
     switch featType
         case "Line"
-            feat = Line(featName, data, ft, nameValue{:});
+            feat = Line(featName, data, fitCriterion, nameValue{:});
         case "Plane"
-            feat = Plane(featName, data, ft, nameValue{:});
+            feat = Plane(featName, data, fitCriterion, nameValue{:});
         case "Circle"
-            feat = Circle(featName, data, ft, nameValue{:});
+            feat = Circle(featName, data, fitCriterion, nameValue{:});
         case "Sphere"
-            feat = Sphere(featName, data, ft, nameValue{:});
+            feat = Sphere(featName, data, fitCriterion, nameValue{:});
         case "Cylinder"
-            feat = Cylinder(featName, data, ft, nameValue{:});
+            feat = Cylinder(featName, data, fitCriterion, nameValue{:});
         case "Cone"
-            feat = Cone(featName, data, ft, nameValue{:});
+            feat = Cone(featName, data, fitCriterion, nameValue{:});
         otherwise
             error(['Unsupported feature type: %s. featType must be one of the following ' ...
                 'Line, Cylinder, Plane, Circle, Sphere, Cone.'], featType);
