@@ -34,6 +34,10 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
     %       logical scalar
     %     materialSide - Material-side designation for applicable geometries
     %       MaterialSide enumeration
+    %     refDir - 1x3 double - Reference direction used to constrain the plane
+    %       orientation
+    %       Specifies a direction pointing outward from the material
+    %       surface and is required for constrained plane fitting methods.
     %
     %   Output Arguments
     %     feat - Fitted feature object
@@ -56,6 +60,7 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
         opts.DampingCoeff  (1,1) double {mustBeFinite, mustBePositive} = 2
         opts.SuppressOutput(1,1) logical = true
         opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
+        opts.refDir double = []
     end
 
     featType = string(featType);
