@@ -70,6 +70,7 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
         error("fitFeature:InvalidFeatureType", ...
                 "featType must be one of: %s", strjoin(validFeatTypes, ", "));
     end
+    
 
     if ~isa(fitCriterion, "fitType")
         fitCriterion = fitType.(string(fitCriterion));
@@ -95,13 +96,31 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
     % Filter geometry inapplicable options before forwarding
     optsForward = opts;
 
-    switch featType
-        case {"Line","Plane","Circle"}
-            if optsForward.materialSide ~= MaterialSide.Unspecified
-                error("fitFeature:OptionNotApplicable", ...
-                    "Option 'materialSide' is not applicable to featType '%s'.", featType);
-            end
-            optsForward = rmfield(optsForward, "materialSide");
+    % switch featType
+    %     case {"Line","Plane","Circle"}
+    %         if optsForward.materialSide ~= MaterialSide.Unspecified
+    %             error("fitFeature:OptionNotApplicable", ...
+    %                 "Option 'materialSide' is not applicable to featType '%s'.", featType);
+    %         end
+    %         optsForward = rmfield(optsForward, "materialSide");
+    % end
+
+    % materialSide only applies to Sphere, Cylinder, Cone
+    if ismember(featType, ["Line","Plane","Circle"])
+        if optsForward.materialSide ~= MaterialSide.Unspecified
+            error("fitFeature:OptionNotApplicable", ...
+                "Option 'materialSide' is not applicable to featType '%s'.", featType);
+        end
+        optsForward = rmfield(optsForward, "materialSide");
+    end
+    
+    % refDir only applies to Line and Plane
+    if ~ismember(featType, ["Line","Plane"])
+        if ~isempty(optsForward.refDir)
+            error("fitFeature:OptionNotApplicable", ...
+                "Option 'refDir' is not applicable to featType '%s'.", featType);
+        end
+        optsForward = rmfield(optsForward, "refDir");
     end
 
     % Convert opts to 'Name', Value list to forward to constructors
