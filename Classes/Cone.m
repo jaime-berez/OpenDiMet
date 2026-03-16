@@ -40,12 +40,15 @@ classdef Cone < Feature
     %   Properties
     %     pnt - 1x3 double, point on the cone axis
     %     dir - 1x3 double, unit vector of the cone axis
-    %     ang - 1x1 double, cone angle
+    %     taperAng - 1x1 double, cone semi angle/taper angle
+    %     includedAng - 1x1 double, cone included angle
     %     dist - 1x1 double, orthogonal distance from point on the axis to the surface
     %     apex - 1x3 double, cone apex
     %     smallR - 1x1 double, radius near the apex
     %     bigR - 1x1 double, radius at the far end
     %     height - 1x1 double, axial extent of the fitted cone
+    %     taperRatio - 1x1 double, ratio of the change in diameter to the
+    %                   change in length
     %     fitInfo - Optimization summary structure
     %
     %   Example
@@ -55,12 +58,15 @@ classdef Cone < Feature
     properties (GetAccess = public, SetAccess = private)
         pnt (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
         dir (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan, mustBeNonempty}
-        ang (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
+        taperAng (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
+        includedAng (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
         dist (1,1) double {mustBeFinite, mustBeReal, mustBeNonnegative, mustBeNonNan}
         apex (1,3) double {mustBeFinite, mustBeReal, mustBeNonNan}
         smallR (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
         bigR (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
         height (1,1) {mustBeFinite, mustBeReal, mustBeNonNan}
+        taperRatio (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
+        %taperRatioA (1,1) double {mustBeFinite, mustBeReal, mustBeNonNan}
         fitInfo struct = struct()
     end
 
@@ -141,19 +147,22 @@ classdef Cone < Feature
 
             obj.sigma = std(resBest);
 
-            [pnt, dir, ang, dist, apex] = Cone.formatConeOutput(qbest, cent);
+            [pnt, dir, taperAng, dist, apex] = Cone.formatConeOutput(qbest, cent);
 
             % Derive smallR / bigR from data span
-            [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, ang, dist);
+            [smallR, bigR, height] = calcConeRadii(data, pnt, apex, dir, taperAng, dist);
 
             obj.pnt = pnt;
             obj.dir = dir;
-            obj.ang = ang;
+            obj.taperAng = taperAng;
             obj.dist = dist;
             obj.apex = apex;
             obj.smallR = smallR;
             obj.bigR = bigR;
             obj.height = height;
+            obj.includedAng = 2*taperAng;
+            obj.taperRatio = 2*(bigR-smallR)/height;
+            %obj.taperRatioA = 2*tan(taperAng);
 
             if exist('bestInfo', 'var')
                 obj.fitInfo = bestInfo;
@@ -329,13 +338,16 @@ classdef Cone < Feature
 
             pnt  = obj.pnt(:).';
             dir  = obj.dir(:).';
-            ang  = obj.ang;
+            taperAng  = obj.taperAng;
             dist = obj.dist;
 
             apex   = obj.apex;
             smallR = obj.smallR;
             bigR   = obj.bigR;
             height = obj.height;
+            includedAng = obj.includedAng;
+            taperRatio = obj.taperRatio;
+            %taperRatioA = obj.taperRatioA;
 
             sig = obj.sigma;
 
@@ -351,12 +363,15 @@ classdef Cone < Feature
             fprintf('  AssocCrit:      %s\n', char(ft));
             fprintf('  Point:          [%.4f  %.4f  %.4f]\n', pnt);
             fprintf('  Direction:      [%.4f  %.4f  %.4f]\n', dir);
-            fprintf('  Included Angle: %.4f\n', rad2deg(ang*2));
+            fprintf('  Taper Angle: %.4f\n', rad2deg(taperAng));
+            fprintf('  Included Angle: %.4f\n', rad2deg(includedAng));
             fprintf('  Distance:       %.4f\n', dist);
             fprintf('  Apex:           [%.4f %.4f %.4f]\n', apex);
             fprintf('  Small R:        %.4f\n', smallR);
             fprintf('  Big R:          %.4f\n', bigR);
             fprintf('  Height:         %.4f\n', height);
+            fprintf('  Taper ratio:    %.4f\n', taperRatio);
+            fprintf('  Taper ratio A:  %.4f\n', taperRatioA);
             fprintf('  Sigma:          %.4f\n', sig);
             fprintf('  Data Size:      [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
