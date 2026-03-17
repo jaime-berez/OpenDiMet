@@ -371,7 +371,7 @@ classdef Cone < Feature
             fprintf('  Big R:          %.4f\n', bigR);
             fprintf('  Height:         %.4f\n', height);
             fprintf('  Taper ratio:    %.4f\n', taperRatio);
-            fprintf('  Taper ratio A:  %.4f\n', taperRatioA);
+            %fprintf('  Taper ratio A:  %.4f\n', taperRatioA);
             fprintf('  Sigma:          %.4f\n', sig);
             fprintf('  Data Size:      [%s]\n', [num2str(dataSize(1)), ' x ', num2str(dataSize(2))]);
         end
