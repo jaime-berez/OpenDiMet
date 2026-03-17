@@ -194,37 +194,6 @@ myFeature.plot(dataColor = "#ff8800", dataLabel = "Data", dataMarker = '*', data
             fitColor = [0 0.5 1], fitLabel = "Fit", fitFaceAlpha = 0.7,...
             axisLineStyle = "-.", axisLineWidth = 2, nFaces = 100);
 
-%% Scenario 7: Two lines
-
-dataFolder = "Line3D";       % <----- Input
-
-% Define files with raw coordinate data to import
-file1 = "lin1.ds";   % <----- Input
-file2 = "lin2.ds";   % <----- Input
-rootDirectory = fullfile(dataRoot, dataFolder);
-fullPath1 = fullfile(rootDirectory, file1);
-fullPath2 = fullfile(rootDirectory, file2);
-% Load data
-data1 = readmatrix(fullPath1, FileType = "text");
-data2 = readmatrix(fullPath2, FileType = "text");
-
-% Fit the selected geometry using loaded data 
-myLine1 = fitFeature(data1, "Line", "LeastSquares", "sampleLine1", StepTol = 1e-9, ...
-    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
-myLine2 = fitFeature(data2, "Line", "LeastSquares", "sampleLine2", StepTol = 1e-9, ...
-    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
-
-% Style 1: No input arguments
-figure;
-ax = axes;
-hold(ax, 'on');
-% Style 2: string color names and default opts
-myLine1.plot(ax = ax, dataColor = "green", dataLabel = "Line 1 data", dataMarker = '.', dataMarkerSize = 4,...
-            fitColor = "red", fitLabel = "Line 1 fit", lineStyle = "--", lineWidth = 2);
-
-% Style 3: [R G B] and [hex] color code and changed opts
-myLine2.plot(ax = ax, dataColor = "#ff8800", dataLabel = "Line 2 data", dataMarker = '*', dataMarkerSize = 2,...
-            fitColor = [0 0.5 1], fitLabel = "Line 2 fit", lineStyle = "-.", lineWidth = 2);
 
 %% Scenario 7: Two parallel lines
 
@@ -353,3 +322,95 @@ myPlaneTrans.plot(ax=ax, showTitle=false, ...
     fitLabel="Plane 2");
 
 title(ax, "Two Parallel Planes");
+
+%% Scenario 10: Plane + Cylinder (Synthetic Normal Relationship)
+
+% Load plane data
+dataFolder = "Plane";
+file = "pla10.ds";
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath = fullfile(rootDirectory, file);
+
+planeData = readmatrix(fullPath, FileType="text");
+
+% Fit plane
+myPlane = fitFeature(planeData, "Plane", "LeastSquares", "Plane 1", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Plane geometry
+planeCenter = mean(planeData, 1);
+n = myPlane.dir / norm(myPlane.dir);
+planeExtent = norm(max(planeData) - min(planeData));
+
+% Build orthonormal basis {u, v, n}
+if abs(dot(n, [1 0 0])) < 0.9
+    ref = [1 0 0];
+else
+    ref = [0 1 0];
+end
+
+u = cross(n, ref);
+u = u / norm(u);
+
+v = cross(n, u);
+v = v / norm(v);
+
+% Cylinder size
+cylRadius = 0.04 * planeExtent;
+cylHeight = 0.28 * planeExtent;
+
+% Cylinder placement:
+% centered on the plane patch, then lifted slightly off the plane
+baseCenter = planeCenter + 0.03 * planeExtent * n;
+
+% Synthetic cylinder point cloud
+nTheta = 16;
+nZ = 8;
+
+theta = linspace(0, 2*pi, nTheta+1);
+theta(end) = [];
+
+zVals = linspace(0, cylHeight, nZ);
+
+cylData = zeros(nTheta * nZ, 3);
+k = 1;
+
+for i = 1:nZ
+    z = zVals(i);
+    for j = 1:nTheta
+        th = theta(j);
+
+        ringOffset = cylRadius * cos(th) * u + cylRadius * sin(th) * v;
+        axialOffset = z * n;
+
+        cylData(k, :) = baseCenter + ringOffset + axialOffset;
+        k = k + 1;
+    end
+end
+
+% Fit cylinder
+myCylinder = fitFeature(cylData, "Cylinder", "LeastSquares", "Cylinder 1", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Plot
+figure;
+ax = axes;
+hold(ax, "on");
+
+myPlane.plot(ax=ax, showTitle=false, ...
+    fitColor=[0.5 0.9 0.5], fitFaceAlpha=0.25, ...
+    fitEdgeColor="k", ...
+    dataColor="blue", dataLabel="Plane data", ...
+    fitLabel="Plane fit");
+
+myCylinder.plot(ax=ax, showTitle=false, ...
+    dataColor=[0.95 0.5 0.1], dataLabel="Cylinder data", dataMarkerSize = 3,...
+    fitColor=[0.8 0.2 0.2], fitLabel="Cylinder fit", ...
+    fitFaceAlpha=0.20, ...
+    axisLineStyle="--", axisLineWidth=1.0, ...
+    nFaces=24);
+
+title(ax, "Plane + Cylinder (Synthetic Normal Relationship)");
+legend(ax, "show", "FontSize", 12);
+hold(ax, "off");
+
