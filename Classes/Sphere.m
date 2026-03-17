@@ -172,7 +172,7 @@ classdef Sphere < Feature
                     mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0), ...
                     mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.35
                 opts.fitEdgeColor = "none"     % "none" or a color
-                opts.faces (1,1) double {mustBeFinite,mustBePositive} = 27
+                opts.nFaces (1,1) double {mustBeFinite,mustBePositive} = 27
 
                 opts.ax = []
             end
@@ -209,7 +209,7 @@ classdef Sphere < Feature
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
             % Plot a sphere mesh
-            faces = round(opts.faces);
+            faces = round(opts.nFaces);
             [X, Y, Z] = sphere(faces);
             X = X*(dia/2) + pnt(1);
             Y = Y*(dia/2) + pnt(2);

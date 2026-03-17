@@ -191,6 +191,12 @@ classdef Plane < Feature
                 'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
 
+            if string(opts.fitEdgeColor) ~= "none"
+                Vclosed = [V; V(1,:)];
+                plot3(ax, Vclosed(:,1), Vclosed(:,2), Vclosed(:,3), ...
+                    'Color', edgeColor, 'LineWidth', 1.0, 'HandleVisibility', 'off');
+            end
+
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
         end
