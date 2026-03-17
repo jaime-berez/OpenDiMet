@@ -226,7 +226,7 @@ myLine1.plot(ax = ax, dataColor = "green", dataLabel = "Line 1 data", dataMarker
 myLine2.plot(ax = ax, dataColor = "#ff8800", dataLabel = "Line 2 data", dataMarker = '*', dataMarkerSize = 2,...
             fitColor = [0 0.5 1], fitLabel = "Line 2 fit", lineStyle = "-.", lineWidth = 2);
 
-%% Scenario 7: Two lines (Synthetic translation)
+%% Scenario 7: Two parallel lines
 
 dataFolder = "Line3D";       % <----- Input
 
@@ -262,7 +262,7 @@ myLine2.plot(ax = ax, dataColor = "#ff8800", dataLabel = "Line 2 data", dataMark
 
 title(ax, "Two line fits (synthetic offset)");
 
-%% Scenario 8: Plane + Line
+%% Scenario 8: Plane + Line normal to the plane
 
 % Load plane data
 dataFolder = "Plane";
@@ -310,3 +310,46 @@ myLine.plot(ax=ax, showTitle=false, ...
     lineStyle="--", lineWidth=3);
 
 title(ax, "Plane and line normal to the plane");
+
+%% Scenario 9: Two parallel planes
+
+% Load plane data
+dataFolder = "Plane";
+file = "pla10.ds";
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath = fullfile(rootDirectory, file);
+
+planeData = readmatrix(fullPath, FileType="text");
+
+% Fit plane
+myPlane = fitFeature(planeData, "Plane", "LeastSquares", "Plane", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Create second plane data
+n = myPlane.dir / norm(myPlane.dir);
+planeExtent = norm(max(planeData) - min(planeData));
+
+offset = 0.1 * planeExtent;
+
+planeDataTrans = planeData + offset * n;
+
+% Fit second plane
+myPlaneTrans = fitFeature(planeDataTrans, "Plane", "LeastSquares", "Translated plane", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Plot
+figure;
+ax = axes;
+hold(ax, "on");
+
+myPlane.plot(ax=ax, showTitle=false, ...
+    fitColor="green", fitFaceAlpha=0.3, ...
+    dataColor="blue", dataLabel="Plane 1 data", ...
+    fitLabel="Plane 1");
+
+myPlaneTrans.plot(ax=ax, showTitle=false, ...
+    fitColor=[1 0.6 0.4], fitFaceAlpha=0.3, ...
+    dataColor="red", dataLabel="Plane 2 data", ...
+    fitLabel="Plane 2");
+
+title(ax, "Two Parallel Planes");

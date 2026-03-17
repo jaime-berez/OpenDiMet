@@ -171,8 +171,8 @@ classdef Plane < Feature
             data = obj.data;
             pnt  = obj.pnt;
             dir  = obj.dir;
-
-            cla(ax); hold(ax,'on'); grid(ax,'on');
+            %cla(ax);
+            hold(ax,'on'); grid(ax,'on');
             axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
             if opts.showTitle
