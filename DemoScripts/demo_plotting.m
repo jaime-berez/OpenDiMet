@@ -13,7 +13,7 @@ dataRoot = fullfile(repoRoot, "Data", "nist-l2-reference-pairs");
 dataFolder = "Line3D";       % <----- Input
 
 % Define files with raw coordinate data to import
-file = "lin1.ds";   % <----- Input
+file = "lin2.ds";   % <----- Input
 rootDirectory = fullfile(dataRoot, dataFolder);
 fullPath = fullfile(rootDirectory, file);
 
@@ -193,3 +193,120 @@ figure();
 myFeature.plot(dataColor = "#ff8800", dataLabel = "Data", dataMarker = '*', dataMarkerSize = 2,...
             fitColor = [0 0.5 1], fitLabel = "Fit", fitFaceAlpha = 0.7,...
             axisLineStyle = "-.", axisLineWidth = 2, nFaces = 100);
+
+%% Scenario 7: Two lines
+
+dataFolder = "Line3D";       % <----- Input
+
+% Define files with raw coordinate data to import
+file1 = "lin1.ds";   % <----- Input
+file2 = "lin2.ds";   % <----- Input
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath1 = fullfile(rootDirectory, file1);
+fullPath2 = fullfile(rootDirectory, file2);
+% Load data
+data1 = readmatrix(fullPath1, FileType = "text");
+data2 = readmatrix(fullPath2, FileType = "text");
+
+% Fit the selected geometry using loaded data 
+myLine1 = fitFeature(data1, "Line", "LeastSquares", "sampleLine1", StepTol = 1e-9, ...
+    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
+myLine2 = fitFeature(data2, "Line", "LeastSquares", "sampleLine2", StepTol = 1e-9, ...
+    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
+
+% Style 1: No input arguments
+figure;
+ax = axes;
+hold(ax, 'on');
+% Style 2: string color names and default opts
+myLine1.plot(ax = ax, dataColor = "green", dataLabel = "Line 1 data", dataMarker = '.', dataMarkerSize = 4,...
+            fitColor = "red", fitLabel = "Line 1 fit", lineStyle = "--", lineWidth = 2);
+
+% Style 3: [R G B] and [hex] color code and changed opts
+myLine2.plot(ax = ax, dataColor = "#ff8800", dataLabel = "Line 2 data", dataMarker = '*', dataMarkerSize = 2,...
+            fitColor = [0 0.5 1], fitLabel = "Line 2 fit", lineStyle = "-.", lineWidth = 2);
+
+%% Scenario 7: Two lines (Synthetic translation)
+
+dataFolder = "Line3D";       % <----- Input
+
+% Define files with raw coordinate data to import
+file = "lin2.ds";   % <----- Input
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath = fullfile(rootDirectory, file);
+
+% Load data
+data = readmatrix(fullPath, FileType = "text");
+
+% Set offset and translate
+offset = [2 0 0];
+dataTrans = data + offset;
+
+% Fit the selected geometry using loaded data 
+myLine1 = fitFeature(data, "Line", "LeastSquares", "sampleLine1", StepTol = 1e-9, ...
+    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
+myLine2 = fitFeature(dataTrans, "Line", "LeastSquares", "sampleLine2", StepTol = 1e-9, ...
+    GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
+
+% Style 1: No input arguments
+figure;
+ax = axes;
+hold(ax, 'on');
+% Style 2: string color names and default opts
+myLine1.plot(ax = ax, dataColor = "green", dataLabel = "Line 1 data", dataMarker = '.', dataMarkerSize = 4,...
+            fitColor = "red", fitLabel = "Line 1 fit", lineStyle = "--", lineWidth = 2, showTitle = false);
+
+% Style 3: [R G B] and [hex] color code and changed opts
+myLine2.plot(ax = ax, dataColor = "#ff8800", dataLabel = "Line 2 data", dataMarker = '*', dataMarkerSize = 2,...
+            fitColor = [0 0.5 1], fitLabel = "Line 2 fit", lineStyle = "-.", lineWidth = 2, showTitle = false);
+
+title(ax, "Two line fits (synthetic offset)");
+
+%% Scenario 8: Plane + Line
+
+% Load plane data
+dataFolder = "Plane";
+file = "pla10.ds";
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath = fullfile(rootDirectory, file);
+
+planeData = readmatrix(fullPath, FileType="text");
+
+% Fit plane
+myPlane = fitFeature(planeData, "Plane", "LeastSquares", "samplePlane", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Build synthetic line data approximately along plane normal
+p0 = myPlane.pnt;
+n  = myPlane.dir / norm(myPlane.dir);
+
+planeExtent = norm(max(planeData) - min(planeData));
+
+% Line length tied to plane size
+L = 0.8 * planeExtent;
+t = linspace(-L/2, L/2, 100).';
+
+% Offset line slightly away from plane
+lineCenter = p0 + 0.1 * planeExtent * n;
+lineData = lineCenter + t .* n;
+
+% Fit line
+myLine = fitFeature(lineData, "Line", "LeastSquares", "sampleLine", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Plot together
+figure;
+ax = axes;
+hold(ax, "on");
+
+myPlane.plot(ax=ax, showTitle=false, ...
+    dataColor = "blue", dataLabel = "Plane data", dataMarkerSize = 2, ...
+    fitColor = "green", fitLabel = "Plane fit", ...
+    fitFaceAlpha=0.25, fitEdgeColor="k");
+
+myLine.plot(ax=ax, showTitle=false, ...
+    dataColor=[0.9 0.4 0.1], dataLabel="Line data", ...
+    fitColor="red", fitLabel="Line fit", ...
+    lineStyle="--", lineWidth=3);
+
+title(ax, "Plane and line normal to the plane");
