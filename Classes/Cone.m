@@ -225,7 +225,7 @@ classdef Cone < Feature
                 opts.axisLineStyle (1,1) string = "dashdot"
                 opts.axisLineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
                 opts.axisLineColor = "k"
-
+                opts.showTitle (1,1) logical = true
                 opts.ax = []
             end
 
@@ -256,7 +256,9 @@ classdef Cone < Feature
 
             cla(ax); hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, opts.fitLabel);
+            if opts.showTitle
+                title(ax, opts.fitLabel);
+            end
 
             % Plot raw data
             plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...

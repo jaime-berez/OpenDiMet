@@ -323,7 +323,7 @@ myPlaneTrans.plot(ax=ax, showTitle=false, ...
 
 title(ax, "Two Parallel Planes");
 
-%% Scenario 10: Plane + Cylinder (Synthetic Normal Relationship)
+%% Scenario 10: Plane + Cylinder (Normal Relationship)
 
 % Load plane data
 dataFolder = "Plane";
@@ -377,7 +377,69 @@ myCylinder.plot(ax=ax, showTitle=false, ...
     axisLineStyle="--", axisLineWidth=1.0, ...
     nFaces=24);
 
-title(ax, "Plane + Cylinder (Synthetic Normal Relationship)");
+title(ax, "Plane + Cylinder");
 legend(ax, "show", "FontSize", 12);
 hold(ax, "off");
 
+%% Scenario 11: Cone + Cylinder
+
+% Load cone data
+dataFolder = "Cone";
+file = "con6.ds";
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath = fullfile(rootDirectory, file);
+
+coneData = readmatrix(fullPath, FileType="text");
+
+% Fit cone
+myCone = fitFeature(coneData, "Cone", "LeastSquares", "Cone 1", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Cone geometry
+coneCenter = mean(coneData, 1);
+dir = myCone.dir / norm(myCone.dir);
+coneExtent = norm(max(coneData) - min(coneData));
+
+% Cylinder size
+cylDia = 2 * myCone.smallR;
+cylHeight = 0.5 * myCone.height;
+
+% Cylinder placement:
+% Small end center of cone
+smallEndCenter = coneCenter - 0.5 * myCone.height * dir;
+
+% Place cylinder to start at cone small end and extend away from cone
+%baseCenter = smallEndCenter;
+baseCenter = smallEndCenter - 0.31 * coneExtent * dir;
+
+% Synthetic cylinder point cloud
+nTheta = 16;
+nZ = 8;
+cylData = genCylData(baseCenter, dir, cylDia, cylHeight, nTheta, nZ);
+
+% Fit cylinder
+myCylinder = fitFeature(cylData, "Cylinder", "LeastSquares", "Cylinder 1", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Plot
+figure;
+ax = axes;
+hold(ax, "on");
+
+myCone.plot(ax=ax, showTitle=false, ...
+    dataColor="blue", dataLabel="Cone data", dataMarker='.', dataMarkerSize=6, ...
+    fitColor=[0.5 0.9 0.5], fitLabel="Cone fit", ...
+    fitFaceAlpha=0.25, ...
+    axisLineStyle="--", axisLineWidth=1.0, ...
+    nFaces=30);
+
+myCylinder.plot(ax=ax, showTitle=false, ...
+    dataColor="red", dataLabel="Cylinder data", dataMarkerSize=4, ...
+    fitColor="blue", fitLabel="Cylinder fit", ...
+    fitFaceAlpha=0.20, ...
+    axisLineStyle="-.", axisLineWidth=1.0, ...
+    nFaces=24);
+
+title(ax, "Cone + Cylinder");
+legend(ax, "show", "FontSize", 12);
+hold(ax, "off");
