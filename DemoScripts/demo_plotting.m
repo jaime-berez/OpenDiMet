@@ -43,7 +43,7 @@ myFeature.plot(dataColor = "#ff8800", dataLabel = "Data", dataMarker = '*', data
 dataFolder = "Plane";       % <----- Input
 
 % Define files with raw coordinate data to import
-file = "pla11.ds";   % <----- Input
+file = "pla10.ds";   % <----- Input
 rootDirectory = fullfile(dataRoot, dataFolder);
 fullPath = fullfile(rootDirectory, file);
 
@@ -167,7 +167,7 @@ myFeature.plot(dataColor = "#ff8800", dataLabel = "Data", dataMarker = '*', data
 dataFolder = "Cone";       % <----- Input
 
 % Define files with raw coordinate data to import
-file = "con3.ds";   % <----- Input
+file = "con6.ds";   % <----- Input
 rootDirectory = fullfile(dataRoot, dataFolder);
 fullPath = fullfile(rootDirectory, file);
 
@@ -246,18 +246,18 @@ myPlane = fitFeature(planeData, "Plane", "LeastSquares", "samplePlane", ...
     StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
 
 % Build synthetic line data approximately along plane normal
-p0 = myPlane.pnt;
-n  = myPlane.dir / norm(myPlane.dir);
+pnt = myPlane.pnt;
+dir  = myPlane.dir / norm(myPlane.dir);
 
 planeExtent = norm(max(planeData) - min(planeData));
 
 % Line length tied to plane size
-L = 0.8 * planeExtent;
-t = linspace(-L/2, L/2, 100).';
+length = 0.8 * planeExtent;
+bias = linspace(-length/2, length/2, 100).';
 
 % Offset line slightly away from plane
-lineCenter = p0 + 0.1 * planeExtent * n;
-lineData = lineCenter + t .* n;
+lineCenter = pnt + 0.1 * planeExtent * dir;
+lineData = lineCenter + bias .* dir;
 
 % Fit line
 myLine = fitFeature(lineData, "Line", "LeastSquares", "sampleLine", ...
@@ -295,12 +295,12 @@ myPlane = fitFeature(planeData, "Plane", "LeastSquares", "Plane", ...
     StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
 
 % Create second plane data
-n = myPlane.dir / norm(myPlane.dir);
+dir = myPlane.dir / norm(myPlane.dir);
 planeExtent = norm(max(planeData) - min(planeData));
 
 offset = 0.1 * planeExtent;
 
-planeDataTrans = planeData + offset * n;
+planeDataTrans = planeData + offset * dir;
 
 % Fit second plane
 myPlaneTrans = fitFeature(planeDataTrans, "Plane", "LeastSquares", "Translated plane", ...
@@ -339,54 +339,21 @@ myPlane = fitFeature(planeData, "Plane", "LeastSquares", "Plane 1", ...
 
 % Plane geometry
 planeCenter = mean(planeData, 1);
-n = myPlane.dir / norm(myPlane.dir);
+dir = myPlane.dir / norm(myPlane.dir);
 planeExtent = norm(max(planeData) - min(planeData));
 
-% Build orthonormal basis {u, v, n}
-if abs(dot(n, [1 0 0])) < 0.9
-    ref = [1 0 0];
-else
-    ref = [0 1 0];
-end
-
-u = cross(n, ref);
-u = u / norm(u);
-
-v = cross(n, u);
-v = v / norm(v);
-
 % Cylinder size
-cylRadius = 0.04 * planeExtent;
+cylDia = 0.08 * planeExtent;
 cylHeight = 0.28 * planeExtent;
 
 % Cylinder placement:
-% centered on the plane patch, then lifted slightly off the plane
-baseCenter = planeCenter + 0.03 * planeExtent * n;
+% Centered on the plane patch, then lifted slightly off the plane
+baseCenter = planeCenter + 0.03 * planeExtent * dir;
 
-% Synthetic cylinder point cloud
+% Synthetic cylinder point cloud using helper function
 nTheta = 16;
 nZ = 8;
-
-theta = linspace(0, 2*pi, nTheta+1);
-theta(end) = [];
-
-zVals = linspace(0, cylHeight, nZ);
-
-cylData = zeros(nTheta * nZ, 3);
-k = 1;
-
-for i = 1:nZ
-    z = zVals(i);
-    for j = 1:nTheta
-        th = theta(j);
-
-        ringOffset = cylRadius * cos(th) * u + cylRadius * sin(th) * v;
-        axialOffset = z * n;
-
-        cylData(k, :) = baseCenter + ringOffset + axialOffset;
-        k = k + 1;
-    end
-end
+cylData = genCylData(baseCenter, dir, cylDia, cylHeight, nTheta, nZ);
 
 % Fit cylinder
 myCylinder = fitFeature(cylData, "Cylinder", "LeastSquares", "Cylinder 1", ...
@@ -404,7 +371,7 @@ myPlane.plot(ax=ax, showTitle=false, ...
     fitLabel="Plane fit");
 
 myCylinder.plot(ax=ax, showTitle=false, ...
-    dataColor=[0.95 0.5 0.1], dataLabel="Cylinder data", dataMarkerSize = 3,...
+    dataColor=[0.95 0.5 0.1], dataLabel="Cylinder data", dataMarkerSize=3, ...
     fitColor=[0.8 0.2 0.2], fitLabel="Cylinder fit", ...
     fitFaceAlpha=0.20, ...
     axisLineStyle="--", axisLineWidth=1.0, ...
