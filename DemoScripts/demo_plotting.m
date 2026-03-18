@@ -443,3 +443,80 @@ myCylinder.plot(ax=ax, showTitle=false, ...
 title(ax, "Cone + Cylinder");
 legend(ax, "show", "FontSize", 12);
 hold(ax, "off");
+
+%% Scenario 12: Two Cylinders (Parallel + Skew)
+
+% Load one NIST cylinder dataset
+dataFolder = "Cylinder";
+file = "cyl2.ds";
+rootDirectory = fullfile(dataRoot, dataFolder);
+fullPath = fullfile(rootDirectory, file);
+
+cylData1 = readmatrix(fullPath, FileType="text");
+
+% Fit first cylinder
+myCylinder1 = fitFeature(cylData1, "Cylinder", "LeastSquares", "Cylinder 1", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Base geometry from fitted cylinder
+pnt = myCylinder1.pnt;
+dir1 = myCylinder1.dir / norm(myCylinder1.dir);
+dia1 = myCylinder1.dia;
+
+cylExtent = norm(max(cylData1) - min(cylData1));
+
+% Build orthonormal basis (u, v, dir1)
+if abs(dot(dir1, [1 0 0])) < 0.9
+    ref = [1 0 0];
+else
+    ref = [0 1 0];
+end
+
+u = cross(dir1, ref);
+u = u / norm(u);
+
+v = cross(dir1, u);
+v = v / norm(v);
+
+% Create second cylinder
+% Translated sideways and tilted relative to cylinder 1
+baseCenter2 = pnt + 0.35 * cylExtent * u;
+
+tiltAngleDeg = 25;   % Input 0 if parallel needed
+tiltAngleRad = deg2rad(tiltAngleDeg);
+
+dir2 = cos(tiltAngleRad) * dir1 + sin(tiltAngleRad) * u;
+dir2 = dir2 / norm(dir2);
+
+cylHeight2 = 0.55 * cylExtent;
+nTheta = 16;
+nZ = 8;
+
+cylData2 = genCylData(baseCenter2, dir2, dia1, cylHeight2, nTheta, nZ);
+
+% Fit second cylinder
+myCylinder2 = fitFeature(cylData2, "Cylinder", "LeastSquares", "Cylinder 2", ...
+    StepTol=1e-9, GradTol=1e-11, SSETol=1e-19, Lambda=1e-4, DampingCoeff=2);
+
+% Plot
+figure;
+ax = axes;
+hold(ax, "on");
+
+myCylinder1.plot(ax=ax, showTitle=false, ...
+    dataColor="blue", dataLabel="Cylinder 1 data", dataMarkerSize=3, ...
+    fitColor=[0.2 0.6 1.0], fitLabel="Cylinder 1 fit", ...
+    fitFaceAlpha=0.18, ...
+    axisLineStyle="--", axisLineWidth=1.0, ...
+    nFaces=24);
+
+myCylinder2.plot(ax=ax, showTitle=false, ...
+    dataColor=[0.95 0.5 0.1], dataLabel="Cylinder 2 data", dataMarkerSize=3, ...
+    fitColor=[0.8 0.2 0.2], fitLabel="Cylinder 2 fit", ...
+    fitFaceAlpha=0.18, ...
+    axisLineStyle="-.", axisLineWidth=1.0, ...
+    nFaces=24);
+
+title(ax, "Two Cylinders");
+legend(ax, "show", "FontSize", 12);
+hold(ax, "off");
