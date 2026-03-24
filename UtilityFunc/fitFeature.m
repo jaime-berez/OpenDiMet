@@ -45,8 +45,10 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
     
     arguments
         data {mustBeA(data, {'double', 'string', 'char'})}
-        featType {mustBeA(featType, {'char', 'string'})}
-        fitCriterion {mustBeA(fitCriterion, {'fitType', 'char', 'string'})}
+        featType {mustBeTextScalar, mustBeMember(featType, ["Line","Plane","Circle","Sphere","Cylinder","Cone"])}
+        fitCriterion {mustBeTextScalar, mustBeMember(fitCriterion, ...
+                ["LeastSquares","MiniMax","MinimumCircumscribed", ...
+                "MaximumInscribed","MinimumTotalDistance","WeightedLeastSquares"])}
         featName (1,1) string = ""
         opts.MaxIter       (1,1) double {mustBeFinite, mustBePositive} = 5000
         opts.StepTol       (1,1) double {mustBeFinite, mustBePositive} = 1e-9

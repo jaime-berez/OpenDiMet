@@ -246,7 +246,7 @@ classdef Line < Feature
 
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
-            fprintf('  AssocCrit: %s\n', char(ft));
+            fprintf('  FitCrit: %s\n', char(ft));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', pnt);
             fprintf('  Direction: [%.4f  %.4f  %.4f]\n', dir);
             fprintf('  Sigma:     %.4f\n', sig);

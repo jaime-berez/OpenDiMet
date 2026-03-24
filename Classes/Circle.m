@@ -285,7 +285,7 @@ classdef Circle < Feature
 
             fprintf('%s Object\n', class(obj));
             fprintf('  Name:      %s\n', name);
-            fprintf('  AssocCrit: %s\n', char(ft));
+            fprintf('  FitCrit: %s\n', char(ft));
             fprintf('  Point:     [%.5f  %.5f  %.5f]\n', pnt);
             fprintf('  Direction: [%.5f  %.5f  %.5f]\n', dir);
             fprintf('  Diameter:  %.5f\n', dia);

@@ -55,7 +55,7 @@ classdef fitType < int32
                 case fitType.MinimumCircumscribed
                     geomList = ["Cirlce","Sphere","Cylinder"];
                 case fitType.MaximumInscribed
-                    geomList = ["Cirlce","Sphere","Cylinder"];
+                    geomList = ["Circle","Sphere","Cylinder"];
                 case fitType.MinimumTotalDistance
                     geomList = ["Line","Plane","Circle","Sphere","Cylinder","Cone"];
                 case fitType.WeightedLeastSquares

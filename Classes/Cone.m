@@ -348,7 +348,7 @@ classdef Cone < Feature
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:        %s\n', char(materialSide));
             end
-            fprintf('  AssocCrit:      %s\n', char(ft));
+            fprintf('  FitCrit:      %s\n', char(ft));
             fprintf('  Point:          [%.4f  %.4f  %.4f]\n', pnt);
             fprintf('  Direction:      [%.4f  %.4f  %.4f]\n', dir);
             fprintf('  Included Angle: %.4f\n', rad2deg(ang*2));

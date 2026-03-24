@@ -277,7 +277,7 @@ classdef Sphere < Feature
             if materialSide ~= MaterialSide.Unspecified
                 fprintf('  MatSide:   %s\n', char(materialSide));
             end
-            fprintf('  AssocCrit: %s\n', char(ft));
+            fprintf('  FitCrit: %s\n', char(ft));
             fprintf('  Point:     [%.4f  %.4f  %.4f]\n', pnt);
             fprintf('  Diameter:  %.4f\n', dia);
             fprintf('  Sigma:     %.4f\n', sig);
