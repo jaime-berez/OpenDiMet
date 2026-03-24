@@ -184,8 +184,8 @@ classdef Circle < Feature
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
                 opts.dataLabel (1,1) string = obj.name + " Data"
-                opts.dataMarker (1,1) string = "."
-                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+                opts.dataMarker (1,1) string = "o"
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 30
 
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"
@@ -216,8 +216,10 @@ classdef Circle < Feature
             title(ax, opts.fitLabel);
 
             % Plot raw data
-            plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
-                    'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
+            % plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
+            %         'Color', dataColor, 'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
+            plotData(data, markerColor = dataColor, markerStyle = char(opts.dataMarker), ...
+                markerSize = opts.dataMarkerSize, dataLabel = opts.dataLabel, ax = ax);
 
             % Plot the centroid (circle center)
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');

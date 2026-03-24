@@ -221,8 +221,8 @@ classdef Cylinder < Feature
             arguments
                 obj
                 opts.dataColor = [0 0.4470 0.7410]
-                opts.dataMarker (1,1) string = "."
-                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 12
+                opts.dataMarker (1,1) string = "o"
+                opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 30
                 opts.dataLabel (1,1) string = obj.name + " Data"
 
                 opts.fitColor = [0 1 0]
@@ -267,8 +267,10 @@ classdef Cylinder < Feature
             title(ax, opts.fitLabel);
 
             % Plot raw data
-            plot3(ax, data(:,1), data(:,2), data(:,3), opts.dataMarker, 'Color', dataColor, ...
-                'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
+            % plot3(ax, data(:,1), data(:,2), data(:,3), opts.dataMarker, 'Color', dataColor, ...
+            %     'MarkerSize', opts.dataMarkerSize, 'DisplayName', opts.dataLabel);
+            plotData(data, markerColor = dataColor, markerStyle = char(opts.dataMarker), ...
+                markerSize = opts.dataMarkerSize, dataLabel = opts.dataLabel, ax = ax);
             hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on');
 
             % Mark centroid / axis point
