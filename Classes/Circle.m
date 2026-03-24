@@ -137,10 +137,12 @@ classdef Circle < Feature
     end
 
     methods
-        function h = plot(obj, opts)
+        function varargout = plot(obj, opts)
             % PLOT Plot circle coordinate data and fitted circle.
             %
             %   Syntax
+            %     plot(obj)
+            %     plot(obj, Name = Value)
             %     h = plot(obj)
             %     h = plot(obj, Name = Value)
             %
@@ -232,6 +234,9 @@ classdef Circle < Feature
 
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
+            if nargout > 0
+                varargout{1} = h;
+            end
         end
 
         function showFitInfo(obj)

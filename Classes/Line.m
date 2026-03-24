@@ -94,10 +94,12 @@ classdef Line < Feature
                 'Singular Value Decomposition.']);
         end
 
-        function h = plot(obj, opts)
+        function varargout = plot(obj, opts)
             % PLOT Plot line coordinate data and fitted line segment.
             %
             %   Syntax
+            %     plot(obj)
+            %     plot(obj, Name = Value)
             %     h = plot(obj)
             %     h = plot(obj, Name = Value)
             %
@@ -127,7 +129,7 @@ classdef Line < Feature
             %
             %   Output Arguments
             %     h - Handle to plotted fitted line
-            %       Line object
+            %         Line object (returned only if requested)
             %
             %   Example
             %     L.plot();
@@ -187,6 +189,9 @@ classdef Line < Feature
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");
+            if nargout > 0
+                varargout{1} = h;
+            end
         end
 
         function showFitInfo(obj)

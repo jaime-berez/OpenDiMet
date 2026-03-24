@@ -162,10 +162,12 @@ classdef Cone < Feature
     end
 
     methods
-        function h = plot(obj, opts)
+        function varargout = plot(obj, opts)
             % PLOT Plot cone coordinate data, fitted cone surface, and centerline.
             %
             %   Syntax
+            %     plot(obj)
+            %     plot(obj, Name = Value)
             %     h = plot(obj)
             %     h = plot(obj, Name = Value)
             %
@@ -286,6 +288,9 @@ classdef Cone < Feature
 
             legend(ax, 'show', 'FontSize', 12);
             hold(ax,'off');
+            if nargout > 0
+                varargout{1} = h;
+            end
         end
 
         function showFitInfo(obj)
