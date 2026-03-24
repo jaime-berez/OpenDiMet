@@ -30,10 +30,9 @@ classdef Plane < Feature
     %       logical scalar
     %     sourceFile - Source file associated with the data
     %       string scalar
-    %     refDir - 1x3 double - Reference direction used to constrain the plane
-    %       orientation
-    %       Specifies a direction pointing outward from the material
-    %       surface and is required for constrained plane fitting methods.
+    %     refDir - 1x3 double - Specifies a direction pointing outward from
+    %       the material and is required for constrained plane fitting
+    %       methods. Approximate guesses are sufficient.
     %
     %   Output Arguments
     %     obj - Plane feature object
@@ -371,6 +370,10 @@ classdef Plane < Feature
 
         function fitResult = fitConstrainedMinimumTotalDistance(data, opts)
             % FITCONSTRAINEDMINIMUMTOTALDISTANCE Fit a one-sided constrained L1 plane.
+            % Fits a plane that minimzes the L1 norm while constrained to
+            % lie on one side of the material. Results in a plane that
+            % coincides with a facet of the convex hull of the data, i.e.,
+            % a plane that lies on three 'high points' of the data.
             %
             %   Syntax
             %     fitResult = Plane.fitConstrainedMinimumTotalDistance(data, opts)
@@ -414,8 +417,8 @@ classdef Plane < Feature
                 'criterion', "ConstrainedMinimumTotalDistance", ...
                 'description', "One-sided constrained L1 plane fit using outward convex hull facet selection.", ...
                 'refDir', refDir, ...
-                'kFacet', kFacet, ...
-                'hullTriangulation', k, ...
+                'kFacet', kFacet, ... % Indices of points in data making up facet that fit plane lies on
+                'hullTriangulation', k, ... % Indices of points making up outwards facing hull
                 'residualType', "signed orthogonal point-to-plane distance");
         
             fitResult = struct( ...
@@ -635,10 +638,10 @@ classdef Plane < Feature
                     'criterion', "ConstrainedLeastSquares", ...
                     'description', "One-sided constrained L2 plane fit using outward hull facet selection with facet/edge/point rocking checks.", ...
                     'refDir', opts.refDir, ...
-                    'kFacet', kFacet, ...
-                    'kPla', kPla, ...
-                    'condition', cond, ...
-                    'hullTriangulation', k, ...
+                    'kFacet', kFacet, ... % Indices of points in data making up facet that fit plane lies on
+                    'kPla', kPla, ... % Indices of point(s) in data that optimal plane goes through (3-facet, 2-edge, 1-point)
+                    'condition', cond, ... % Rocking condition (facet, edge, point)
+                    'hullTriangulation', k, ... % Indices of points making up outwards facing hull
                     'residualType', "signed orthogonal point-to-plane distance");
             
                 fitResult = struct( ...
