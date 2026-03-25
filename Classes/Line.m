@@ -133,11 +133,11 @@ classdef Line < Feature
                 opts.dataLabel (1,1) string = obj.name + " Data"
                 opts.dataMarker (1,1) string = "o"
                 opts.dataMarkerSize (1,1) double {mustBeFinite,mustBePositive} = 30
-
                 opts.fitColor = [0 1 0]
                 opts.fitLabel (1,1) string = obj.name + " Fit"
                 opts.lineStyle (1,1) string = "dashdot"
                 opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 2
+                opts.showTitle (1,1) logical = true
 
                 opts.ax = []
             end
@@ -156,8 +156,8 @@ classdef Line < Feature
             data = obj.data;
             pnt  = obj.pnt;
             dir  = obj.dir;
-
-            cla(ax); hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on'); view(ax,3);
+            %cla(ax); 
+            hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on'); view(ax,3);
 
             % Plot the raw data
             % plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), 'Color', dataColor, ...
@@ -178,8 +178,9 @@ classdef Line < Feature
             h = plot3(ax, [pStart(1) pEnd(1)], [pStart(2) pEnd(2)], [pStart(3) pEnd(3)], ...
                 'LineStyle', fitLS, 'Color', fitColor, 'LineWidth', opts.lineWidth, ...
                 'DisplayName', opts.fitLabel);
-
-            title(ax, opts.fitLabel);
+            if opts.showTitle
+                title(ax, opts.fitLabel);
+            end
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");

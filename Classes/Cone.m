@@ -231,12 +231,12 @@ classdef Cone < Feature
                 opts.fitLabel (1,1) string = obj.name + " Fit"
                 opts.fitFaceAlpha (1,1) double {mustBeFinite,mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0),mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.5
                 opts.fitEdgeColor = "none"
-                opts.faces (1,1) double {mustBeFinite,mustBePositive} = 27
+                opts.nFaces (1,1) double {mustBeFinite,mustBePositive} = 27
 
-                opts.lineStyle (1,1) string = "dashdot"
-                opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
-                opts.lineColor = "k"
-
+                opts.axisLineStyle (1,1) string = "dashdot"
+                opts.axisLineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
+                opts.axisLineColor = "k"
+                opts.showTitle (1,1) logical = true
                 opts.ax = []
             end
 
@@ -248,8 +248,8 @@ classdef Cone < Feature
             % Parse styling via feature helpers
             dataColor = Feature.parseColor(opts.dataColor);
             fitColor  = Feature.parseColor(opts.fitColor);
-            centerLC  = Feature.parseColor(opts.lineColor);
-            centerLS  = Feature.parseLineStyle(opts.lineStyle);
+            centerLC  = Feature.parseColor(opts.axisLineColor);
+            centerLS  = Feature.parseLineStyle(opts.axisLineStyle);
 
             if string(opts.fitEdgeColor) == "none"
                 edgeColor = "none";
@@ -267,7 +267,9 @@ classdef Cone < Feature
 
             cla(ax); hold(ax,'on'); axis(ax,'equal'); axis(ax,'padded'); grid(ax,'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, opts.fitLabel);
+            if opts.showTitle
+                title(ax, opts.fitLabel);
+            end
 
             % Plot raw data
             % plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
@@ -278,13 +280,13 @@ classdef Cone < Feature
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility','off');
 
             % Create a cone based on the parameters calculated above
-            faces = round(opts.faces);
+            faces = round(opts.nFaces);
             [V, F] = genConeSurf(pnt, dir, smallR, bigR, height, faces);
 
             % Plot using patch
             h = patch(ax, 'Vertices', V, 'Faces', F, ...
                 'FaceColor', fitColor, ...
-                'EdgeColor', edgeColor, ...
+                'EdgeColor', "none", ...
                 'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
 
@@ -293,8 +295,20 @@ classdef Cone < Feature
             
             % Plot the centerline
             plot3(ax, [pnt1(1) pnt2(1)], [pnt1(2) pnt2(2)], [pnt1(3) pnt2(3)], ...
-                'LineStyle', centerLS, 'LineWidth', opts.lineWidth, ...
+                'LineStyle', centerLS, 'LineWidth', opts.axisLineWidth, ...
                 'Color', centerLC, 'HandleVisibility','off');
+
+            % End circles
+            topPnt = [0, 0,  height/2];
+            botPnt = [0, 0, -height/2];
+            
+            Rz = rotMatA2Z(dir);
+            
+            topPnt = topPnt / Rz + pnt;
+            botPnt = botPnt / Rz + pnt;
+            
+            plotEndCircle(topPnt, dir, 2*bigR, faces);
+            plotEndCircle(botPnt, dir, 2*smallR, faces);
 
             legend(ax, 'show', 'FontSize', 12);
             hold(ax,'off');

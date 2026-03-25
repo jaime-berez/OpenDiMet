@@ -140,6 +140,7 @@ classdef Plane < Feature
                     mustBeGreaterThanOrEqual(opts.fitFaceAlpha,0), ...
                     mustBeLessThanOrEqual(opts.fitFaceAlpha,1)} = 0.4
                 opts.fitEdgeColor = "k"    % "none" or color
+                opts.showTitle (1,1) logical = true
 
                 opts.ax = []
             end
@@ -163,11 +164,13 @@ classdef Plane < Feature
             data = obj.data;
             pnt  = obj.pnt;
             dir  = obj.dir;
-
-            cla(ax); hold(ax,'on'); grid(ax,'on');
+            %cla(ax);
+            hold(ax,'on'); grid(ax,'on');
             axis(ax,'equal'); axis(ax,'padded'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, opts.fitLabel);
+            if opts.showTitle
+                title(ax, opts.fitLabel);
+            end
 
             % Plot coordinate data
             % plot3(ax, data(:,1), data(:,2), data(:,3), char(opts.dataMarker), ...
@@ -185,6 +188,12 @@ classdef Plane < Feature
                 'EdgeColor', 'none', ...
                 'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
+
+            if string(opts.fitEdgeColor) ~= "none"
+                Vclosed = [V; V(1,:)];
+                plot3(ax, Vclosed(:,1), Vclosed(:,2), Vclosed(:,3), ...
+                    'Color', edgeColor, 'LineWidth', 1.0, 'HandleVisibility', 'off');
+            end
 
             legend(ax, "show", 'FontSize', 12);
             hold(ax, "off");

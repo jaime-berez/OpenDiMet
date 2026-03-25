@@ -230,10 +230,11 @@ classdef Cylinder < Feature
                 opts.fitEdgeColor = "none"
                 opts.fitLabel (1,1) string = obj.name + " Fit"
 
-                opts.lineStyle (1,1) string = "dashdot"
-                opts.lineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
+                opts.axisLineStyle (1,1) string = "dashdot"
+                opts.axisLineWidth (1,1) double {mustBeFinite,mustBePositive} = 1
 
-                opts.faces (1,1) double {mustBeFinite,mustBePositive} = 50
+                opts.nFaces (1,1) double {mustBeFinite,mustBePositive} = 50
+                opts.showTitle (1,1) logical = true
                 opts.ax = []
             end
 
@@ -252,7 +253,7 @@ classdef Cylinder < Feature
                 edgeColor = obj.parseColor(opts.fitEdgeColor);
             end
 
-            centerLS = obj.parseLineStyle(opts.lineStyle);
+            centerLS = obj.parseLineStyle(opts.axisLineStyle);
 
             % Geometry
             data = obj.data;          % Nx3
@@ -261,10 +262,13 @@ classdef Cylinder < Feature
             dist = obj.dia/2;         % radius
 
             % Clear + axes setup
-            cla(ax);
+            %cla(ax);
             hold(ax, 'on'); axis(ax, 'equal'); axis(ax, 'padded'); grid(ax, 'on'); view(ax,3);
             xlabel(ax,'x'); ylabel(ax,'y'); zlabel(ax,'z');
-            title(ax, opts.fitLabel);
+
+            if opts.showTitle
+                title(ax, opts.fitLabel);
+            end
 
             % Plot raw data
             % plot3(ax, data(:,1), data(:,2), data(:,3), opts.dataMarker, 'Color', dataColor, ...
@@ -277,7 +281,7 @@ classdef Cylinder < Feature
             plot3(ax, pnt(1), pnt(2), pnt(3), 'xk', 'HandleVisibility', 'off');
 
             % Create a Cylinder
-            faces = round(opts.faces);
+            faces = round(opts.nFaces);
             radius = obj.dia/2;
 
             % Height of the point cloud
@@ -295,13 +299,13 @@ classdef Cylinder < Feature
 
             h = patch(ax, 'Vertices', V, 'Faces', F, ...
                 'FaceColor', fitColor, ...
-                'EdgeColor', edgeColor, ...
+                'EdgeColor', "none", ...
                 'FaceAlpha', opts.fitFaceAlpha, ...
                 'DisplayName', opts.fitLabel);
 
             [pnt1, pnt2] = calcFeatExtent(obj.pnt, obj.dir, height, 0.5, 1.2); % bias of 0.5
             plot3(ax, [pnt1(1) pnt2(1)], [pnt1(2) pnt2(2)], [pnt1(3) pnt2(3)], 'LineStyle', centerLS, ...
-                'LineWidth', opts.lineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
+                'LineWidth', opts.axisLineWidth, 'Color', [0 0 0], 'HandleVisibility', 'off');
 
             % End circles
             topPnt    = [0, 0, height*0.5];   topPnt    = topPnt    / Rz + pnt;
