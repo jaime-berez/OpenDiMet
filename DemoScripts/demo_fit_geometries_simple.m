@@ -30,7 +30,6 @@ data1 = readmatrix(fullfile(rootDirectory,file), FileType = "text");
 
 %% Option 1: Fit the selected geometry using loaded data 
 
-<<<<<<< HEAD
 myFeature = fitFeature(data1, "Cone", "LeastSquares", "Name", StepTol = 1e-9, ...
     GradTol = 1e-11, SSETol = 1e-19, Lambda = 1e-4, DampingCoeff = 2);  % <----- Input
 
