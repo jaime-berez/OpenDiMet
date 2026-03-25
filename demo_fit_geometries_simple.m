@@ -20,7 +20,7 @@ rootDirectory = fullfile(fileparts(mfilename('fullpath')), 'data');
 folder = "Circle3DPoints";
 
 % Define files with raw coordinate data to import
-file = "cir2.txt";
+file = "cir21.txt";
 
 featureName = extractBefore(file,"."); % By default, file name (without extension) is used as feature name
 
