@@ -34,6 +34,10 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
     %       logical scalar
     %     materialSide - Material-side designation for applicable geometries
     %       MaterialSide enumeration
+    %     refDir - 1x3 double - Reference direction used to constrain the plane
+    %       orientation
+    %       Specifies a direction pointing outward from the material
+    %       surface and is required for constrained plane fitting methods.
     %
     %   Output Arguments
     %     feat - Fitted feature object
@@ -58,6 +62,7 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
         opts.DampingCoeff  (1,1) double {mustBeFinite, mustBePositive} = 2
         opts.SuppressOutput(1,1) logical = true
         opts.materialSide (1,1) MaterialSide = MaterialSide.Unspecified
+        opts.refDir double = []
     end
 
     featType = string(featType);
@@ -67,6 +72,7 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
         error("fitFeature:InvalidFeatureType", ...
                 "featType must be one of: %s", strjoin(validFeatTypes, ", "));
     end
+    
 
     if ~isa(fitCriterion, "fitType")
         fitCriterion = fitType.(string(fitCriterion));
@@ -92,13 +98,31 @@ function feat = fitFeature(data, featType, fitCriterion, featName, opts)
     % Filter geometry inapplicable options before forwarding
     optsForward = opts;
 
-    switch featType
-        case {"Line","Plane","Circle"}
-            if optsForward.materialSide ~= MaterialSide.Unspecified
-                error("fitFeature:OptionNotApplicable", ...
-                    "Option 'materialSide' is not applicable to featType '%s'.", featType);
-            end
-            optsForward = rmfield(optsForward, "materialSide");
+    % switch featType
+    %     case {"Line","Plane","Circle"}
+    %         if optsForward.materialSide ~= MaterialSide.Unspecified
+    %             error("fitFeature:OptionNotApplicable", ...
+    %                 "Option 'materialSide' is not applicable to featType '%s'.", featType);
+    %         end
+    %         optsForward = rmfield(optsForward, "materialSide");
+    % end
+
+    % materialSide only applies to Sphere, Cylinder, Cone
+    if ismember(featType, ["Line","Plane","Circle"])
+        if optsForward.materialSide ~= MaterialSide.Unspecified
+            error("fitFeature:OptionNotApplicable", ...
+                "Option 'materialSide' is not applicable to featType '%s'.", featType);
+        end
+        optsForward = rmfield(optsForward, "materialSide");
+    end
+    
+    % refDir only applies to Line and Plane
+    if ~ismember(featType, ["Line","Plane"])
+        if ~isempty(optsForward.refDir)
+            error("fitFeature:OptionNotApplicable", ...
+                "Option 'refDir' is not applicable to featType '%s'.", featType);
+        end
+        optsForward = rmfield(optsForward, "refDir");
     end
 
     % Convert opts to 'Name', Value list to forward to constructors
