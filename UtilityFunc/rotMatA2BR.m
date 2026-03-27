@@ -74,7 +74,7 @@ function R = rotMatA2BR(A, B)
         return
     end
     
-    axis = axis ./ norm(axis);      % unit rotation axis
+    axis = axis./norm(axis);      % unit rotation axis
     angRad = deg2rad(ang);          % Rodrigues needs radians
     
     % Rodrigues rotation matrix for rotation about 'axis' by 'ang'
